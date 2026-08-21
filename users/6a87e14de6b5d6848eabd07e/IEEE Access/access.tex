@@ -16,12 +16,13 @@
 % 아이디어 정리 전용
 % \begin{mdframed} ... \end{mdframed}
 \usepackage{mdframed}
-
-% 형광펜 전용 
-% \hl{...}
-\usepackage{xcolor}
-\usepackage{soul}
-\sethlcolor{yellow!30}
+\newcommand{\todobox}[2]{%
+  \begin{mdframed}[frametitle={#1}]%
+    \begin{itemize}
+      #2
+    \end{itemize}%
+  \end{mdframed}%
+}
 
 
 % ============================================================
@@ -47,7 +48,7 @@
 \begin{document}
 % \history{Date of publication xxxx 00, 0000, date of current version xxxx 00, 0000.}
 % \doi{10.1109/ACCESS.2024.0429000}
-% \doi{} % ieeeaccess.cls expects this macro to be defined; fill before submission
+\doi{} % ieeeaccess.cls expects this macro to be defined; fill before submission
 
 \title{TITLE}
 
@@ -67,13 +68,11 @@
 
 \begin{abstract}
 Online virtual network embedding must accommodate arriving requests while preserving residual substrate resources for future demands.
-\begin{mdframed}[frametitle={초록에 추가할 내용}]
-\begin{itemize}
+\todobox{초록에 추가할 내용}{
     \item 기존 방법들에 대한 간단 비판 (1-2 문장)
     \item 우리가 제안하는 것 (2-4 문장)
     \item SOTA 대비 개선되었다는 언급 (2-3 문장)
-\end{itemize}
-\end{mdframed}
+}
 
 \end{abstract}
 
@@ -96,31 +95,29 @@ In practical deployments, VNE operates in a dynamic setting where VNRs arrive an
 % 기존 방법의 한계
 Existing online VNE heuristics manage residual capacity, path feasibility, and embedding cost during node and link mapping. However, their control granularity is mainly limited to individual substrate nodes, adjacent link sets, candidate paths, or aggregate load balancing objectives. These approaches do not explicitly quantify resource fragmentation in the residual substrate state.
 
-\begin{mdframed}[frametitle={서론 뒷 부분에 추가할 내용}]
-\begin{itemize}
+\todobox{서론 뒨 부분에 추가할 내용}{
     \item VNE 자원 파편화에 대한 직관적인 통찰을 줄 수 있는 예시 설명 (피규어 포함)
     \item 논문의 기여점 정리
-\end{itemize}
-\end{mdframed}
+}
 
 \section{Relate Work}
 \label{sec:related_work}
 
 \subsection{Resource Aware and Topology Aware VNE}
 
-Conventional VNE heuristics commonly prioritize candidate substrate nodes by residual CPU, residual bandwidth, node degree, centrality, or combinations of these quantities. Ranking methods inspired by PageRank and node ranking heuristics driven by resource information compute the topological importance of substrate nodes. These methods then map virtual links through shortest paths or $k$ shortest paths~\cite{cao2017novel,hashmi2020vne}. Other studies use betweenness centrality, closeness centrality, degree, strength, and multiple topology attributes to guide node mapping~\cite{ding2015virtual,guler2016closeness,feng2014topology}. Recent methods with multiple criteria refine this node level ranking approach. NORD combines weighting based on entropy with TOPSIS to compute node ranks from resource and topology attributes~\cite{tg2023nord}. Simplified ELECTRE integrates multiple node metrics and constraints when evaluating candidate substrate nodes~\cite{zhang2018virtual}. \hl{These methods treat connectivity as a static, local attribute of individual substrate nodes. Such ranking methods do not evaluate how each embedding decision alters connectivity among residual substrate resource sets.}
+Conventional VNE heuristics commonly prioritize candidate substrate nodes by residual CPU, residual bandwidth, node degree, centrality, or combinations of these quantities. Ranking methods inspired by PageRank and node ranking heuristics driven by resource information compute the topological importance of substrate nodes. These methods then map virtual links through shortest paths or $k$ shortest paths~\cite{cao2017novel,hashmi2020vne}. Other studies use betweenness centrality, closeness centrality, degree, strength, and multiple topology attributes to guide node mapping~\cite{ding2015virtual,guler2016closeness,feng2014topology}. Recent methods with multiple criteria refine this node level ranking approach. NORD combines weighting based on entropy with TOPSIS to compute node ranks from resource and topology attributes~\cite{tg2023nord}. Simplified ELECTRE integrates multiple node metrics and constraints when evaluating candidate substrate nodes~\cite{zhang2018virtual}. These methods treat connectivity as a static, local attribute of individual substrate nodes. Such ranking methods do not evaluate how each embedding decision alters connectivity among residual substrate resource sets.
 
-Several studies coordinate node mapping and link mapping in a tighter manner. Because link mapping may fail after an independently chosen node mapping, coordinated approaches solve the two phases in a single stage or in a coupled two stage procedure~\cite{chowdhury2012vineyard,lu2023performance,nguyen2022toward}. Related heuristics also consider congestion, energy consumption, latency, or path structure when selecting embeddings~\cite{pham2019congestion,zheng2017link,yan2019latency}. These methods jointly consider node mapping and link routing. \hl{However, their objectives focus on path level feasibility and cost rather than on connectivity degradation after routing.} Load balancing approaches discourage excessive concentration on particular substrate nodes or links and aim to maintain balanced utilization over the substrate network~\cite{gong2014toward,shanbhag2015vhub,li2022load}. \hl{These objectives treat substrate nodes primarily as interchangeable units of capacity. Load balancing objectives do not account for the structural positions of nodes and links that maintain connectivity across the residual substrate network.}
+Several studies coordinate node mapping and link mapping in a tighter manner. Because link mapping may fail after an independently chosen node mapping, coordinated approaches solve the two phases in a single stage or in a coupled two stage procedure~\cite{chowdhury2012vineyard,lu2023performance,nguyen2022toward}. Related heuristics also consider congestion, energy consumption, latency, or path structure when selecting embeddings~\cite{pham2019congestion,zheng2017link,yan2019latency}. These methods jointly consider node mapping and link routing. However, their objectives focus on path level feasibility and cost rather than on connectivity degradation after routing. Load balancing approaches discourage excessive concentration on particular substrate nodes or links and aim to maintain balanced utilization over the substrate network~\cite{gong2014toward,shanbhag2015vhub,li2022load}. These objectives treat substrate nodes primarily as interchangeable units of capacity. Load balancing objectives do not account for the structural positions of nodes and links that maintain connectivity across the residual substrate network.
 
 \subsection{Survivable VNE Under Substrate Failures}
 
-Survivable VNE aims to keep virtual network services available after substrate failures. Prior work reserves backup paths or redundant node and link resources, constructs backup topologies, or remaps affected virtual components after failures~\cite{liao2014survivable,chowdhury2016dedicated,liu2017scheme,zheng2019heuristic,sun2011framework,zhu2014heuristic}. Within this line, Shahriar et al.~\cite{shahriar2019virtual} are most relevant to this study because CoViNE explicitly formulates VN connectivity guarantees under multiple substrate link failures. Their formulation separates connectivity from broader survivability requirements such as full bandwidth protection. This paper uses a similar separation for fragmentation. Node and link capacities define feasible embeddings, while the objective isolates how each feasible embedding changes residual connectivity among substrate resource sets. \hl{The difference is the operating regime. CoViNE protects an already embedded VN against discrete substrate failures. In contrast, this paper addresses how online embeddings without failures gradually degrade the connectivity among residual substrate resource sets.}
+Survivable VNE aims to keep virtual network services available after substrate failures. Prior work reserves backup paths or redundant node and link resources, constructs backup topologies, or remaps affected virtual components after failures~\cite{liao2014survivable,chowdhury2016dedicated,liu2017scheme,zheng2019heuristic,sun2011framework,zhu2014heuristic}. Within this line, Shahriar et al.~\cite{shahriar2019virtual} are most relevant to this study because CoViNE explicitly formulates VN connectivity guarantees under multiple substrate link failures. Their formulation separates connectivity from broader survivability requirements such as full bandwidth protection. This paper uses a similar separation for fragmentation. Node and link capacities define feasible embeddings, while the objective isolates how each feasible embedding changes residual connectivity among substrate resource sets. The difference is the operating regime. CoViNE protects an already embedded VN against discrete substrate failures. In contrast, this paper addresses how online embeddings without failures gradually degrade the connectivity among residual substrate resource sets.
 
 \subsection{Fragmentation Aware VNE}
 
-Fragmentation aware VNE directly addresses the residual resource fragmentation caused by repeated arrivals and departures of VNRs. These studies modify the embedding objective so that residual substrate resources remain useful for future requests, rather than merely abundant in aggregate. Guan et al.~\cite{guan2023multidimensional} study multidimensional resource fragmentation in VNE oriented to multiaccess edge computing (MEC). Their method penalizes resource imbalance across computing, wireless, and optical spectrum resources. \hl{The resulting metric captures multidimensional resource imbalance, but not the structural connectivity of residual substrate resources.} Lu and Zhang~\cite{lu2022resource} address the most similar concern. The RFD metrics use paths with hop limits and adjacent link information to penalize embeddings that leave residual substrate resources difficult to reuse. This path level view is related to bottleneck and cut intuitions. \hl{However, averaging path level scores does not directly model residual connectivity loss after a candidate embedding changes the residual substrate state.}
+Fragmentation aware VNE directly addresses the residual resource fragmentation caused by repeated arrivals and departures of VNRs. These studies modify the embedding objective so that residual substrate resources remain useful for future requests, rather than merely abundant in aggregate. Guan et al.~\cite{guan2023multidimensional} study multidimensional resource fragmentation in VNE oriented to multiaccess edge computing (MEC). Their method penalizes resource imbalance across computing, wireless, and optical spectrum resources. The resulting metric captures multidimensional resource imbalance, but not the structural connectivity of residual substrate resources. Lu and Zhang~\cite{lu2022resource} address the most similar concern. The RFD metrics use paths with hop limits and adjacent link information to penalize embeddings that leave residual substrate resources difficult to reuse. This path level view is related to bottleneck and cut intuitions. However, averaging path level scores does not directly model residual connectivity loss after a candidate embedding changes the residual substrate state.
 
-\hl{To the best of our knowledge, existing VNE fragmentation metrics have not directly modeled residual connectivity loss as an online embedding objective. In contrast, the proposed metric complements node and link feasibility constraints with a signal based on residual connectivity among substrate node sets.}
+To the best of our knowledge, existing VNE fragmentation metrics have not directly modeled residual connectivity loss as an online embedding objective. In contrast, the proposed metric complements node and link feasibility constraints with a signal based on residual connectivity among substrate node sets.
 
 
 % \nocite{*}
