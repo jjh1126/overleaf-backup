@@ -114,6 +114,10 @@ Existing online VNE heuristics manage residual capacity, path feasibility, and e
 \section{Relate Work}
 \label{sec:related_work}
 
+\todobox{기존 연구와의 차별점}{
+    \item 
+}
+
 \subsection{Resource Aware and Topology Aware VNE}
 
 Conventional VNE heuristics commonly prioritize candidate substrate nodes by residual CPU, residual bandwidth, node degree, centrality, or combinations of these quantities. Ranking methods inspired by PageRank and node ranking heuristics driven by resource information compute the topological importance of substrate nodes. These methods then map virtual links through shortest paths or $k$ shortest paths~\cite{cao2017novel,hashmi2020vne}. Other studies use betweenness centrality, closeness centrality, degree, strength, and multiple topology attributes to guide node mapping~\cite{ding2015virtual,guler2016closeness,feng2014topology}. Recent methods with multiple criteria refine this node level ranking approach. NORD combines weighting based on entropy with TOPSIS to compute node ranks from resource and topology attributes~\cite{tg2023nord}. Simplified ELECTRE integrates multiple node metrics and constraints when evaluating candidate substrate nodes~\cite{zhang2018virtual}. These methods treat connectivity as a static, local attribute of individual substrate nodes. Such ranking methods do not evaluate how each embedding decision alters connectivity among residual substrate resource sets.
@@ -131,29 +135,57 @@ Fragmentation aware VNE directly addresses the residual resource fragmentation c
 
 To the best of our knowledge, existing VNE fragmentation metrics have not directly modeled residual connectivity loss as an online embedding objective. In contrast, the proposed metric complements node and link feasibility constraints with a signal based on residual connectivity among substrate node sets.
 
-
-
 \section{System Model}
 \label{sec:system_model}
 
 \todobox{시스템 모델}{
     \item Max-flow 언급을 피할 것이기 때문에 weighted undirected graph를 기준으로 한다.
-    \item 임베딩 상태까지만 정의한다.
+    \item 기저 네트워크를 노드 CPU와 링크 bandwidth를 가중치로 갖는 weighted undirected graph로 정의한다.
+    \item 각 기저 자원에 대해 초기 용량(capacity)과 현재 잔여 용량(residual capacity)을 정의한다.
+    \item 가상 네트워크 요청 역시 노드와 링크 요구량을 갖는 weighted undirected graph로 정의한다.
+    \item VNE를 node embedding과 link routing으로 구성되는 mapping으로 정의한다.
+    \item Node embedding은 가상 노드를 CPU 제약을 만족하는 기저 노드에 배치하는 과정으로 정의한다.
+    \item Link routing은 가상 링크를 bandwidth 제약을 만족하는 기저 경로에 매핑하는 과정으로 정의한다.
+    \item 현재 기저 네트워크의 임베딩 상태와 새로운 요청을 임베딩한 이후의 상태까지만 정의한다.
 }
 
 \section{Metric Definition of Resource Fragmentation}
 \label{sec:metric_definition_of_resource_fragmentation}
 
 \todobox{지표 정의}{
-    \item 
+    \item 자원 파편화를 ``잔여 자원이 존재하지만 다른 자원과 결합하여 향후 VNE 요청을 구성하는 데 활용되기 어려운 상태''로 정의한다.
+    \item 연결성(connectivity)은 파편화 자체의 정의가 아니라, 잔여 자원의 활용 가능성(usability)을 정량화하기 위한 구조적 지표로 사용한다.
+    \item VNE의 그래프 구조상 개별 자원은 독립적으로 활용될 수 없으며, 주변 링크 자원과 결합되어야 실제 요청을 구성할 수 있음을 설명한다.
+    \item VNE를 node embedding과 link routing으로 구분하여 각 자원의 활용 조건을 정의한다.
+    \item Node embedding 관점에서 기저 노드의 잔여 CPU가 활용되기 위해서는 해당 노드가 주변 링크를 통해 다른 자원과 연결될 수 있어야 한다.
+    \item 따라서 노드의 외부 연결성은 해당 노드와 외부 네트워크를 연결하는 incident link들의 초기 bandwidth 대비 잔여 bandwidth 비율로 정의한다.
+    \item 노드 파편화도는 외부 연결성의 보수로 정의한다.
+    \item Link routing 관점에서 기저 링크의 잔여 bandwidth가 활용되기 위해서는 해당 링크가 주변 링크들과 연결되어 하나의 routing path를 형성할 수 있어야 한다.
+    \item 따라서 링크 자체는 연결성 계산에서 제외하고, 양 끝점에서 외부로 이어지는 주변 링크들의 연결성을 각각 계산한다.
+    \item 링크는 양 방향 중 한쪽이라도 경로 확장 가능성이 크게 제한되면 활용성이 감소하므로 두 끝점 연결성의 minimum을 유효 연결성으로 정의한다.
+    \item 링크 파편화도는 해당 유효 연결성의 보수로 정의한다.
+    \item 링크 연결성 평가에서 endpoint node의 CPU를 포함하지 않는다. Node resource의 활용 가능성은 node fragmentation에서 별도로 평가하며, link routing에서는 주변 bandwidth가 경로 형성 가능성을 직접 결정하기 때문이다.
+    \item 이를 통해 node fragmentation은 ``CPU 자원의 외부 활용 가능성''을, link fragmentation은 ``bandwidth 자원의 경로 구성 가능성''을 평가하도록 역할을 분리하고 중복 평가를 방지한다.
+    \item 최종적으로 각 자원의 잔여량과 파편화도를 결합한 $RI$를 해당 자원에서 현재 활용하기 어려운 잔여 자원의 양을 나타내는 지표로 해석한다.
 }
 
 \section{Problem Formulation}
 \label{sec:problem_formulation}
 
 \todobox{문제 정식화}{
-    \item 단순 IR 을 변화량 기반으로 최적화 대상으로 사용할 때, 영향을 분리해내야한다.
-    \item 
+    \item 단순 $RI$을 변화량 기반으로 최적화 대상으로 사용할 때, 자원의 직접 소비와 연결성 훼손의 영향을 분리해야 한다.
+    \item 임베딩 전후의 변화량
+    $\Delta(RI)=R^{t+1}I^{t+1}-R^tI^t$
+    를 전개하여 직접적인 자원 소비 효과와 파편화 증가 효과로 분해한다.
+    \item $(R^{t+1}-R^t)I^t$는 이미 파편화된 자원을 직접 소비함으로써 $RI$가 감소하는 효과이며, 새로운 파편화의 발생을 의미하지 않는다.
+    \item $R^{t+1}(I^{t+1}-I^t)$는 현재 임베딩으로 인해 연결성이 악화되어 남아 있는 자원의 활용 가능성이 새롭게 감소한 정도를 나타낸다.
+    \item 따라서 최적화 대상인 fragmentation cost에는 두 번째 항만을 사용한다.
+    \item Node와 link에 대해 각각 fragmentation increase cost를 정의하고, 두 비용을 가중합하여 전체 fragmentation cost $\Delta F$를 정의한다.
+    \item Fragmentation cost는 연결성 변화만을 평가하므로 자원의 절대적인 희소성이나 특정 자원으로의 부하 집중을 모두 설명하지 못한다.
+    \item 따라서 잔여 자원이 적은 기저 자원의 사용을 억제하기 위한 residual-resource-aware resource cost를 별도의 항으로 정의한다.
+    \item Resource cost는 ``희소한 자원을 얼마나 사용했는가''를, fragmentation cost는 ``그 사용으로 남은 자원의 활용 가능성을 얼마나 훼손했는가''를 각각 평가한다.
+    \item 최종 목적함수는 resource usage cost와 fragmentation increase cost의 가중합으로 구성한다.
+    \item Feasible node embedding 및 link routing 제약을 만족하는 embedding 중 해당 목적함수를 최소화하는 embedding을 선택하는 문제로 정식화한다.
 }
 
 % \nocite{*}
