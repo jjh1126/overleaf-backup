@@ -90,9 +90,10 @@ VNE 의 노드 임베딩과 링크 라우팅 관점으로 나눠서 다른 자�
 \begin{abstract}
 Online virtual network embedding must accommodate arriving requests while preserving residual substrate resources for future demands.
 \todobox{초록에 추가할 내용}{
-    \item 기존 방법들에 대한 간단 비판 (1-2 문장)
-    \item 우리가 제안하는 것 (2-4 문장)
-    \item SOTA 대비 개선되었다는 언급 (2-3 문장)
+    \item 기존 방법들에 대한 간단 비판: 잔여 자원의 절대량이나 부하 분산 중심이며, 잔여 자원이 실제로 향후 요청 구성에 활용될 수 있는지(usability)는 정량화하지 않음 (1-2문장)
+    \item 우리가 제안하는 것: 잔여 자원이 다른 자원과 결합될 수 있는 정도를 external connectivity로 정량화하고, node embedding과 link routing이 요구하는 서로 다른 결합 방식(이종 자원 결합 vs. 동종 자원 결합)에 맞게 각각의 파편화 지표를 정의 (2-4문장)
+    \item 임베딩 결정으로 인한 induced fragmentation을 자원 직접 소비 효과와 분리하여 online VNE 목적함수에 반영했다는 점 언급
+    \item SOTA 대비 개선되었다는 언급 (2-3문장, 실험 이후 채울 것)
 }
 
 \end{abstract}
@@ -116,9 +117,13 @@ In practical deployments, VNE operates in a dynamic setting where VNRs arrive an
 % 기존 방법의 한계
 Existing online VNE heuristics manage residual capacity, path feasibility, and embedding cost during node and link mapping. However, their control granularity is mainly limited to individual substrate nodes, adjacent link sets, candidate paths, or aggregate load balancing objectives. These approaches do not explicitly quantify resource fragmentation in the residual substrate state.
 
-\todobox{서론 뒷 부분에 추가할 내용}{
-    \item VNE 자원 파편화에 대한 직관적인 통찰을 줄 수 있는 예시 설명 (피규어 포함)
-    \item 논문의 기여점 정리
+\todobox{서론 구성 (전체 흐름 정리)}{
+    \item 1. 동기 : Online VNE에서 요청을 반복적으로 수용/해제하다 보면, 개별 자원(CPU/BW)의 총 잔여량이 충분해도 수락률이 저하되는 현상이 나타남을 지적. 메모리 단편화(memory fragmentation)에 대한 비유로 시작하면 직관적: 블록은 남아있지만 연속된 큰 블록이 없어 할당이 실패하는 상황과 유사 (여기서 예시 figure 배치)
+    \item 2. 기존 접근의 한계 : 기존 연구는 이 현상을 잔여 CPU/BW의 절대량 또는 부하 분산(load balancing) 문제로만 다루며, ``이 자원이 실제로 향후 요청 구성에 활용될 수 있는가''라는 활용 가능성 자체는 정량화하지 않음을 지적
+    \item 3. 핵심 재정의 -- 논문의 빅 아이디어 : VNE 요청은 개별 자원의 집합이 아니라 그래프이므로, 잔여 자원의 가치는 양 자체가 아니라 다른 잔여 자원과 결합하여 향후 요청 구조를 구성할 수 있는지에 달려 있다는 관점 제시. 이 단계에서는 아직 node/link를 구분하지 않음
+    \item 4. 지표 예고 : 이 결합 가능성을 정량화하기 위해 external connectivity(경계 용량 비율)라는 구조적 지표를 사용함을 짧게 예고. Max-flow min-cut으로 정당화된다는 점을 한 문장으로 언급
+    \item 5. Node/link 분기 : VNE가 CPU를 소비하는 node embedding과 BW를 소비하는 link routing이라는 서로 다른 역할의 두 하위 문제로 구성되므로, 각 자원이 결합해야 하는 대상도 역할에 따라 다름을 설명: 노드는 이종 자원(주변 BW)과 결합해야 하고, 링크는 동종 자원(주변 BW)끼리 사슬처럼 이어져야 함. 한 문단으로 압축하고 자세한 정의는 Section~\ref{sec:metric_definition_of_resource_fragmentation}으로 미룸
+    \item 6. Contribution 요약 : (i) 잔여량이 아닌 활용 가능성 기반의 파편화 재정의, (ii) max-flow min-cut에 기반한 통일된 external connectivity 정의, (iii) node/link 역할에 맞는 지표 특수화, (iv) 임베딩으로 인한 induced fragmentation을 자원 소비 효과와 분리, (v) 이를 반영한 online VNE 목적함수 제안
 }
 
 \section{Related Work}
@@ -150,7 +155,7 @@ Accordingly, the proposed metric differs from the reviewed fragmentation metrics
 \label{sec:system_model}
 
 \todobox{시스템 모델}{
-    \item Max-flow 언급을 피할 것이기 때문에 weighted undirected graph를 기준으로 한다.
+    \item weighted undirected graph를 기준으로 한다.
     \item 기저 네트워크를 노드 CPU와 링크 bandwidth를 가중치로 갖는 weighted undirected graph로 정의한다.
     \item 각 기저 자원에 대해 초기 용량(capacity)과 현재 잔여 용량(residual capacity)을 정의한다.
     \item 가상 네트워크 요청 역시 노드와 링크 요구량을 갖는 weighted undirected graph로 정의한다.
@@ -163,40 +168,40 @@ Accordingly, the proposed metric differs from the reviewed fragmentation metrics
 \section{Metric Definition of Resource Fragmentation}
 \label{sec:metric_definition_of_resource_fragmentation}
 
-\todobox{지표 정의}{
-    \item 자원 파편화를 ``잔여 자원이 존재하지만 다른 자원과 결합하여 향후 VNE 요청을 구성하는 데 활용되기 어려운 상태''로 정의한다.
-    \item 연결성(connectivity)은 파편화 자체의 정의가 아니라, 잔여 자원의 활용 가능성(usability)을 정량화하기 위한 구조적 지표로 사용한다.
-    \item VNE의 그래프 구조상 개별 자원은 독립적으로 활용될 수 없으며, 주변 링크 자원과 결합되어야 실제 요청을 구성할 수 있음을 설명한다.
-    \item VNE를 node embedding과 link embedding으로 구분하여 각 자원의 활용 조건을 정의한다.
-    \item Node embedding 관점에서 기저 노드의 잔여 CPU가 활용되기 위해서는 해당 노드가 주변 링크를 통해 다른 자원과 연결될 수 있어야 한다.
-    \item 따라서 노드의 외부 연결성은 해당 노드와 외부 네트워크를 연결하는 incident link들의 초기 bandwidth 대비 잔여 bandwidth 비율로 정의한다.
-    \item 노드 파편화도는 외부 연결성의 보수로 정의한다.
-    \item Link embedding 관점에서 기저 링크의 잔여 bandwidth가 활용되기 위해서는 해당 링크가 주변 링크들과 연결되어 하나의 routing path를 형성할 수 있어야 한다.
-    \item 따라서 링크 자체는 연결성 계산에서 제외하고, 양 끝점에서 외부로 이어지는 주변 링크들의 연결성을 각각 계산한다.
-    \item 링크는 양 방향 중 한쪽이라도 경로 확장 가능성이 크게 제한되면 활용성이 감소하므로 두 끝점 연결성의 minimum을 유효 연결성으로 정의한다.
-    \item 링크 파편화도는 해당 유효 연결성의 보수로 정의한다.
-    \item 링크 연결성 평가에서 endpoint node의 CPU를 포함하지 않는다. Node resource의 활용 가능성은 node fragmentation에서 별도로 평가하며, link routing에서는 주변 bandwidth가 경로 형성 가능성을 직접 결정하기 때문이다.
-    \item 이를 통해 node fragmentation은 ``CPU 자원의 외부 활용 가능성''을, link fragmentation은 ``bandwidth 자원의 경로 구성 가능성''을 평가하도록 역할을 분리하고 중복 평가를 방지한다.
-    \item 최종적으로 각 자원의 잔여량과 파편화도를 결합한 $RI$를 해당 자원에서 현재 활용하기 어려운 잔여 자원의 양을 나타내는 지표로 해석한다.
+\todobox{자원 파편화 지표 정의}{
+    \item 1절에서 제시한 자원 파편화 개념을 System Model 표기법으로 정식화함을 한두 문장으로 밝히고 바로 일반형을 제시. ``왜 잔여량만으로 부족한가''는 서론에서 이미 다뤘으므로 반복하지 않음
+    \item 임의의 자원에 대한 일반형 제시: 잔여 자원량 $R$, 정규화된 외부 연결성 $\mathrm{Conn}$에 대해 활용 가능한 잔여 자원 $= R\cdot\mathrm{Conn}$, fragmentation score $F = R(1-\mathrm{Conn})$
+    \item 4.1 External Connectivity (공통 장치) : 임의의 노드 집합 $A~(\emptyset \neq A \subsetneq N^S)$와 경계 링크 집합 $\delta(A)$를 정의. 이 단계에서는 아직 node/link를 구분하지 않음
+    \item 경계 용량 $B_{\mathrm{cap}}(A)$, 경계 잔여 용량 $B_{\mathrm{res}}(A)$를 정의하고, normalized external connectivity $\mathrm{Conn}(A) = B_{\mathrm{res}}(A)/B_{\mathrm{cap}}(A)$로 정의
+    \item Max-flow min-cut 정리를 이용해 경계 용량이 $A$와 외부 사이의 max-flow와 같음을 보여 이 지표의 정당성을 확보 (super source/sink 구성)
+    \item 4.2 Node Fragmentation Score (node embedding의 특수화) : 여기서 처음으로 ``node embedding 관점에서 기저 노드의 잔여 CPU가 활용되려면 주변 링크를 통해 다른 자원과 결합될 수 있어야 한다''는 role-specific 설명을 배치
+    \item $A=\{v\}$로 특수화하여 $\delta(\{v\})$를 $v$에 인접한 모든 링크로 정의하고, 이를 통해 $\mathrm{Conn}_N(v)$ 정의
+    \item Node fragmentation score $F_N(v) = r_v(1-\mathrm{Conn}_N(v))$로 정의하고, ``Residual CPU $\times$ Loss of Incident-Link Connectivity''로 해석
+    \item 4.3 Link Fragmentation Score (link routing의 특수화) : 여기서 처음으로 ``link routing 관점에서 기저 링크의 잔여 BW가 활용되려면 링크 자체의 용량뿐 아니라 양 끝점에서 경로를 이어갈 수 있어야 한다''는 role-specific 설명을 배치
+    \item 중심 링크 $e$ 자체는 $r_e$로 이미 직접 반영되므로 연결성 계산에서 제외한다고 명시
+    \item 끝점 $u, v$ 각각에서 $e$를 제외한 주변 링크 집합 $\delta(u\mid e), \delta(v\mid e)$를 정의하고 각 끝점의 connectivity를 별도로 계산
+    \item 두 끝점 중 하나라도 경로 확장이 제한되면 활용이 어려워지므로 bottleneck 관점에서 min을 취해 effective connectivity $\mathrm{Conn}_L(e) = \min(\mathrm{Conn}(u\mid e), \mathrm{Conn}(v\mid e))$ 정의
+    \item Link fragmentation score $F_L(e) = r_e(1-\mathrm{Conn}_L(e))$로 정의하고, ``Residual Bandwidth $\times$ Loss of Path-Extension Connectivity''로 해석
+    \item 링크의 연결성 평가에는 endpoint node의 CPU를 포함하지 않는다는 점을 명시하고 이유를 설명: (i) node CPU의 활용 가능성은 이미 $F_N$에서 별도로 평가되므로 중복 평가를 피하기 위함, (ii) link routing 자체는 경유 노드의 CPU를 소비하지 않고 오직 인접 BW를 통해서만 경로가 이어지기 때문
+    \item 4.4 Unified Interpretation : Node/link fragmentation이 동일한 일반형 $F = R(1-\mathrm{Conn})$의 두 인스턴스임을 정리
+    \item 결합 방식의 차이를 한 문장으로 요약: 노드는 이종 자원(CPU $\times$ 주변 BW) 결합, 링크는 동종 자원(BW $\times$ 주변 BW)의 사슬 결합
+    \item 최종적으로 $F_N(v)$, $F_L(e)$ 박스 정리로 절을 마무리
 }
 
 \section{Problem Formulation}
 \label{sec:problem_formulation}
 
 \todobox{문제 정식화}{
-    \item 단순 $RI$을 변화량 기반으로 최적화 대상으로 사용할 때, 자원의 직접 소비와 연결성 훼손의 영향을 분리해야 한다.
-    \item 임베딩 전후의 변화량
-    $\Delta(RI)=R^{t+1}I^{t+1}-R^tI^t$
-    를 전개하여 직접적인 자원 소비 효과와 파편화 증가 효과로 분해한다.
-    \item $(R^{t+1}-R^t)I^t$는 이미 파편화된 자원을 직접 소비함으로써 $RI$가 감소하는 효과이며, 새로운 파편화의 발생을 의미하지 않는다.
-    \item $R^{t+1}(I^{t+1}-I^t)$는 현재 임베딩으로 인해 연결성이 악화되어 남아 있는 자원의 활용 가능성이 새롭게 감소한 정도를 나타낸다.
-    \item 따라서 최적화 대상인 fragmentation cost에는 두 번째 항만을 사용한다.
-    \item Node와 link에 대해 각각 fragmentation increase cost를 정의하고, 두 비용을 가중합하여 전체 fragmentation cost $\Delta F$를 정의한다.
-    \item Fragmentation cost는 연결성 변화만을 평가하므로 자원의 절대적인 희소성이나 특정 자원으로의 부하 집중을 모두 설명하지 못한다.
-    \item 따라서 잔여 자원이 적은 기저 자원의 사용을 억제하기 위한 residual-resource-aware resource cost를 별도의 항으로 정의한다.
-    \item Resource cost는 ``희소한 자원을 얼마나 사용했는가''를, fragmentation cost는 ``그 사용으로 남은 자원의 활용 가능성을 얼마나 훼손했는가''를 각각 평가한다.
-    \item 최종 목적함수는 resource usage cost와 fragmentation increase cost의 가중합으로 구성한다.
-    \item Feasible node embedding 및 link routing 제약을 만족하는 embedding 중 해당 목적함수를 최소화하는 embedding을 선택하는 문제로 정식화한다.
+    \item Section~\ref{sec:metric_definition_of_resource_fragmentation}에서 정의한 $F = RI$ (단, $I = 1-\mathrm{Conn}$)를 임베딩 전후 변화량 관점에서 그대로 최적화 대상으로 사용할 경우, 자원의 직접 소비 효과와 연결성 훼손 효과가 뒤섞임을 지적
+    \item 변화량 $\Delta(RI) = R^{t+1}I^{t+1} - R^tI^t$를 두 항으로 분해: $(R^{t+1}-R^t)I^t$와 $R^{t+1}(I^{t+1}-I^t)$
+    \item 첫 번째 항 $(R^{t+1}-R^t)I^t$는 이미 파편화되어 있던 자원을 직접 소비함으로써 $RI$가 감소하는 효과이며, 새로운 파편화가 발생한 것이 아님을 설명
+    \item 두 번째 항 $R^{t+1}(I^{t+1}-I^t)$는 현재 임베딩으로 인해 연결성이 악화되어 남아 있는 자원의 활용 가능성이 새롭게 훼손된 정도를 나타내며, 이를 induced fragmentation으로 정의
+    \item 따라서 최적화 대상인 fragmentation increase cost에는 두 번째 항만 사용함을 명시
+    \item Node/link 각각에 대해 fragmentation increase cost $\Delta F_N, \Delta F_L$을 정의하고, 가중치 $\gamma$로 결합하여 전체 $\Delta F_{\mathrm{frag}} = \Delta F_L + \gamma \Delta F_N$ 정의
+    \item Fragmentation cost는 연결성 변화만을 평가하므로, 자원의 절대적 희소성이나 특정 자원으로의 부하 집중은 별도로 설명하지 못함을 명시
+    \item 따라서 잔여 자원이 적은 기저 자원의 사용을 억제하는 residual-resource-aware resource usage cost $C_{\mathrm{use}}$를 별도 항으로 정의
+    \item 두 비용의 역할을 대비: resource usage cost는 ``희소한 자원을 얼마나 사용했는가'', fragmentation cost는 ``그 사용으로 남은 자원의 활용 가능성을 얼마나 훼손했는가''
+    \item 최종 목적함수 $J(M) = C_{\mathrm{use}}(M) + \lambda \Delta F_{\mathrm{frag}}(M)$로 정의하고, feasible embedding 집합 $\mathcal{M}_{\mathrm{feasible}}$ 위에서 이를 최소화하는 $M^*$를 찾는 문제로 online VNE를 정식화
 }
 
 % \nocite{*}
