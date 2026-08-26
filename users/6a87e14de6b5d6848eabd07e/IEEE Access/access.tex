@@ -167,11 +167,11 @@ Accordingly, the proposed metric differs from the reviewed fragmentation metrics
     \item 자원 파편화를 ``잔여 자원이 존재하지만 다른 자원과 결합하여 향후 VNE 요청을 구성하는 데 활용되기 어려운 상태''로 정의한다.
     \item 연결성(connectivity)은 파편화 자체의 정의가 아니라, 잔여 자원의 활용 가능성(usability)을 정량화하기 위한 구조적 지표로 사용한다.
     \item VNE의 그래프 구조상 개별 자원은 독립적으로 활용될 수 없으며, 주변 링크 자원과 결합되어야 실제 요청을 구성할 수 있음을 설명한다.
-    \item VNE를 node embedding과 link routing으로 구분하여 각 자원의 활용 조건을 정의한다.
+    \item VNE를 node embedding과 link embedding으로 구분하여 각 자원의 활용 조건을 정의한다.
     \item Node embedding 관점에서 기저 노드의 잔여 CPU가 활용되기 위해서는 해당 노드가 주변 링크를 통해 다른 자원과 연결될 수 있어야 한다.
     \item 따라서 노드의 외부 연결성은 해당 노드와 외부 네트워크를 연결하는 incident link들의 초기 bandwidth 대비 잔여 bandwidth 비율로 정의한다.
     \item 노드 파편화도는 외부 연결성의 보수로 정의한다.
-    \item Link routing 관점에서 기저 링크의 잔여 bandwidth가 활용되기 위해서는 해당 링크가 주변 링크들과 연결되어 하나의 routing path를 형성할 수 있어야 한다.
+    \item Link embedding 관점에서 기저 링크의 잔여 bandwidth가 활용되기 위해서는 해당 링크가 주변 링크들과 연결되어 하나의 routing path를 형성할 수 있어야 한다.
     \item 따라서 링크 자체는 연결성 계산에서 제외하고, 양 끝점에서 외부로 이어지는 주변 링크들의 연결성을 각각 계산한다.
     \item 링크는 양 방향 중 한쪽이라도 경로 확장 가능성이 크게 제한되면 활용성이 감소하므로 두 끝점 연결성의 minimum을 유효 연결성으로 정의한다.
     \item 링크 파편화도는 해당 유효 연결성의 보수로 정의한다.
