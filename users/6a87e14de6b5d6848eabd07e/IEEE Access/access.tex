@@ -149,7 +149,7 @@ Accordingly, the proposed metric differs from the reviewed fragmentation metrics
 \section{System Model}
 \label{sec:system_model}
 
-\todobox{시스템 모델 -- 본문 전개 흐름}{
+\todobox{시스템 모델}{
     \item 기저 네트워크: weighted undirected graph
     $G^S=(N^S,L^S)$로 정의한다. 기저 노드 $v\in N^S$의 초기 CPU 용량과 현재 잔여 CPU를 각각 $c_v$와 $r_v$로 두고, 기저 링크 $e=\{u,v\}\in L^S$의 초기 bandwidth 용량과 현재 잔여 bandwidth를 각각 $c_e$와 $r_e$로 둔다. 경로와 flow를 표현하기 위해 각 무방향 링크 $\{u,v\}\in L^S$를 두 방향 arc $(u,v)$와 $(v,u)$로 확장한 집합을 $A^S$로 둔다.
 
@@ -191,7 +191,7 @@ Accordingly, the proposed metric differs from the reviewed fragmentation metrics
 \section{Metric Definition of Resource Fragmentation}
 \label{sec:metric_definition_of_resource_fragmentation}
 
-\todobox{지표 정의 -- External Connectivity 기반 파편화}{
+\todobox{지표 정의}{
     \item 기본 관점: VNE에서 잔여 자원의 활용 가능성은 해당 자원량과 주변 자원과의 결합 가능성에 의해 결정된다. 잔여 자원량을 $R$, normalized external connectivity를 $\mathrm{Conn}$이라 할 때 usable residual resource를 $R\mathrm{Conn}$으로 두고, fragmentation score를
     \[
     F=R(1-\mathrm{Conn})
@@ -338,7 +338,7 @@ Accordingly, the proposed metric differs from the reviewed fragmentation metrics
 \section{Problem Formulation}
 \label{sec:problem_formulation}
 
-\todobox{문제 정식화 -- Node Mapping + Multicommodity Flow}{
+\todobox{문제 정식화}{
     \item 결정변수: $x_{nv}\in\{0,1\}$는 가상 노드 $n\in N^V$의 기저 노드 $v\in N^S$에 대한 매핑 여부를 나타낸다. $f_{uv}^l\ge0$는 가상 링크 $l\in L^V$의 bandwidth 중 arc $(u,v)\in A^S$를 통과하는 flow이다.
 
     \item Node mapping 제약:
@@ -387,7 +387,7 @@ Accordingly, the proposed metric differs from the reviewed fragmentation metrics
     \]
     이 제약을 통해 가상 링크의 source와 destination은 node mapping 변수 $x$에 의해 결정된다.
 
-    \item Load-balancing cost: 잔여 용량이 적은 기저 자원에 높은 비용을 부여하여 특정 substrate resource로의 부하 집중을 억제한다.
+    \item Load-balancing cost: External connectivity는 잔여 자원이 주변 자원과 얼마나 결합될 수 있는지를 평가하지만, 개별 기저 자원의 절대적인 잔여 용량이나 특정 자원으로의 부하 집중은 직접 반영하지 않는다. 따라서 이러한 자원 분포를 함께 고려하기 위해 load-balancing cost를 추가한다.
     \[
     C_{\mathrm{LB}}(x,f)
     =
@@ -419,8 +419,9 @@ Accordingly, the proposed metric differs from the reviewed fragmentation metrics
     \]
     로 정의한다. $C_{\mathrm{LB}}$는 substrate resource의 부하 집중을 억제하고, $\Delta F_{\mathrm{frag}}$는 임베딩으로 인한 잔여 자원의 external connectivity 감소를 억제한다.
 
-    \item 정식화 형태: $\Delta F_{\mathrm{frag}}(M)$에는 임베딩 후 잔여 자원과 connectivity loss의 곱 및 $\min$ 연산이 포함된다. 따라서 위 목적함수를 정의 그대로 사용하는 문제는 mixed-integer nonlinear programming (MINLP) 문제이다. 
 }
+
+
 
 
 % \nocite{*}
