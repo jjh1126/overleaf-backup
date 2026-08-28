@@ -149,14 +149,165 @@ Accordingly, the proposed metric differs from the reviewed fragmentation metrics
 \section{System Model}
 \label{sec:system_model}
 
+\todobox{시스템 모델 -- 본문 전개 흐름}{
+    \item 기저 네트워크: weighted undirected graph
+    $G^S=(N^S,L^S)$로 정의한다. 기저 노드 $v\in N^S$의 초기 CPU 용량과 시각 $t$의 잔여 CPU를 각각 $c_v$와 $r_v^t$로 두고, 기저 링크 $e=\{u,v\}\in L^S$의 초기 bandwidth 용량과 잔여 bandwidth를 각각 $c_e$와 $r_e^t$로 둔다. 따라서 $0\le r_v^t\le c_v$ 및 $0\le r_e^t\le c_e$이다. 경로/flow를 표현하기 위해 각 무방향 링크 $\{u,v\}\in L^S$를 두 방향 arc $(u,v)$와 $(v,u)$로 확장한 집합을 $A^S$로 둔다. 
 
+    \item 가상 네트워크 요청: 하나의 VNR을 weighted undirected graph $G^V=(N^V,L^V)$로 정의한다. 가상 노드 $n\in N^V$의 CPU 요구량은 $d_n$, 가상 링크 $l=\{n,m\}\in L^V$의 bandwidth 요구량은 $d_l$로 둔다. 요청은 온라인으로 도착하며, 현재 요청의 임베딩 가능 여부는 시각 $t$의 잔여 자원 $\{r_v^t\}_{v\in N^S}$와 $\{r_e^t\}_{e\in L^S}$를 기준으로 판단한다.
+
+    \item 노드 매핑: node mapping을 $M_N:N^V\rightarrow N^S$로 두며, 각 가상 노드 $n$은 정확히 하나의 기저 노드 $M_N(n)$에 매핑된다. MIP에서는 이 관계를 binary variable $x_{nv}\in\{0,1\}$로 표현하며, $x_{nv}=1$은 $n$이 $v$에 매핑됨을 의미한다. 동일한 VNR의 서로 다른 가상 노드는 동일한 기저 노드에 중복 배치하지 않는다.
+
+    \item 링크 매핑: link mapping을 $M_L:L^V\rightarrow\mathcal{P}^S$로 두고, $\mathcal{P}^S$는 기저 네트워크의 path 집합이다. 가상 링크 $l=\{n,m\}$은 $M_N(n)$과 $M_N(m)$을 연결하는 기저 경로에 매핑된다. 각 $l\in L^V$와 $(u,v)\in A^S$에 대해 $f_{uv}^l\ge0$를 $u$에서 $v$로 전달되는 $l$의 bandwidth flow로 정의한다.
+
+    \item 임베딩과 상태 변화: 전체 임베딩은 $M=(M_N,M_L)$로 나타낸다. 임베딩 전 상태를 $G_t^S$, 임베딩 $M$ 적용 후 상태를 $G_{t+1}^S(M)$로 표기한다. MIP 변수로 표현하면
+    \[
+    r_v^{t+1}=r_v^t-\sum_{n\in N^V}d_nx_{nv},\qquad \forall v\in N^S,
+    \]
+    \[
+    r_{\{u,v\}}^{t+1}=r_{\{u,v\}}^t-\sum_{l\in L^V}\left(f_{uv}^l+f_{vu}^l\right),\qquad \forall\{u,v\}\in L^S.
+    \]
+}
 
 \section{Metric Definition of Resource Fragmentation}
 \label{sec:metric_definition_of_resource_fragmentation}
 
+\todobox{지표 정의 -- External Connectivity 기반 파편화}{
+    \item 기본 관점: 파편화를 ``잔여 자원이 존재하지만 다른 잔여 자원과 결합하여 향후 VNR을 구성하기 어려워진 상태''로 정의한다. 잔여 자원량을 $R$, 정규화된 external connectivity를 $\mathrm{Conn}$이라 할 때, usable residual resource를 $R\,\mathrm{Conn}$으로 보고 fragmentation score의 공통 형태를
+    \[
+    F=R(1-\mathrm{Conn})
+    \]
+    로 둔다. 즉, 잔여량 자체가 아니라 \emph{남아 있는 자원이 외부 자원과 결합될 수 있는 정도}를 함께 평가한다.
+
+    \item External connectivity의 일반 정의: $\emptyset\neq A\subsetneq N^S$, $\bar A=N^S\setminus A$에 대해 경계 링크 집합을
+    \[
+    \delta(A)=\{\,e=\{u,v\}\in L^S\mid u\in A,\ v\in\bar A\,\}
+    \]
+    로 둔다. 초기/잔여 boundary capacity는
+    \[
+    B_{\mathrm{cap}}(A)=\sum_{e\in\delta(A)}c_e,\qquad
+    B_{\mathrm{res}}^t(A)=\sum_{e\in\delta(A)}r_e^t
+    \]
+    이고, normalized external connectivity를
+    \[
+    \mathrm{Conn}^t(A)=
+    \begin{cases}
+    \dfrac{B_{\mathrm{res}}^t(A)}{B_{\mathrm{cap}}(A)}, & B_{\mathrm{cap}}(A)>0,\\[1mm]
+    0, & B_{\mathrm{cap}}(A)=0
+    \end{cases}
+    \]
+    로 정의한다. $A$와 $\bar A$를 각각 super source/sink에 연결하면 두 영역 사이의 유한 cut이 $\delta(A)$로 고정되므로, 이 boundary capacity는 해당 영역과 외부 사이의 max-flow/min-cut 값으로 해석할 수 있다.
+
+    \item Node fragmentation -- primitive: 기저 노드 $v$에 대해 $A=\{v\}$로 특수화한다. $v$의 incident-link connectivity와 connectivity loss를
+    \[
+    \mathrm{Conn}_N^t(v)=
+    \begin{cases}
+    \dfrac{\sum_{e\in\delta(\{v\})}r_e^t}{\sum_{e\in\delta(\{v\})}c_e}, & \sum_{e\in\delta(\{v\})}c_e>0,\\[1mm]
+    0, & \text{otherwise},
+    \end{cases}
+    \qquad
+    I_N^t(v)=1-\mathrm{Conn}_N^t(v)
+    \]
+    로 두고, node fragmentation score를
+    \[
+    F_N^t(v)=r_v^t I_N^t(v)=r_v^t\left(1-\mathrm{Conn}_N^t(v)\right)
+    \]
+    로 정의한다. 즉, 잔여 CPU가 많더라도 주변 bandwidth가 소진되어 외부와 결합하기 어려우면 높은 파편화로 평가한다.
+
+    \item Link fragmentation -- derived: 기저 링크 $e=\{u,v\}$에 대해 중심 링크 $e$ 자체는 $r_e^t$로 직접 반영되므로, 두 끝점의 주변 연결성을 평가할 때 $e$를 제외한다. 
+    \[
+    \delta(u\mid e)=\delta(\{u\})\setminus\{e\},\qquad
+    \delta(v\mid e)=\delta(\{v\})\setminus\{e\}.
+    \]
+    각 끝점의 external connectivity를
+    \[
+    \mathrm{Conn}^t(u\mid e)=
+    \begin{cases}
+    \dfrac{\sum_{q\in\delta(u\mid e)}r_q^t}{\sum_{q\in\delta(u\mid e)}c_q}, & \sum_{q\in\delta(u\mid e)}c_q>0,\\[1mm]
+    0, & \text{otherwise},
+    \end{cases}
+    \]
+    로 두고 $\mathrm{Conn}^t(v\mid e)$도 동일하게 정의한다. 링크의 path-extension connectivity는 더 취약한 끝점이 병목이 된다는 보수적 기준으로
+    \[
+    \mathrm{Conn}_L^t(e)=\min\!\left\{\mathrm{Conn}^t(u\mid e),\mathrm{Conn}^t(v\mid e)\right\},\qquad
+    I_L^t(e)=1-\mathrm{Conn}_L^t(e)
+    \]
+    로 두며,
+    \[
+    F_L^t(e)=r_e^t I_L^t(e)=r_e^t\left(1-\mathrm{Conn}_L^t(e)\right)
+    \]
+    로 link fragmentation score를 정의한다.
+
+    \item 임베딩에 의해 유도된 파편화: 단순한 $F^{t+1}-F^t$에는 자원을 직접 소비하여 기존 파편화 자원량 자체가 줄어드는 효과가 섞인다. $F=RI$를 이용하면
+    \[
+    F^{t+1}-F^t=(R^{t+1}-R^t)I^t+R^{t+1}(I^{t+1}-I^t)
+    \]
+    이므로, 현재 embedding decision으로 인해 \emph{남은 자원의 연결성이 추가로 악화된 부분}만을 induced fragmentation으로 정의한다. 따라서
+    \[
+    \Delta F_N(M)=\sum_{v\in N^S}r_v^{t+1}\left(I_N^{t+1}(v)-I_N^t(v)\right),
+    \]
+    \[
+    \Delta F_L(M)=\sum_{e\in L^S}r_e^{t+1}\left(I_L^{t+1}(e)-I_L^t(e)\right),
+    \]
+    \[
+    \Delta F_{\mathrm{frag}}(M)=\Delta F_L(M)+\gamma\Delta F_N(M),\qquad \gamma\ge0.
+    \]
+    이 값은 전역 파편화 총량이 아니라, 이미 feasible한 임베딩 후보들 사이에서 현재 결정이 야기하는 \emph{local marginal fragmentation cost}로 사용한다.
+}
 
 \section{Problem Formulation}
 \label{sec:problem_formulation}
+
+\todobox{문제 정식화 -- Node Mapping + Multicommodity Flow}{
+    \item 결정변수: $x_{nv}\in\{0,1\}$는 가상 노드 $n\in N^V$가 기저 노드 $v\in N^S$에 매핑되는지를 나타낸다. $f_{uv}^l\ge0$는 가상 링크 $l=\{n,m\}\in L^V$의 bandwidth 중 기저 directed arc $(u,v)\in A^S$를 통과하는 flow 양이다. 이 표현은 ViNEYard와 RFD의 flow-based formulation을 따른다~\cite{chowdhury2012vineyard,lu2022resource}.
+
+    \item Node mapping 제약: 각 가상 노드는 정확히 하나의 기저 노드에 매핑되고, 동일한 VNR의 두 가상 노드는 동일한 기저 노드에 중복 배치하지 않는다.
+    \[
+    \sum_{v\in N^S}x_{nv}=1,\qquad \forall n\in N^V,
+    \]
+    \[
+    \sum_{n\in N^V}x_{nv}\le1,\qquad \forall v\in N^S.
+    \]
+
+    \item CPU capacity 제약:
+    \[
+    \sum_{n\in N^V}d_nx_{nv}\le r_v^t,\qquad \forall v\in N^S.
+    \]
+
+    \item Bandwidth capacity 제약: 무방향 기저 링크 $e=\{u,v\}$에서는 양 방향 flow의 합이 현재 잔여 bandwidth를 넘지 않아야 한다.
+    \[
+    \sum_{l\in L^V}\left(f_{uv}^l+f_{vu}^l\right)\le r_e^t,
+    \qquad \forall e=\{u,v\}\in L^S.
+    \]
+
+    \item Flow conservation 제약: 각 가상 링크 $l=\{n,m\}$의 source/sink는 node-mapping 변수 $x$에 의해 동시에 결정한다. 모든 $v\in N^S$에 대해
+    \[
+    \sum_{(v,w)\in A^S}f_{vw}^l-\sum_{(w,v)\in A^S}f_{wv}^l
+    =d_l\left(x_{nv}-x_{mv}\right),
+    \qquad \forall l=\{n,m\}\in L^V.
+    \]
+    따라서 $n$이 매핑된 기저 노드에서는 $d_l$의 순유출, $m$이 매핑된 기저 노드에서는 $d_l$의 순유입, 나머지 기저 노드에서는 유입과 유출이 같아진다. 이 formulation은 node mapping과 link routing을 하나의 최적화 문제에서 직접 결합한다.
+
+    \item Residual-resource-aware usage cost: 현재 상태 $G_t^S$의 잔여 용량은 최적화 시점에서 상수이므로, 희소한 자원의 사용에 더 큰 비용을 부여하는 항을
+    \[
+    C_{\mathrm{use}}(x,f)=
+    \alpha\sum_{n\in N^V}\sum_{v\in N^S}
+    \frac{d_n}{r_v^t+\epsilon}x_{nv}
+    +
+    \beta\sum_{l\in L^V}\sum_{(u,v)\in A^S}
+    \frac{f_{uv}^l}{r_{\{u,v\}}^t+\epsilon},
+    \]
+    로 둔다. 여기서 $\alpha,\beta\ge0$는 node/link resource usage의 상대 가중치이고 $\epsilon>0$은 0으로 나누는 것을 방지하는 작은 상수이다.
+
+    \item 제안 목적함수: 임베딩 후 잔여 자원 $r^{t+1}$을 위 상태 갱신식으로 계산하고, 이를 이용해 $I_N^{t+1}$, $I_L^{t+1}$ 및 $\Delta F_{\mathrm{frag}}(M)$을 계산한다. 최종 목적함수는
+    \[
+    \min_{x,f}\quad
+    J(x,f)=C_{\mathrm{use}}(x,f)+\lambda\Delta F_{\mathrm{frag}}(M),
+    \qquad \lambda\ge0,
+    \]
+    로 둔다. $C_{\mathrm{use}}$는 잔여 자원이 적은 기저 자원의 추가 사용을 억제하고, $\Delta F_{\mathrm{frag}}$는 현재 임베딩으로 인해 남은 자원의 external connectivity가 추가로 훼손되는 것을 억제한다.
+
+    \item 정식화 형태에 대한 주의: 위의 $x$와 $f$에 대한 feasibility 제약은 MIP 형태이지만, 제안한 $\Delta F_{\mathrm{frag}}$를 \emph{정의 그대로} 목적함수에 넣으면 $r^{t+1}I^{t+1}$의 곱과 $\min$ 연산 때문에 정확한 모형은 일반적인 선형 MIP가 아니라 mixed-integer nonlinear formulation이 된다. 논문에서 ``MIP''로 제시하려면 (i) endpoint $\min$을 auxiliary variable/binary constraint로 바꾸고, (ii) $r^{t+1}I^{t+1}$ 항에는 McCormick envelope 또는 piecewise-linear approximation을 추가하여 MILP로 선형화한다. 이 선형화 세부식은 지표 정의가 확정된 뒤 별도 subsection으로 전개하는 것이 안전하다.
+}
 
 
 % \nocite{*}
