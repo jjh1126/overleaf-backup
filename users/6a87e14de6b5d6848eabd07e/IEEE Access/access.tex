@@ -562,7 +562,52 @@ following VNE-RFD~\cite{lu2022resource}
     이전 단계로 복귀하여 다음 candidate를 평가한다.
     Backtracking 횟수가 $\Delta$를 초과하면 해당 VNR을 reject한다.
 
+    \item 알고리즘 복잡도:
+    제안 알고리즘에서는 하나의 induced fragmentation cost를 계산할 때
+    모든 기저 노드와 링크의 external connectivity 변화를 평가한다.
+    기저 노드 $v$의 차수를 $d_v^S$라 하면,
+    전체 node fragmentation 계산에는 $O(|L^S|)$,
+    전체 link fragmentation 계산에는
+    $O(\sum_{v\in N^S}(d_v^S)^2)$가 필요하다.
+    따라서 한 번의 fragmentation cost 계산 복잡도를
+    \[
+    T_F
+    =
+    O\!\left(\sum_{v\in N^S}(d_v^S)^2\right)
+    \subseteq
+    O(|N^S||L^S|)
+    \]
+    로 둘 수 있다.
     
+    각 virtual node에 대해 최대 $|N^S|$개의 substrate-node candidate를 평가하고,
+    각 candidate에서 이미 배치된 인접 virtual node와의 link routing을 수행한다.
+    $K$-shortest-path search의 복잡도를
+    \[
+    T_{\mathrm{KSP}}
+    =
+    O(|L^S|+|N^S|\log |N^S|+K)
+    \]
+    로 두면~\cite{lu2022resource},
+    각 virtual link의 경로 선택에는 $K$개 path의 fragmentation cost 평가가 추가되므로
+    $O(T_{\mathrm{KSP}}+KT_F)$가 필요하다.
+    하나의 virtual node가 최악의 경우 $O(|N^V|)$개의 이미 배치된 이웃과 연결되고,
+    bounded backtracking으로 인해 최대 $\Delta$회의 추가 탐색이 발생하므로,
+    하나의 VNR에 대한 전체 최악 시간 복잡도는
+    \[
+    O\!\left(
+    (|N^V|+\Delta)|N^S|
+    \left[
+    |N^V|
+    \left(
+    T_{\mathrm{KSP}}+KT_F
+    \right)
+    +T_F
+    \right]
+    \right)
+    \]
+    이다.
+    여기서 $\Delta$와 $K$를 고정된 algorithm parameter로 두더라도,
+    제안 지표를 반복 계산하는 $T_F$가 candidate evaluation의 추가 계산 비용으로 남는다.
 }
 
 
