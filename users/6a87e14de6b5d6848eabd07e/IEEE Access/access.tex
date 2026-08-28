@@ -155,16 +155,42 @@ Accordingly, the proposed metric differs from the reviewed fragmentation metrics
 
     \item 가상 네트워크 요청: 하나의 VNR을 weighted undirected graph $G^V=(N^V,L^V)$로 정의한다. 가상 노드 $n\in N^V$의 CPU 요구량은 $d_n$, 가상 링크 $l=\{n,m\}\in L^V$의 bandwidth 요구량은 $d_l$로 둔다. 요청은 온라인으로 도착하며, 현재 요청의 임베딩 가능 여부는 시각 $t$의 잔여 자원 $\{r_v^t\}_{v\in N^S}$와 $\{r_e^t\}_{e\in L^S}$를 기준으로 판단한다.
 
-    \item 노드 매핑: node mapping을 $M_N:N^V\rightarrow N^S$로 두며, 각 가상 노드 $n$은 정확히 하나의 기저 노드 $M_N(n)$에 매핑된다. MIP에서는 이 관계를 binary variable $x_{nv}\in\{0,1\}$로 표현하며, $x_{nv}=1$은 $n$이 $v$에 매핑됨을 의미한다. 동일한 VNR의 서로 다른 가상 노드는 동일한 기저 노드에 중복 배치하지 않는다.
-
-    \item 링크 매핑: link mapping을 $M_L:L^V\rightarrow\mathcal{P}^S$로 두고, $\mathcal{P}^S$는 기저 네트워크의 path 집합이다. 가상 링크 $l=\{n,m\}$은 $M_N(n)$과 $M_N(m)$을 연결하는 기저 경로에 매핑된다. 각 $l\in L^V$와 $(u,v)\in A^S$에 대해 $f_{uv}^l\ge0$를 $u$에서 $v$로 전달되는 $l$의 bandwidth flow로 정의한다.
-
-    \item 임베딩과 상태 변화: 전체 임베딩은 $M=(M_N,M_L)$로 나타낸다. 임베딩 전 상태를 $G_t^S$, 임베딩 $M$ 적용 후 상태를 $G_{t+1}^S(M)$로 표기한다. MIP 변수로 표현하면
+    \item 노드 매핑: node mapping을
+    $M_N:N^V\rightarrow N^S$
+    로 정의하며, 각 가상 노드 $n\in N^V$는 정확히 하나의 기저 노드 $M_N(n)$에 매핑된다. MIP에서는 이를 binary variable
+    $x_{nv}\in\{0,1\}$
+    로 표현하며, $x_{nv}=1$은 가상 노드 $n$이 기저 노드 $v$에 매핑됨을 의미한다. 동일한 VNR에 속한 서로 다른 가상 노드는 동일한 기저 노드에 중복 매핑하지 않는다.
+    
+    \item 링크 매핑: link mapping을
+    $M_L:L^V\rightarrow\mathcal{P}^S$
+    로 정의하며, $\mathcal{P}^S$는 기저 네트워크의 path 집합이다. 가상 링크
+    $l=\{n,m\}\in L^V$
+    은 $M_N(n)$과 $M_N(m)$을 연결하는 기저 경로에 매핑된다. 각 $l\in L^V$와 $(u,v)\in A^S$에 대해
+    $f_{uv}^l\ge0$
+    를 arc $(u,v)$를 따라 전달되는 가상 링크 $l$의 bandwidth flow로 정의한다.
+    
+    \item 임베딩과 상태 변화: 전체 임베딩을
+    $M=(M_N,M_L)$
+    로 정의한다. 현재 기저 네트워크 상태에 임베딩 $M$을 적용한 후의 잔여 자원을 각각
+    $r_v(M)$와 $r_e(M)$
+    로 표기한다. MIP 변수로 표현하면
     \[
-    r_v^{t+1}=r_v^t-\sum_{n\in N^V}d_nx_{nv},\qquad \forall v\in N^S,
+    r_v(M)
+    =
+    r_v-\sum_{n\in N^V}d_nx_{nv},
+    \qquad \forall v\in N^S,
     \]
     \[
-    r_{\{u,v\}}^{t+1}=r_{\{u,v\}}^t-\sum_{l\in L^V}\left(f_{uv}^l+f_{vu}^l\right),\qquad \forall\{u,v\}\in L^S.
+    r_{\{u,v\}}(M)
+    =
+    r_{\{u,v\}}
+    -
+    \sum_{l\in L^V}
+    \left(
+    f_{uv}^l+f_{vu}^l
+    \right),
+    \qquad
+    \forall\{u,v\}\in L^S.
     \]
 }
 
@@ -236,6 +262,8 @@ Accordingly, the proposed metric differs from the reviewed fragmentation metrics
     F_L^t(e)=r_e^t I_L^t(e)=r_e^t\left(1-\mathrm{Conn}_L^t(e)\right)
     \]
     로 link fragmentation score를 정의한다.
+
+    \item node fragmentation score 는 
 
     \item 임베딩에 의해 유도된 파편화: 단순한 $F^{t+1}-F^t$에는 자원을 직접 소비하여 기존 파편화 자원량 자체가 줄어드는 효과가 섞인다. $F=RI$를 이용하면
     \[
