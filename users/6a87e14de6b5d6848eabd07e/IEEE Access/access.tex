@@ -156,6 +156,47 @@ Accordingly, the proposed metric differs from the reviewed fragmentation metrics
 \section{System Model}
 \label{sec:system_model}
 
+\begin{table}
+    \caption{\textbf{Notation for Experimental Setup}}
+    \label{tab:experimental_notation}
+    \setlength{\tabcolsep}{3pt}
+    \begin{tabular}{|p{45pt}|p{195pt}|}
+        \hline
+        Symbol & Description \\
+        \hline
+
+        $n_S$
+        & Number of independently generated substrate networks \\
+        
+        $n_R$
+        & Number of independently generated VNR sets \\
+        
+        $G_i^S$
+        & $i$-th substrate network, $i=1,\ldots,n_S$ \\
+        
+        $\mathcal{R}_j$
+        & $j$-th VNR set, $j=1,\ldots,n_R$ \\
+        
+        $\mathcal{G}^S$
+        & Set of generated substrate networks,
+        $\mathcal{G}^S=\{G_1^S,\ldots,G_{n_S}^S\}$ \\
+        
+        $\mathcal{R}$
+        & Set of generated VNR sets,
+        $\mathcal{R}=\{\mathcal{R}_1,\ldots,\mathcal{R}_{n_R}\}$ \\
+        
+        $E_{ij}$
+        & Experiment using substrate network $G_i^S$
+        and VNR set $\mathcal{R}_j$ \\
+        
+        $N_{\mathrm{exp}}$
+        & Total number of experiments,
+        $N_{\mathrm{exp}}=n_S n_R$ \\
+        
+        \hline
+    \end{tabular}
+\end{table}
+
 \todobox{시스템 모델}{
     \item weighted undirected graph를 기준으로 한다.
     \item 기저 네트워크를 노드 CPU와 링크 bandwidth를 가중치로 갖는 weighted undirected graph로 정의한다.
