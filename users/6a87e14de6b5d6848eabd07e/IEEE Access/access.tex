@@ -202,83 +202,159 @@ Accordingly, the proposed metric differs from the reviewed fragmentation metrics
     \[
     F=R(1-\mathrm{Conn})
     \]
-    로 둔다. 즉, 잔여량 자체가 아니라 \emph{남아 있는 자원이 외부 자원과 결합될 수 있는 정도}를 함께 평가한다.
+    로 둔다. 즉, 잔여 자원량뿐 아니라 해당 자원이 다른 잔여 자원과 결합될 수 있는 정도를 함께 평가한다.
 
     \item External connectivity의 일반 정의: $\emptyset\neq A\subsetneq N^S$, $\bar A=N^S\setminus A$에 대해 경계 링크 집합을
     \[
-    \delta(A)=\{\,e=\{u,v\}\in L^S\mid u\in A,\ v\in\bar A\,\}
+    \delta(A)
+    =
+    \{\,e=\{u,v\}\in L^S\mid u\in A,\ v\in\bar A\,\}
     \]
-    로 둔다. 초기/잔여 boundary capacity는
+    로 정의한다. 초기 및 현재 잔여 boundary capacity는
     \[
-    B_{\mathrm{cap}}(A)=\sum_{e\in\delta(A)}c_e,\qquad
-    B_{\mathrm{res}}^t(A)=\sum_{e\in\delta(A)}r_e^t
+    B_{\mathrm{cap}}(A)
+    =
+    \sum_{e\in\delta(A)}c_e,
+    \qquad
+    B_{\mathrm{res}}(A)
+    =
+    \sum_{e\in\delta(A)}r_e
     \]
     이고, normalized external connectivity를
     \[
-    \mathrm{Conn}^t(A)=
+    \mathrm{Conn}(A)
+    =
     \begin{cases}
-    \dfrac{B_{\mathrm{res}}^t(A)}{B_{\mathrm{cap}}(A)}, & B_{\mathrm{cap}}(A)>0,\\[1mm]
-    0, & B_{\mathrm{cap}}(A)=0
+    \dfrac{B_{\mathrm{res}}(A)}{B_{\mathrm{cap}}(A)},
+    & B_{\mathrm{cap}}(A)>0,\\[1mm]
+    0,
+    & B_{\mathrm{cap}}(A)=0
     \end{cases}
     \]
-    로 정의한다. $A$와 $\bar A$를 각각 super source/sink에 연결하면 두 영역 사이의 유한 cut이 $\delta(A)$로 고정되므로, 이 boundary capacity는 해당 영역과 외부 사이의 max-flow/min-cut 값으로 해석할 수 있다.
+    로 정의한다. $A$와 $\bar A$를 각각 super source와 super sink에 연결하면 두 영역 사이의 유한 cut은 $\delta(A)$로 고정되므로, $B_{\mathrm{res}}(A)$는 현재 잔여 자원을 기준으로 해당 영역과 외부 사이에서 확보 가능한 boundary capacity로 해석할 수 있다.
 
-    \item Node fragmentation -- primitive: 기저 노드 $v$에 대해 $A=\{v\}$로 특수화한다. $v$의 external connectivity를
+    \item Node fragmentation -- primitive: 기저 노드 $v\in N^S$에 대해 $A=\{v\}$로 특수화한다. 노드 $v$의 external connectivity를
     \[
-    \mathrm{Conn}_N^t(v)=
+    \mathrm{Conn}_N(v)
+    =
     \begin{cases}
-    \dfrac{\sum_{e\in\delta(\{v\})}r_e^t}{\sum_{e\in\delta(\{v\})}c_e}, & \sum_{e\in\delta(\{v\})}c_e>0,\\[1mm]
-    0, & \text{otherwise},
+    \dfrac{\sum_{e\in\delta(\{v\})}r_e}
+    {\sum_{e\in\delta(\{v\})}c_e},
+    & \sum_{e\in\delta(\{v\})}c_e>0,\\[1mm]
+    0,
+    & \text{otherwise},
     \end{cases}
+    \]
+    로 정의하고,
+    \[
+    I_N(v)=1-\mathrm{Conn}_N(v)
+    \]
+    로 둔다. 이에 따라 node fragmentation score는
+    \[
+    F_N(v)
+    =
+    r_v I_N(v)
+    =
+    r_v\left(1-\mathrm{Conn}_N(v)\right)
+    \]
+    로 정의한다. 즉, 잔여 CPU가 많더라도 인접 링크의 잔여 bandwidth가 감소하여 외부 자원과 결합하기 어려워지면 높은 파편화로 평가한다.
+
+    \item Link fragmentation -- derived: 기저 링크 $e=\{u,v\}\in L^S$의 bandwidth는 그 자체로 두 기저 노드를 연결하는 자원이므로, 링크의 external connectivity는 노드의 경우처럼 하나의 내부 영역에 대한 boundary capacity로 직접 정의하지 않는다. 대신 링크가 향후 VNR 임베딩에 사용되기 위해서는 링크 자체의 잔여 bandwidth뿐 아니라, 두 끝점에서 다른 링크로 연결이 이어질 수 있어야 한다는 점을 이용하여 node external connectivity로부터 파생한다.
+
+    중심 링크 $e$ 자체의 잔여 bandwidth는 $r_e$로 직접 반영되므로, 끝점 $u$와 $v$의 주변 연결성을 평가할 때는 $e$를 제외한다. 이를 위해
+    \[
+    \delta(u\mid e)
+    =
+    \delta(\{u\})\setminus\{e\},
     \qquad
-    I_N^t(v)=1-\mathrm{Conn}_N^t(v)
+    \delta(v\mid e)
+    =
+    \delta(\{v\})\setminus\{e\}
     \]
-    로 두고, node fragmentation score를
+    로 정의한다. 각 끝점에서 중심 링크 이외의 자원으로 확장 가능한 정도를
     \[
-    F_N^t(v)=r_v^t I_N^t(v)=r_v^t\left(1-\mathrm{Conn}_N^t(v)\right)
-    \]
-    로 정의한다. 즉, 잔여 CPU가 많더라도 주변 bandwidth가 소진되어 외부와 결합하기 어려우면 높은 파편화로 평가한다.
-
-    \item Link fragmentation -- derived: 기저 링크 $e=\{u,v\}$에 대해 중심 링크 $e$ 자체는 $r_e^t$로 직접 반영되므로, 두 끝점의 주변 연결성을 평가할 때 $e$를 제외한다. 
-    \[
-    \delta(u\mid e)=\delta(\{u\})\setminus\{e\},\qquad
-    \delta(v\mid e)=\delta(\{v\})\setminus\{e\}.
-    \]
-    각 끝점의 external connectivity를
-    \[
-    \mathrm{Conn}^t(u\mid e)=
+    \mathrm{Conn}(u\mid e)
+    =
     \begin{cases}
-    \dfrac{\sum_{q\in\delta(u\mid e)}r_q^t}{\sum_{q\in\delta(u\mid e)}c_q}, & \sum_{q\in\delta(u\mid e)}c_q>0,\\[1mm]
-    0, & \text{otherwise},
+    \dfrac{\sum_{q\in\delta(u\mid e)}r_q}
+    {\sum_{q\in\delta(u\mid e)}c_q},
+    & \sum_{q\in\delta(u\mid e)}c_q>0,\\[1mm]
+    0,
+    & \text{otherwise},
     \end{cases}
     \]
-    로 두고 $\mathrm{Conn}^t(v\mid e)$도 동일하게 정의한다. 링크의 external connectivity는 이웃 노드의 사용 여부와 상관없이, 요청 임베딩에 사용되기 위해서는 하나의 가상 링크의 경로로써 사용이 되거나 두 개이상의 가상 링크와 연결되기 위해 더 취약한 끝점이 병목이 된다는 보수적 기준으로
-    \[
-    \mathrm{Conn}_L^t(e)=\min\!\left\{\mathrm{Conn}^t(u\mid e),\mathrm{Conn}^t(v\mid e)\right\},\qquad
-    I_L^t(e)=1-\mathrm{Conn}_L^t(e)
-    \]
-    로 두며,
-    \[
-    F_L^t(e)=r_e^t I_L^t(e)=r_e^t\left(1-\mathrm{Conn}_L^t(e)\right)
-    \]
-    로 link fragmentation score를 정의한다.
+    로 두고, $\mathrm{Conn}(v\mid e)$도 동일하게 정의한다.
 
-    \item 임베딩에 의해 유도된 파편화: 단순한 $F^{t+1}-F^t$에는 자원을 직접 소비하여 기존 파편화 자원량 자체가 줄어드는 효과가 섞인다. $F=RI$를 이용하면
+    링크 $e$가 향후 임베딩에 사용될 때 두 끝점은 서로 다른 역할을 가질 수 있다. 한 끝점이 가상 노드의 배치 위치가 되는 경우에는 해당 가상 노드에 인접한 다른 가상 링크를 연결하기 위해 중심 링크 이외의 방향으로 연결이 이어져야 한다. 반대로 그 끝점이 substrate path의 중간 경유지로 사용되는 경우에도 경로가 계속 진행되기 위해 중심 링크 이외의 링크로 연결이 확장되어야 한다. 따라서 끝점의 구체적인 역할과 관계없이, 링크의 활용 가능성은 각 끝점에서 중심 링크를 제외한 외부 연결성이 유지되는가에 의해 제한된다.
+
+    이때 링크 $e$가 어떤 가상 링크의 경로로 사용되거나 여러 가상 링크의 연결 구조에 포함되기 위해서는 두 끝점 중 더 취약한 쪽이 전체 활용 가능성을 제한하는 병목으로 작용한다. 이에 따라 링크의 external connectivity를 보수적으로
     \[
-    F^{t+1}-F^t=(R^{t+1}-R^t)I^t+R^{t+1}(I^{t+1}-I^t)
+    \mathrm{Conn}_L(e)
+    =
+    \min
+    \left\{
+    \mathrm{Conn}(u\mid e),
+    \mathrm{Conn}(v\mid e)
+    \right\}
     \]
-    이므로, 현재 embedding decision으로 인해 \emph{남은 자원의 연결성이 추가로 악화된 부분}만을 induced fragmentation으로 정의한다. 따라서
+    로 정의한다. 또한
     \[
-    \Delta F_N(M)=\sum_{v\in N^S}r_v^{t+1}\left(I_N^{t+1}(v)-I_N^t(v)\right),
+    I_L(e)
+    =
+    1-\mathrm{Conn}_L(e)
+    \]
+    로 두고, link fragmentation score를
+    \[
+    F_L(e)
+    =
+    r_e I_L(e)
+    =
+    r_e\left(1-\mathrm{Conn}_L(e)\right)
+    \]
+    로 정의한다. 즉, 링크 자체에 bandwidth가 남아 있더라도 적어도 한쪽 끝점에서 중심 링크 이외의 연결 가능성이 크게 감소하면 해당 잔여 bandwidth의 실질적 활용 가능성이 낮아진 것으로 평가한다.
+
+    \item 임베딩에 의해 유도된 파편화: 현재 기저 네트워크 상태에 임베딩 $M$을 적용한 후의 잔여 자원과 연결성 손실을 각각 $R(M)$과 $I(M)$로 두면,
+    \[
+    F(M)-F
+    =
+    \bigl(R(M)-R\bigr)I
+    +
+    R(M)\bigl(I(M)-I\bigr)
+    \]
+    로 분해할 수 있다. 첫 번째 항은 자원을 직접 소비함으로써 기존 fragmentation score가 변하는 효과이고, 두 번째 항은 임베딩 이후에도 남아 있는 자원의 연결성이 추가로 악화되는 효과이다. 본 연구에서는 후자만을 induced fragmentation으로 정의한다.
+
+    따라서 node와 link에 대해
+    \[
+    \Delta F_N(M)
+    =
+    \sum_{v\in N^S}
+    r_v(M)
+    \left(
+    I_N(v;M)-I_N(v)
+    \right),
     \]
     \[
-    \Delta F_L(M)=\sum_{e\in L^S}r_e^{t+1}\left(I_L^{t+1}(e)-I_L^t(e)\right),
+    \Delta F_L(M)
+    =
+    \sum_{e\in L^S}
+    r_e(M)
+    \left(
+    I_L(e;M)-I_L(e)
+    \right)
     \]
+    로 두고, 전체 fragmentation increase cost를
     \[
-    \Delta F_{\mathrm{frag}}(M)=\Delta F_L(M)+\gamma\Delta F_N(M),\qquad \gamma\ge0.
+    \Delta F_{\mathrm{frag}}(M)
+    =
+    \Delta F_L(M)
+    +
+    \gamma\Delta F_N(M),
+    \qquad
+    \gamma\ge0
     \]
-    이 값은 전역 파편화 총량이 아니라, 이미 feasible한 임베딩 후보들 사이에서 현재 결정이 야기하는 \emph{local marginal fragmentation cost}로 사용한다.
+    로 정의한다. 이 값은 네트워크 전체의 절대적인 fragmentation level이 아니라, feasible embedding 후보들 사이에서 현재 임베딩 $M$이 남은 자원의 활용 가능성을 추가로 얼마나 훼손하는지를 평가하기 위한 local marginal cost로 사용한다.
 }
+
 
 \section{Problem Formulation}
 \label{sec:problem_formulation}
