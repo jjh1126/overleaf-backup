@@ -99,28 +99,6 @@ Virtual Network Embedding, online VNE, resource fragmentation
 \section{Introduction}
 \label{sec:introduction}
 
-\begin{figure}[htbp]
-    \centering
-    % 첫 번째 서브피규어 (a)
-    \begin{subfigure}[b]{0.48\textwidth}
-        \centering
-        \includesvg[width=\textwidth]{fig1_1.svg}
-        \caption{첫 번째 그림 설명}
-        \label{fig:fig1_1}
-    \end{subfigure}
-    \hfill % 두 그림 사이 간격 조절
-    % 두 번째 서브피규어 (b)
-    \begin{subfigure}[b]{0.48\textwidth}
-        \centering
-        \includesvg[width=\textwidth]{fig1_2.svg}
-        \caption{두 번째 그림 설명}
-        \label{fig:fig1_2}
-    \end{subfigure}
-    
-    \caption{전체 피규어에 대한 설명}
-    \label{fig:combined_figures}
-\end{figure}
-
 % VNE 의 배경과 정의
 Modern network infrastructures must serve diverse tenants and applications simultaneously. These services range from latency sensitive real time traffic to bandwidth intensive data transfers, and their resource requirements are often heterogeneous. Network virtualization addresses these requirements by abstracting physical infrastructure into virtual resources. Each service request is commonly modeled as a virtual network request (VNR) with node and link resource requirements. Mapping a VNR onto the substrate network requires node embedding and virtual link routing, a process known as virtual network embedding (VNE)~\cite{satpathy2025virtual}.
 
@@ -144,6 +122,28 @@ Existing online VNE heuristics manage residual capacity, path feasibility, and e
 %     \item 5. Node/link 분기 : VNE가 CPU를 소비하는 node embedding과 BW를 소비하는 link routing이라는 서로 다른 역할의 두 하위 문제로 구성되므로, 각 자원이 결합해야 하는 대상도 역할에 따라 다름을 설명: 노드는 이종 자원(주변 BW)과 결합해야 하고, 링크는 동종 자원(주변 BW)끼리 사슬처럼 이어져야 함. 한 문단으로 압축하고 자세한 정의는 Section~\ref{sec:metric_definition_of_resource_fragmentation}으로 미룸
 %     \item 6. Contribution 요약 : (i) 잔여량이 아닌 활용 가능성 기반의 파편화 재정의, (ii) max-flow min-cut에 기반한 통일된 external connectivity 정의, (iii) node/link 역할에 맞는 지표 특수화, (iv) 임베딩으로 인한 induced fragmentation을 자원 소비 효과와 분리, (v) 이를 반영한 online VNE 목적함수 제안
 % }
+
+\begin{figure}[htbp]
+    \centering
+    % 첫 번째 서브피규어 (a)
+    \begin{subfigure}[b]{0.25\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/fig1_1.png}
+        \caption{첫 번째 그림 설명}
+        \label{fig:fig1_1}
+    \end{subfigure}
+    \hfill % 두 그림 사이 간격
+    % 두 번째 서브피규어 (b)
+    \begin{subfigure}[b]{0.18\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/fig1_2.png}
+        \caption{두 번째 그림 설명}
+        \label{fig:fig1_2}
+    \end{subfigure}
+    
+    \caption{전체 피규어 제목}
+    \label{fig:combined_figures}
+\end{figure}
 
 \section{Related Work}
 \label{sec:related_work}
