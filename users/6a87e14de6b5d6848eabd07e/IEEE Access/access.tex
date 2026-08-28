@@ -426,122 +426,6 @@ Accordingly, the proposed metric differs from the reviewed fragmentation metrics
 \section{Fragmentation-Aware Embedding Algorithm}
 \label{sec:embedding_algorithm}
 
-\todobox{Fragmentation-Aware Embedding Algorithm -- 본문 작성 메모}{
-
-    \item 기존 VNE-RFD framework 사용
-
-    Proposed method는 VNE-RFD~\cite{lu2022resource}의 online embedding
-    framework를 사용한다.
-    Root virtual-node selection, DFS/BFS-based processing order,
-    feasible substrate-node candidate generation,
-    $K$-shortest-path search, 그리고 bounded backtracking은
-    기존 VNE-RFD를 따른다.
-
-    따라서 이 절에서는 이러한 공통 절차를 다시 상세히 설명하지 않고,
-    Section~\ref{sec:metric_definition_of_resource_fragmentation}에서 정의한
-    induced fragmentation이 substrate-node 및 path selection에
-    어떻게 사용되는지를 중심으로 설명한다.
-
-    \item Substrate-node candidate evaluation
-
-    현재 처리하는 virtual node $n$에 대해
-    VNE-RFD와 동일한 방식으로 feasible substrate-node set $D(n)$을 구성한다.
-
-    각 candidate $v\in D(n)$을 평가할 때 먼저 $n$을 $v$에 임시 배치한다.
-    이후 $n$과 이미 배치된 neighboring virtual node를 연결하는
-    각 virtual link에 대해 두 substrate endpoints 사이의
-    feasible $K$-shortest paths를 생성한다.
-
-    즉, path를 먼저 선택한 후 substrate node를 결정하는 것이 아니라,
-    substrate-node candidate $v$를 고정한 상태에서
-    해당 candidate에 필요한 link routing을 평가한다.
-
-    \item Path selection
-
-    Virtual link $l$의 bandwidth demand를 $d_l$,
-    현재 substrate state를 $S$라 한다.
-    Candidate path $P$에 $d_l$을 임시 할당한 상태를 $S_P$라 하면,
-    path-selection cost를
-    \[
-    J_{\mathrm{path}}(l,P)
-    =
-    \beta
-    \sum_{e\in P}
-    \frac{d_l}{r_e+\epsilon}
-    +
-    \lambda
-    \Delta F_{\mathrm{frag}}(S\rightarrow S_P)
-    \]
-    로 평가한다.
-
-    $K$개의 feasible paths 중 $J_{\mathrm{path}}$가 가장 작은 path를 선택하고,
-    해당 path를 임시 substrate state에 반영한다.
-    여러 incident virtual links가 routing되어야 하는 경우
-    이 과정을 순차적으로 반복한다.
-
-    \item Candidate score
-
-    Candidate $v$에 virtual node $n$을 배치하고,
-    현재 단계에서 필요한 모든 incident virtual links까지
-    임시 routing한 이후의 상태를 $S_{n,v}$라 한다.
-
-    Candidate의 최종 평가는
-    \[
-    J_{\mathrm{cand}}(n,v)
-    =
-    \alpha
-    \frac{d_n}{r_v+\epsilon}
-    +
-    \beta
-    \sum_{l\in L_{n}^{\mathrm{map}}}
-    \sum_{e\in P_l^*}
-    \frac{d_l}{r_e+\epsilon}
-    +
-    \lambda
-    \Delta F_{\mathrm{frag}}(S_0\rightarrow S_{n,v}),
-    \]
-    로 수행한다.
-
-    여기서 $S_0$는 candidate $v$를 평가하기 직전의 substrate state이고,
-    $L_n^{\mathrm{map}}$은 현재 단계에서 새롭게 routing되는
-    incident virtual-link set이다.
-
-    Path selection에서의 fragmentation term은 각 virtual link의
-    candidate path를 선택하기 위한 것이고,
-    $J_{\mathrm{cand}}$의 fragmentation term은
-    node와 해당 단계에서 routing된 links를 모두 반영한
-    전체 candidate state를 평가하기 위한 것임을 구분해서 설명한다.
-
-    \item Candidate selection and backtracking
-
-    모든 feasible $v\in D(n)$에 대해 $J_{\mathrm{cand}}(n,v)$를 계산한 뒤,
-    candidate를 비용의 오름차순으로 정렬한다.
-    가장 낮은 비용의 candidate부터 실제 embedding을 시도한다.
-
-    이후 virtual-node embedding이 실패하면
-    candidate 적용 이전의 substrate state를 복원하고
-    다음 candidate를 시도한다.
-    이 과정은 VNE-RFD와 동일한 bounded backtracking procedure를 따르며,
-    backtracking 횟수가 $\Delta$를 초과하면 해당 VNR을 reject한다.
-
-    \item RFD baseline과의 비교 조건
-
-    Proposed method와 RFD baseline은
-    virtual-node ordering, feasible candidate generation,
-    $K$-shortest-path enumeration, path-search space,
-    그리고 bounded backtracking policy를 동일하게 사용한다.
-
-    두 방법의 핵심 차이는 embedding candidate를 평가할 때 사용하는
-    fragmentation model이다.
-    RFD baseline은 RFD-based fragmentation cost를 사용하고,
-    proposed method는 external connectivity의 변화로 정의한
-    induced fragmentation cost를 사용한다.
-
-    RFD의 parameter $\tau$는 RFD metric의 observation locality에만 사용하며,
-    routing path의 hop limit으로 사용하지 않는다.
-}
-
-
 \begin{algorithm}[t]
 \caption{Fragmentation-Aware Online VNE}
 \label{alg:proposed_vne}
@@ -549,7 +433,7 @@ Accordingly, the proposed metric differs from the reviewed fragmentation metrics
 
 \STATE Input:
 substrate network $G^S$, arriving VNR $G^V$,
-$K$, $\Delta$, $\lambda$, $\gamma$
+$K$, $\Delta$, $\alpha$, $\beta$, $\lambda$, $\gamma$, $\epsilon$
 
 \STATE Output:
 embedding $M$ or \textsc{Reject}
@@ -562,21 +446,20 @@ following VNE-RFD~\cite{lu2022resource}
     \STATE Construct feasible substrate-node set $D(n)$
     \STATE $\mathcal{C} \leftarrow \emptyset$
 
-    \FOR{each $v \in D(n)$}
+    \FOR{each $v\in D(n)$}
 
         \STATE Save the current substrate state $S_0$
         \STATE Tentatively map $n$ onto $v$
-        \STATE $\mathrm{feasible} \leftarrow \mathrm{true}$
-        \STATE $C_L \leftarrow 0$
+        \STATE $\mathrm{feasible}\leftarrow\mathrm{true}$,
+        $C_L\leftarrow0$
 
-        \FOR{each $l=\{n,m\}\in L^V$
-              with already mapped $m$}
+        \FOR{each $l=\{n,m\}\in L^V$ with already mapped $m$}
 
             \STATE Generate feasible $K$-shortest paths
-            $\mathcal{P}_l$ between $M_N(m)$ and $v$
+            $\mathcal{P}_l$ between $v$ and $M_N(m)$
 
             \IF{$\mathcal{P}_l=\emptyset$}
-                \STATE $\mathrm{feasible} \leftarrow \mathrm{false}$
+                \STATE $\mathrm{feasible}\leftarrow\mathrm{false}$
                 \STATE break
             \ENDIF
 
@@ -587,14 +470,14 @@ following VNE-RFD~\cite{lu2022resource}
             \leftarrow
             \displaystyle
             \arg\min_{P\in\mathcal{P}_l}
-            \left\{
-            \beta
-            \sum_{e\in P}
-            \frac{d_l}{r_e+\epsilon}
-            +
-            \lambda
-            \Delta F_{\mathrm{frag}}(S\rightarrow S_P)
-            \right\}$
+            \left[
+                \beta
+                \sum_{e\in P}
+                \frac{d_l}{r_e+\epsilon}
+                +
+                \lambda
+                \Delta F_{\mathrm{frag}}(S\rightarrow S_P)
+            \right]$
 
             \STATE Tentatively allocate $l$ on $P_l^*$
 
@@ -624,12 +507,9 @@ following VNE-RFD~\cite{lu2022resource}
             \lambda
             \Delta F_{\mathrm{frag}}(S_0\rightarrow S_{n,v})$
 
-            \STATE
-            $\mathcal{C}
-            \leftarrow
-            \mathcal{C}
-            \cup
-            \{(v,J_{\mathrm{cand}}(n,v))\}$
+            \STATE Store
+            $(v,\{P_l^*\},J_{\mathrm{cand}}(n,v))$
+            in $\mathcal{C}$
 
         \ENDIF
 
@@ -638,22 +518,54 @@ following VNE-RFD~\cite{lu2022resource}
     \ENDFOR
 
     \STATE Sort $\mathcal{C}$ in ascending order of $J_{\mathrm{cand}}$
+    \STATE Apply candidates using the VNE-RFD bounded backtracking procedure
 
-    \STATE Try candidates in the sorted order using
-    VNE-RFD bounded backtracking
-
-    \IF{no candidate succeeds or the number of backtracks exceeds $\Delta$}
+    \IF{no feasible candidate remains or backtracks exceed $\Delta$}
         \STATE return \textsc{Reject}
     \ENDIF
 
 \ENDFOR
 
-\STATE Commit the embedding $M$
-\STATE Update residual substrate resources
+\STATE Commit embedding $M$ and update residual substrate resources
 \STATE return $M$
 
 \end{algorithmic}
 \end{algorithm}
+
+\todobox{Fragmentation-Aware Embedding Algorithm}{
+
+    \item Algorithm framework:
+    제안 알고리즘은 VNE-RFD~\cite{lu2022resource}의 online embedding
+    framework를 사용한다.
+    Virtual-node processing order, feasible substrate-node candidate generation,
+    $K$-shortest-path search, bounded backtracking은 VNE-RFD를 따른다.
+    이 절에서는 앞서 정의한 induced fragmentation을
+    substrate-node 및 path selection에 적용하는 방법만 설명한다.
+
+    \item Candidate evaluation:
+    현재 virtual node $n$의 각 feasible substrate-node candidate
+    $v\in D(n)$를 고정한 뒤, 이미 배치된 neighboring virtual node와
+    연결되는 incident virtual links를 순차적으로 routing한다.
+    각 virtual link에 대해 feasible $K$-shortest paths를 생성하고,
+    load-balancing cost와 induced fragmentation cost의 합이 가장 작은
+    path를 선택하여 tentative substrate state에 반영한다.
+
+    모든 필요한 incident virtual links의 routing이 완료되면
+    node load-balancing cost, link load-balancing cost,
+    그리고 candidate 적용 전후의 induced fragmentation cost를 이용해
+    candidate score를 계산한다.
+
+    \item Candidate selection and backtracking:
+    Feasible candidates를 candidate score의 오름차순으로 정렬하고
+    가장 낮은 비용의 candidate부터 적용한다.
+    이후 embedding이 실패하면 VNE-RFD의 bounded backtracking procedure에 따라
+    이전 단계로 복귀하여 다음 candidate를 평가한다.
+    Backtracking 횟수가 $\Delta$를 초과하면 해당 VNR을 reject한다.
+
+    
+}
+
+
 
 
 
