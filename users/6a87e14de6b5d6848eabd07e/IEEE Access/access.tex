@@ -30,19 +30,6 @@
 VNE 자원 파편화에 대한 본 논문의 핵심 철학 : 
 "잔여 자원이 존재하지만 향후 다른 자원과 결합되어 요청을 구성하는데 실질적으로 활용하기 어려운 상태를 말한다."
 
-따라서 연결성은 언급하지 않는다.
-
-VNE 의 노드 임베딩과 링크 라우팅 관점으로 나눠서 다른 자원과 결합되는 경우를 생각해보자.
-노드 임베딩은, 
-- 기저 노드의 잔여 자원이 충분해야하고 주변 링크 자원도 충분해야한다.
-- 따라서 기저 노드의 잔여 자원과 주변(adj) 링크 자원을 같이 평가한다.
-
-링크 라우팅은, 
-- 기저 링크의 잔여 자원 자체가 충분해야하고 그 링크가 다른 링크와 이어져 경로의 일부를 형성할 수 있어야 한다.
-- 따라서 해당 기저 링크의 잔여 자원과 양끝 노드의 주변(adj) 링크 자원을 따로 평가하여 min 을 취한다. 
-- 둘 중 하나라도 결합되기 어렵다면 경로를 구성하기 어렵기 때문이다.
-
-
 \end{comment}
  
 
@@ -71,7 +58,7 @@ VNE 의 노드 임베딩과 링크 라우팅 관점으로 나눠서 다른 자�
 % \doi{10.1109/ACCESS.2024.0429000}
 \doi{} % ieeeaccess.cls expects this macro to be defined; fill before submission
 
-\title{TITLE}
+\title{Fragmentation-Aware Online Virtual Network Embedding via External Connectivity}
 
 \author{\uppercase{Jae-Hong Jung}\authorrefmark{1}, 
 \uppercase{Bon-Seung Ku}\authorrefmark{1}, AND 
@@ -117,14 +104,20 @@ In practical deployments, VNE operates in a dynamic setting where VNRs arrive an
 % 기존 방법의 한계
 Existing online VNE heuristics manage residual capacity, path feasibility, and embedding cost during node and link routing. However, their control granularity is mainly limited to individual substrate nodes, adjacent link sets, candidate paths, or aggregate load balancing objectives. These approaches do not explicitly quantify resource fragmentation in the residual substrate state.
 
-\todobox{서론 구성 (전체 흐름 정리)}{
-    \item 1. 동기 : Online VNE에서 요청을 반복적으로 수용/해제하다 보면, 개별 자원(CPU/BW)의 총 잔여량이 충분해도 수락률이 저하되는 현상이 나타남을 지적. 메모리 단편화(memory fragmentation)에 대한 비유로 시작하면 직관적: 블록은 남아있지만 연속된 큰 블록이 없어 할당이 실패하는 상황과 유사 (여기서 예시 figure 배치)
-    \item 2. 기존 접근의 한계 : 기존 연구는 이 현상을 잔여 CPU/BW의 절대량 또는 부하 분산(load balancing) 문제로만 다루며, ``이 자원이 실제로 향후 요청 구성에 활용될 수 있는가''라는 활용 가능성 자체는 정량화하지 않음을 지적
-    \item 3. 핵심 재정의 -- 논문의 빅 아이디어 : VNE 요청은 개별 자원의 집합이 아니라 그래프이므로, 잔여 자원의 가치는 양 자체가 아니라 다른 잔여 자원과 결합하여 향후 요청 구조를 구성할 수 있는지에 달려 있다는 관점 제시. 이 단계에서는 아직 node/link를 구분하지 않음
-    \item 4. 지표 예고 : 이 결합 가능성을 정량화하기 위해 external connectivity(경계 용량 비율)라는 구조적 지표를 사용함을 짧게 예고. Max-flow min-cut으로 정당화된다는 점을 한 문장으로 언급
-    \item 5. Node/link 분기 : VNE가 CPU를 소비하는 node embedding과 BW를 소비하는 link routing이라는 서로 다른 역할의 두 하위 문제로 구성되므로, 각 자원이 결합해야 하는 대상도 역할에 따라 다름을 설명: 노드는 이종 자원(주변 BW)과 결합해야 하고, 링크는 동종 자원(주변 BW)끼리 사슬처럼 이어져야 함. 한 문단으로 압축하고 자세한 정의는 Section~\ref{sec:metric_definition_of_resource_fragmentation}으로 미룸
-    \item 6. Contribution 요약 : (i) 잔여량이 아닌 활용 가능성 기반의 파편화 재정의, (ii) max-flow min-cut에 기반한 통일된 external connectivity 정의, (iii) node/link 역할에 맞는 지표 특수화, (iv) 임베딩으로 인한 induced fragmentation을 자원 소비 효과와 분리, (v) 이를 반영한 online VNE 목적함수 제안
+\todobox{이후 서론 구성}{
+
+    \item 
+
 }
+
+% \todobox{서론 구성 (전체 흐름 정리)}{
+%     \item 1. 동기 : Online VNE에서 요청을 반복적으로 수용/해제하다 보면, 개별 자원(CPU/BW)의 총 잔여량이 충분해도 수락률이 저하되는 현상이 나타남을 지적. 메모리 단편화(memory fragmentation)에 대한 비유로 시작하면 직관적: 블록은 남아있지만 연속된 큰 블록이 없어 할당이 실패하는 상황과 유사 (여기서 예시 figure 배치)
+%     \item 2. 기존 접근의 한계 : 기존 연구는 이 현상을 잔여 CPU/BW의 절대량 또는 부하 분산(load balancing) 문제로만 다루며, ``이 자원이 실제로 향후 요청 구성에 활용될 수 있는가''라는 활용 가능성 자체는 정량화하지 않음을 지적
+%     \item 3. 핵심 재정의 -- 논문의 빅 아이디어 : VNE 요청은 개별 자원의 집합이 아니라 그래프이므로, 잔여 자원의 가치는 양 자체가 아니라 다른 잔여 자원과 결합하여 향후 요청 구조를 구성할 수 있는지에 달려 있다는 관점 제시. 이 단계에서는 아직 node/link를 구분하지 않음
+%     \item 4. 지표 예고 : 이 결합 가능성을 정량화하기 위해 external connectivity(경계 용량 비율)라는 구조적 지표를 사용함을 짧게 예고. Max-flow min-cut으로 정당화된다는 점을 한 문장으로 언급
+%     \item 5. Node/link 분기 : VNE가 CPU를 소비하는 node embedding과 BW를 소비하는 link routing이라는 서로 다른 역할의 두 하위 문제로 구성되므로, 각 자원이 결합해야 하는 대상도 역할에 따라 다름을 설명: 노드는 이종 자원(주변 BW)과 결합해야 하고, 링크는 동종 자원(주변 BW)끼리 사슬처럼 이어져야 함. 한 문단으로 압축하고 자세한 정의는 Section~\ref{sec:metric_definition_of_resource_fragmentation}으로 미룸
+%     \item 6. Contribution 요약 : (i) 잔여량이 아닌 활용 가능성 기반의 파편화 재정의, (ii) max-flow min-cut에 기반한 통일된 external connectivity 정의, (iii) node/link 역할에 맞는 지표 특수화, (iv) 임베딩으로 인한 induced fragmentation을 자원 소비 효과와 분리, (v) 이를 반영한 online VNE 목적함수 제안
+% }
 
 \section{Related Work}
 \label{sec:related_work}
@@ -157,42 +150,38 @@ Accordingly, the proposed metric differs from the reviewed fragmentation metrics
 \label{sec:system_model}
 
 \begin{table}
-    \caption{\textbf{Notation for Experimental Setup}}
-    \label{tab:experimental_notation}
+    \caption{\textbf{Notation for Embedding State Transition}}
+    \label{tab:embedding_state_notation}
     \setlength{\tabcolsep}{3pt}
     \begin{tabular}{|p{45pt}|p{195pt}|}
         \hline
         Symbol & Description \\
         \hline
 
-        $n_S$
-        & Number of independently generated substrate networks \\
-        
-        $n_R$
-        & Number of independently generated VNR sets \\
-        
-        $G_i^S$
-        & $i$-th substrate network, $i=1,\ldots,n_S$ \\
-        
-        $\mathcal{R}_j$
-        & $j$-th VNR set, $j=1,\ldots,n_R$ \\
-        
-        $\mathcal{G}^S$
-        & Set of generated substrate networks,
-        $\mathcal{G}^S=\{G_1^S,\ldots,G_{n_S}^S\}$ \\
-        
-        $\mathcal{R}$
-        & Set of generated VNR sets,
-        $\mathcal{R}=\{\mathcal{R}_1,\ldots,\mathcal{R}_{n_R}\}$ \\
-        
-        $E_{ij}$
-        & Experiment using substrate network $G_i^S$
-        and VNR set $\mathcal{R}_j$ \\
-        
-        $N_{\mathrm{exp}}$
-        & Total number of experiments,
-        $N_{\mathrm{exp}}=n_S n_R$ \\
-        
+        $G^S$
+        & Fixed substrate network, $G^S=(N^S,L^S)$ \\
+
+        $G_t^S$
+        & State of the substrate network before the current embedding \\
+
+        $G_{t+1}^S(M)$
+        & State of the substrate network after applying embedding $M$ \\
+
+        $r_v^t$
+        & Residual CPU capacity of substrate node $v$ at state $t$ \\
+
+        $r_v^{t+1}$
+        & Residual CPU capacity of substrate node $v$ after embedding $M$ \\
+
+        $r_e^t$
+        & Residual bandwidth capacity of substrate link $e$ at state $t$ \\
+
+        $r_e^{t+1}$
+        & Residual bandwidth capacity of substrate link $e$ after embedding $M$ \\
+
+        $M$
+        & Embedding applied to the current substrate-network state \\
+
         \hline
     \end{tabular}
 \end{table}
