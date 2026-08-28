@@ -223,7 +223,7 @@ Accordingly, the proposed metric differs from the reviewed fragmentation metrics
     \]
     로 정의한다. $A$와 $\bar A$를 각각 super source/sink에 연결하면 두 영역 사이의 유한 cut이 $\delta(A)$로 고정되므로, 이 boundary capacity는 해당 영역과 외부 사이의 max-flow/min-cut 값으로 해석할 수 있다.
 
-    \item Node fragmentation -- primitive: 기저 노드 $v$에 대해 $A=\{v\}$로 특수화한다. $v$의 incident-link connectivity와 connectivity loss를
+    \item Node fragmentation -- primitive: 기저 노드 $v$에 대해 $A=\{v\}$로 특수화한다. $v$의 external connectivity를
     \[
     \mathrm{Conn}_N^t(v)=
     \begin{cases}
@@ -252,7 +252,7 @@ Accordingly, the proposed metric differs from the reviewed fragmentation metrics
     0, & \text{otherwise},
     \end{cases}
     \]
-    로 두고 $\mathrm{Conn}^t(v\mid e)$도 동일하게 정의한다. 링크의 path-extension connectivity는 더 취약한 끝점이 병목이 된다는 보수적 기준으로
+    로 두고 $\mathrm{Conn}^t(v\mid e)$도 동일하게 정의한다. 링크의 external connectivity는 이웃 노드의 사용 여부와 상관없이, 요청 임베딩에 사용되기 위해서는 하나의 가상 링크의 경로로써 사용이 되거나 두 개이상의 가상 링크와 연결되기 위해 더 취약한 끝점이 병목이 된다는 보수적 기준으로
     \[
     \mathrm{Conn}_L^t(e)=\min\!\left\{\mathrm{Conn}^t(u\mid e),\mathrm{Conn}^t(v\mid e)\right\},\qquad
     I_L^t(e)=1-\mathrm{Conn}_L^t(e)
@@ -262,8 +262,6 @@ Accordingly, the proposed metric differs from the reviewed fragmentation metrics
     F_L^t(e)=r_e^t I_L^t(e)=r_e^t\left(1-\mathrm{Conn}_L^t(e)\right)
     \]
     로 link fragmentation score를 정의한다.
-
-    \item node fragmentation score 는 
 
     \item 임베딩에 의해 유도된 파편화: 단순한 $F^{t+1}-F^t$에는 자원을 직접 소비하여 기존 파편화 자원량 자체가 줄어드는 효과가 섞인다. $F=RI$를 이용하면
     \[
