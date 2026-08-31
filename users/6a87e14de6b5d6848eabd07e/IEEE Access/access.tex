@@ -143,15 +143,16 @@ Existing online VNE heuristics manage residual capacity, path feasibility, and e
 \end{figure}
 
 % 자원 파편화를 정량화하기 위한 설명
-Fig.~\ref{fig:combined_figures}은 자원 파편화를 설명한다. Fig.~\ref{fig:vn}는 새롭게 도착한 VNR을 나타내고, Fig.~\ref{fig:sn}는 substrate network의 잔여 자원 상태를 나타낸다. 자원의 총량 측면에서는 기저 네트워크에는 요청을 수용할 수 있을 만큼의 잔여 자원이 존재하지만, 이들 자원이 VNR의 노드 및 링크 요구 사항을 동시에 만족하도록 결합될 수 없기 때문에 해당 임베딩 요청은 거절된다. 이처럼, VNE에서 잔여 자원의 가치는 단순히 남아 있는 CPU 또는 bandwidth의 절대량만으로 결정되지 않는다. VNR은 node와 link가 결합된 그래프 구조이므로, 특정 substrate resource에 충분한 잔여 용량이 존재하더라도 주변 자원과 함께 향후 요청을 구성하기 어렵다면 그 자원의 실질적인 활용 가능성은 낮다. 따라서 Resource Fragmetation 은 잔여 자원의 결합 가능성으로 평가될 수 있다.
+Fig.~\ref{fig:combined_figures}은 자원 파편화를 설명한다. Fig.~\ref{fig:vn}는 새롭게 도착한 VNR을 나타내고, Fig.~\ref{fig:sn}는 substrate network의 잔여 자원 상태를 나타낸다. 자원의 총량 측면에서는 기저 네트워크에는 요청을 수용할 수 있을 만큼의 잔여 자원이 존재하지만, 이들 자원이 VNR의 노드 및 링크 요구 사항을 동시에 만족하도록 결합될 수 없기 때문에 해당 임베딩 요청은 거절된다. 이처럼, VNE에서 잔여 자원의 가치는 단순히 남아 있는 CPU 또는 bandwidth의 절대량만으로 결정되지 않는다. VNR은 node와 link가 결합된 그래프 구조이므로, 특정 substrate resource에 충분한 잔여 용량이 존재하더라도 주변 자원과 함께 향후 요청을 구성하기 어렵다면 그 자원의 실질적인 활용 가능성은 낮다. 따라서 Resource Fragmetation 은 잔여 자원과 그것의 결합 가능성으로 평가될 수 있다.
 
-본 논문에서는 이러한 관점에서 external connectivity를 이용해 잔여 자원의 결합 가능성을 평가하기위해, 잔여 자원량과 외부 자원으로 연결될 수 있는 정도를 함께 고려하여, 자원이 물리적으로 남아 있음에도 다른 자원과 결합되기 어려운 상태를 fragmentation으로 정량화한다. 이를 위해 잔여 자원량과 normalized external connectivity를 결합한 External-Connectivity-based Fragmentation (\ecf) metric을 정의한다.
+% 
+본 논문에서는 결합 가능성을 external connectivity를 이용해 평가하고, 잔여 자원량과 외부 자원으로 연결될 수 있는 정도를 함께 고려하여, 자원이 물리적으로 남아 있음에도 다른 자원과 결합되기 어려운 상태를 한다. 이를 위해 잔여 자원량과 normalized external connectivity를 결합한 External-Connectivity-based Fragmentation (\ecf) metric을 정의한다.
 
 Node embedding과 link routing은 서로 다른 형태의 자원 결합을 요구한다. Substrate node의 CPU는 인접 substrate link의 bandwidth를 통해 다른 자원과 연결되어야 하며, substrate link의 bandwidth는 양 끝점에서 다른 link와 연속적으로 연결되어 substrate path를 구성할 수 있어야 한다. 따라서 본 논문은 동일한 external-connectivity 관점을 유지하면서도, node와 link가 VNE에서 수행하는 역할에 맞추어 fragmentation을 각각 정의한다.
 
 또한 임베딩 전후의 fragmentation score 변화에는 직접적인 자원 소비와 잔여 자원의 connectivity 저하가 동시에 포함된다. 본 논문은 두 효과를 분리하고, 자원 소비 이후 남은 자원의 connectivity 저하로 인해 발생하는 부분만을 induced fragmentation cost로 정의한다. \ecfvne{}는 이 비용을 기존의 load-balancing cost와 함께 node candidate 및 path selection에 반영함으로써 현재 VNR을 수용하는 동시에 이후 요청에 사용할 수 있는 substrate resource의 활용 가능성을 보존한다.
 
-이와 같은 관점에서 본 논문의 주요 기여는 다음과 같이 요약할 수 있다. 잔여 자원의 절대량이 아니라 다른 자원과의 결합 가능성을 중심으로 resource fragmentation을 정의하고, external connectivity에 기반한 통일된 \ecf{} metric을 node와 link에 각각 특수화한다. 또한 induced fragmentation을 직접적인 자원 소비 효과와 분리하여 online VNE의 node 및 path selection에 반영하는 \ecfvne{}를 제안한다.
+이와 같은 관점에서 본 논문의 주요 기여는 다음과 같이 요약할 수 있다. 잔여 자원의 절대량이 아니라 다른 자원과의 결합 가능성을 중심으로 resource fragmentation을 평가하고, external connectivity에 기반한 통일된 \ecf{} metric을 node와 link에 각각 특수화한다. 또한 induced fragmentation을 직접적인 자원 소비 효과와 분리하여 online VNE의 node 및 path selection에 반영하는 \ecfvne{}를 제안한다.
 
 
 \section{Related Work}
