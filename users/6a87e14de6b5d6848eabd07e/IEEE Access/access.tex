@@ -175,9 +175,6 @@ The proposed metric shares with RFD the observation that residual resource amoun
 
 Accordingly, the proposed metric differs from the reviewed fragmentation metrics not in whether neighboring resources are considered, but in how their relationships are defined. It characterizes residual-resource usability according to the distinct resource combinations required by node embedding and link routing, aiming to identify residual resources that remain available but are difficult to combine with other resources in future VNR embeddings. In addition, the formulation distinguishes the direct resource-consumption effect of an embedding from the connectivity degradation it induces, with the latter represented through the external connectivity metric introduced in the next section.
 
-\section{System Model}
-\label{sec:system_model}
-
 \begin{table}[t]
 \caption{\textbf{Notation specification}}
 \label{tab:notation}
@@ -260,6 +257,9 @@ $\alpha,\beta,\lambda$
 
 \end{tabular}
 \end{table}
+
+\section{System Model}
+\label{sec:system_model}
 
 Substrate network는 weighted undirected graph $G^S=(N^S,L^S)$로 정의한다. 여기서 $N^S$와 $L^S$는 각각 substrate node와 substrate link의 집합이다. Substrate node $v\in N^S$의 초기 CPU 용량과 현재 잔여 CPU 용량을 각각 $c_v$와 $r_v$로 두며, substrate link $e=\{u,v\}\in L^S$의 초기 bandwidth 용량과 현재 잔여 bandwidth 용량을 각각 $c_e$와 $r_e$로 정의한다. Virtual-link routing의 경로와 flow를 표현하기 위해 각 무방향 substrate link $\{u,v\}\in L^S$를 두 방향 arc $(u,v)$와 $(v,u)$로 확장하고, 이들의 집합을 $A^S$로 둔다.
 
@@ -530,7 +530,7 @@ C_{\mathrm{LB}}(x,f)
 \section{ECF-VNE Embedding Algorithm}
 \label{sec:embedding_algorithm}
 
-\begin{algorithm}[t]
+\begin{algorithm}[!htbp]
 \caption{ECF-VNE: External-Connectivity-Based Fragmentation-Aware Online VNE}
 \label{alg:ecf_vne}
 \begin{algorithmic}[1]
