@@ -179,6 +179,89 @@ Accordingly, the proposed metric differs from the reviewed fragmentation metrics
 \section{System Model}
 \label{sec:system_model}
 
+\begin{table}[t]
+\caption{\textbf{Notation specification}}
+\label{tab:notation}
+\centering
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.12}
+
+\begin{tabular}{|p{0.22\columnwidth}|p{0.68\columnwidth}|}
+\hline
+\textbf{Symbol} & \textbf{Description} \\
+\hline
+
+$G^S=(N^S,L^S)$
+& Substrate network \\
+\hline
+
+$G^V=(N^V,L^V)$
+& Virtual network request (VNR) \\
+\hline
+
+$c_v,\; r_v$
+& Initial and residual CPU capacity of substrate node $v$, respectively \\
+\hline
+
+$c_e,\; r_e$
+& Initial and residual bandwidth capacity of substrate link $e$, respectively \\
+\hline
+
+$d_n$
+& CPU demand of virtual node $n$ \\
+\hline
+
+$d_l$
+& Bandwidth demand of virtual link $l$ \\
+\hline
+
+$M_N$
+& Virtual-to-substrate node mapping \\
+\hline
+
+$M_L$
+& Virtual-link-to-substrate-path mapping \\
+\hline
+
+$M=(M_N,M_L)$
+& Complete VNR embedding \\
+\hline
+
+$\mathrm{Conn}$
+& Normalized external connectivity of a residual resource \\
+\hline
+
+$F$
+& Fragmentation score based on residual resource and connectivity \\
+\hline
+
+$F_N(v)$
+& Fragmentation score of substrate node $v$ \\
+\hline
+
+$F_L(e)$
+& Fragmentation score of substrate link $e$ \\
+\hline
+
+$\Delta F_{\mathrm{frag}}(M)$
+& Induced-fragmentation cost caused by embedding $M$ \\
+\hline
+
+$C_{\mathrm{LB}}$
+& Load-balancing cost of an embedding \\
+\hline
+
+$J$
+& Overall embedding objective function \\
+\hline
+
+$\alpha,\beta,\lambda$
+& Weight parameters of the objective function \\
+\hline
+
+\end{tabular}
+\end{table}
+
 \todobox{시스템 모델}{
     \item 기저 네트워크: weighted undirected graph
     $G^S=(N^S,L^S)$로 정의한다. 기저 노드 $v\in N^S$의 초기 CPU 용량과 현재 잔여 CPU를 각각 $c_v$와 $r_v$로 두고, 기저 링크 $e=\{u,v\}\in L^S$의 초기 bandwidth 용량과 현재 잔여 bandwidth를 각각 $c_e$와 $r_e$로 둔다. 경로와 flow를 표현하기 위해 각 무방향 링크 $\{u,v\}\in L^S$를 두 방향 arc $(u,v)$와 $(v,u)$로 확장한 집합을 $A^S$로 둔다.
@@ -609,6 +692,58 @@ following VNE-RFD~\cite{lu2022resource}
     \item 세 topology 모두에서 arrival rate가 증가하면 resource contention이 커지면서 acceptance ratio가 감소하지만, \ecfvne{}는 모든 topology와 arrival rate에서 가장 높은 acceptance ratio를 유지한다. 이는 ER graph의 $p$-sweep에서 나타난 수용률 향상이 실제 network structure에서도 일관되게 재현됨을 보여준다.
 
     \item Revenue-to-cost ratio에서는 VNE-RFD-B와 VNE-RFD-D가 일부 조건에서 더 높은 비용 효율을 보이지만, \ecfvne{}는 그보다 많은 VNR을 수용하며 높은 CPU utilization을 보인다. Link utilization 역시 topology와 workload에 따라 차이가 있으나, 세 실제 topology에서 \ecfvne{}의 상대적인 acceptance ratio 우위가 유지된다는 점은 external connectivity 기반 fragmentation 제어가 특정 substrate 구조에 종속되지 않음을 뒷받침한다.
+}
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+\todobox{Conclusion}{
+    \item
+    본 논문에서는 online VNE에서 반복적인 임베딩으로 인해 잔여 자원의 총량이 충분하더라도
+    다른 잔여 자원과 효과적으로 결합되지 못해 향후 요청에 활용하기 어려워지는
+    resource fragmentation 문제를 다루었다.
+    이를 위해 잔여 자원의 양뿐만 아니라 주변 자원과의 결합 가능성을
+    external connectivity로 나타내고,
+    이를 기반으로 잔여 자원의 활용 가능성을 정량화하는 fragmentation metric을 제안하였다.
+    또한 node embedding과 link routing에서 요구되는 자원 결합 방식의 차이를 반영하여
+    node와 link에 대한 fragmentation score를 각각 정의하였다.
+
+    \item
+    임베딩 전후의 fragmentation score 변화에서는
+    자원 자체가 소비된 효과와 남아 있는 자원의 connectivity가 저하된 효과를 분리하고,
+    후자를 induced fragmentation cost로 정의하였다.
+    ECF-VNE는 이 비용을 기존의 load-balancing cost와 함께 고려하여
+    현재 VNR의 feasibility와 resource usage뿐만 아니라
+    임베딩 이후 남게 되는 substrate resource의 활용 가능성까지 embedding decision에 반영한다.
+
+    \item
+    Erd\H{o}s--R\'enyi substrate의 edge probability를 변화시킨 실험과
+    Internet Topology Zoo의 실제 네트워크 구조를 이용한 실험에서,
+    ECF-VNE는 서로 다른 substrate connectivity와 VNR arrival rate 조건에서도
+    비교 알고리즘보다 높은 VNR acceptance ratio를 일관되게 나타냈다.
+    일부 조건에서는 개별 embedding의 revenue-to-cost ratio가
+    기존 VNE-RFD 계열보다 낮게 나타났지만,
+    더 많은 VNR을 지속적으로 수용하면서 substrate resource를 활용한다는 점에서
+    제안한 fragmentation-aware embedding의 목적과 일관된 결과를 보였다.
+
+    \item
+    한편 제안 지표는 각 substrate node 또는 link 주변의
+    지역적 external connectivity를 이용하여 잔여 자원의 결합 가능성을 평가하므로,
+    외부로 연결되는 여러 경로 사이에서 발생하는 자원 공유 관계까지 직접 포착하지는 않는다.
+    예를 들어 서로 다른 boundary link가 이후 동일한 substrate link나 병목 구간을 공유하는 경우,
+    각 지역에서 관찰되는 external connectivity는 높더라도
+    이들이 실제로 제공할 수 있는 독립적인 embedding capacity는 제한될 수 있다.
+    따라서 현재 지표는 잔여 자원의 local usability를 효율적으로 평가하는 반면,
+    substrate 전역에서의 path overlap이나 shared bottleneck에 의해 발생하는
+    상호 의존성까지 완전히 표현하는 지표는 아니다.
+
+    \item
+    향후 연구에서는 이러한 한계를 보완하기 위해
+    external connectivity를 경로 간 overlap, shared bottleneck,
+    또는 보다 넓은 범위의 flow 및 cut 구조와 결합하는 방법을 고려할 수 있다.
+    이때 online VNE에서 반복적으로 평가할 수 있는 계산 복잡도를 유지하면서
+    지역적 자원 결합 가능성과 전역적인 자원 공유 관계를 함께 반영하는 것이 핵심 과제가 된다.
+
 }
 
 % \nocite{*}
