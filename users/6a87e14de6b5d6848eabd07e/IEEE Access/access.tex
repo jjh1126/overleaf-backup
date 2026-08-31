@@ -526,10 +526,6 @@ C_{\mathrm{LB}}(x,f)
 \]
 로 정의한다. $C_{\mathrm{LB}}$는 substrate resource의 부하 집중을 억제하고, $\Delta F_{\mathrm{frag}}$는 현재 VNR을 임베딩하는 과정에서 잔여 자원의 external connectivity가 저하되는 것을 억제한다. 따라서 \ecfvne{}는 현재 요청의 resource efficiency와 임베딩 이후의 residual-resource usability를 동시에 고려한다.
 
-
-\section{ECF-VNE Embedding Algorithm}
-\label{sec:embedding_algorithm}
-
 \begin{algorithm}[t]
 \caption{ECF-VNE: External-Connectivity-Based Fragmentation-Aware Online VNE}
 \label{alg:ecf_vne}
@@ -637,6 +633,9 @@ following VNE-RFD~\cite{lu2022resource}
 \end{algorithm}
 
 
+\section{ECF-VNE Embedding Algorithm}
+\label{sec:embedding_algorithm}
+
 
 Algorithm~\ref{alg:ecf_vne}은 제안하는 \ecfvne{}의 online embedding 절차를 나타낸다. \ecfvne{}는 VNE-RFD~\cite{lu2022resource}의 online embedding framework를 기반으로 하며, virtual-node processing order, feasible substrate-node candidate generation, $K$-shortest-path search, bounded backtracking 절차를 유지한다. 제안 기법의 핵심 차이는 각 node candidate와 routing path를 평가할 때 load-balancing cost뿐 아니라 앞서 정의한 induced fragmentation cost를 함께 반영한다는 점이다.
 
@@ -669,45 +668,38 @@ VNR은 Poisson process에 따라 도착하며, holding time은 평균 1,000 time
 \subsection{ER Substrate의 연결 밀도에 따른 성능}
 Synthetic substrate에서는 50개 node의 connected Erd\H{o}s--R\'{e}nyi graph $G(50,p_s)$를 사용하고, edge probability를 $p_s\in\{0.05,0.10,0.15,0.20,0.25\}$로 변화시킨다. 이 실험에서는 VNR arrival rate를 1,000 time units당 50개로 고정하여 substrate connectivity 변화가 각 embedding algorithm의 성능에 미치는 영향을 비교한다.
 
-\begin{figure*}[t]
+% p_s-sweep 결과는 각 그래프를 한 컬럼 폭으로 배치한다.
+\begin{figure}[t]
     \centering
-    \begin{subfigure}[t]{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{er50_paired25_acceptance_ratio_p_sweep.pdf}
-        \caption{VNR acceptance ratio}
-        \label{fig:er_p_acceptance}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{er50_paired25_revenue_cost_ratio_p_sweep.pdf}
-        \caption{Revenue-to-cost ratio}
-        \label{fig:er_p_revenue_cost}
-    \end{subfigure}
+    \includegraphics[width=\columnwidth]{er50_paired25_acceptance_ratio_p_sweep.pdf}
+    \caption{ER substrate $G(50,p_s)$에서 $p_s$ 변화에 따른 VNR acceptance ratio.}
+    \label{fig:er_p_acceptance}
+\end{figure}
 
-    \vspace{1mm}
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\columnwidth]{er50_paired25_revenue_cost_ratio_p_sweep.pdf}
+    \caption{ER substrate $G(50,p_s)$에서 $p_s$ 변화에 따른 revenue-to-cost ratio.}
+    \label{fig:er_p_revenue_cost}
+\end{figure}
 
-    \begin{subfigure}[t]{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{er50_paired25_avg_cpu_utilization_p_sweep.pdf}
-        \caption{Average CPU utilization}
-        \label{fig:er_p_cpu}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{er50_paired25_avg_link_utilization_p_sweep.pdf}
-        \caption{Average link utilization}
-        \label{fig:er_p_link}
-    \end{subfigure}
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\columnwidth]{er50_paired25_avg_cpu_utilization_p_sweep.pdf}
+    \caption{ER substrate $G(50,p_s)$에서 $p_s$ 변화에 따른 average CPU utilization.}
+    \label{fig:er_p_cpu}
+\end{figure}
 
-    \caption{ER substrate $G(50,p_s)$에서 연결 밀도 $p_s$ 변화에 따른 성능 비교.}
-    \label{fig:er_p_sweep}
-\end{figure*}
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\columnwidth]{er50_paired25_avg_link_utilization_p_sweep.pdf}
+    \caption{ER substrate $G(50,p_s)$에서 $p_s$ 변화에 따른 average link utilization.}
+    \label{fig:er_p_link}
+\end{figure}
 
-Fig.~\ref{fig:er_p_sweep}은 $p_s$ 변화에 따른 네 가지 성능 지표를 비교한다. $p_s$가 증가하면 substrate link의 수와 선택 가능한 routing path가 증가하므로 모든 알고리즘의 VNR 수용 가능성이 전반적으로 향상된다. 그럼에도 \ecfvne{}는 전체 $p_s$ 범위에서 가장 높은 acceptance ratio를 유지한다. 이는 sparse substrate뿐 아니라 path diversity가 충분한 dense substrate에서도 external connectivity를 고려한 embedding이 이후 요청에 사용할 수 있는 잔여 자원의 결합 가능성을 효과적으로 보존함을 보여준다.
+Figs.~\ref{fig:er_p_acceptance}--\ref{fig:er_p_link}는 $p_s$ 변화에 따른 네 가지 성능 지표를 각각 보여준다. $p_s$가 증가하면 substrate link의 수와 선택 가능한 routing path가 증가하므로 모든 알고리즘의 VNR 수용 가능성이 전반적으로 향상된다. 그럼에도 \ecfvne{}는 전체 $p_s$ 범위에서 가장 높은 acceptance ratio를 유지한다. 이는 sparse substrate뿐 아니라 path diversity가 충분한 dense substrate에서도 external connectivity를 고려한 embedding이 이후 요청에 사용할 수 있는 잔여 자원의 결합 가능성을 효과적으로 보존함을 보여준다.
 
-Revenue-to-cost ratio에서는 VNE-RFD-B와 VNE-RFD-D가 일부 조건에서 더 높은 값을 보이지만, \ecfvne{}는 substrate density가 변하는 동안 비교적 안정적인 값을 유지하면서 더 많은 VNR을 수용한다. 따라서 acceptance-ratio 향상은 단순히 각 VNR에 대해 embedding cost를 무제한으로 증가시킨 결과로만 해석하기 어렵다. Average CPU utilization은 \ecfvne{}가 더 많은 VNR을 지속적으로 수락함에 따라 상대적으로 높게 나타난다. 반면 average link utilization은 $p_s$ 증가에 따라 사용할 수 있는 substrate link와 routing path 자체가 늘어나므로 acceptance ratio와 반드시 동일한 방향으로 변화하지 않는다.
+Fig.~\ref{fig:er_p_revenue_cost}에서 VNE-RFD-B와 VNE-RFD-D는 일부 조건에서 더 높은 revenue-to-cost ratio를 보이지만, \ecfvne{}는 substrate density가 변하는 동안 비교적 안정적인 값을 유지하면서 더 많은 VNR을 수용한다. 따라서 acceptance-ratio 향상은 단순히 각 VNR에 대한 embedding cost를 과도하게 증가시킨 결과로만 해석하기 어렵다. Fig.~\ref{fig:er_p_cpu}의 average CPU utilization은 \ecfvne{}가 더 많은 VNR을 지속적으로 수락함에 따라 상대적으로 높게 나타난다. 반면 Fig.~\ref{fig:er_p_link}의 average link utilization은 $p_s$가 증가하면서 사용할 수 있는 substrate link와 routing path 자체가 늘어나므로 acceptance ratio와 반드시 동일한 방향으로 변화하지 않는다.
 
 
 \subsection{실제 Topology Zoo Network에서의 성능}
@@ -715,12 +707,16 @@ Synthetic ER graph에서 관찰한 결과가 특정 random topology에 한정되
 
 Substrate resource와 VNR generation, holding time, simulation duration, paired sampling 조건은 ER 실험과 동일하게 설정한다. 대신 VNR arrival rate를 1,000 time units당 5, 10, 15, 20, 25개로 변화시켜 workload 증가에 따른 성능 변화를 비교한다.
 
-\begin{figure*}[t]
+% Topology Zoo 결과는 한 페이지를 사용하며 두 컬럼 전체 폭으로 배치한다.
+% 앞선 one-column p_s-sweep figure를 먼저 모두 배치한 뒤 전용 figure page를 만든다.
+\clearpage
+\begin{figure*}[p]
     \centering
-    \includegraphics[width=0.96\textwidth]{zoo_group_paired25_metrics_arrival_rate.pdf}
+    \includegraphics[width=\textwidth,height=0.84\textheight,keepaspectratio]{zoo_group_paired25_metrics_arrival_rate.pdf}
     \caption{Topology Zoo의 Palmetto, Bell Canada, Surfnet에서 VNR arrival rate 변화에 따른 성능 비교.}
     \label{fig:zoo_arrival_rate}
 \end{figure*}
+\clearpage
 
 Fig.~\ref{fig:zoo_arrival_rate}에서 세 topology 모두 arrival rate가 증가할수록 resource contention이 커지면서 acceptance ratio가 감소한다. 그러나 \ecfvne{}는 모든 topology와 arrival-rate 조건에서 가장 높은 acceptance ratio를 유지한다. 이는 ER substrate의 $p_s$-sweep에서 나타난 수용률 향상이 실제 network structure에서도 일관되게 재현됨을 보여주며, external-connectivity 기반 fragmentation 제어가 특정 random topology에만 의존하지 않음을 뒷받침한다.
 
