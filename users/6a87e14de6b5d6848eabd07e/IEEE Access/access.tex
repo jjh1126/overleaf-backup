@@ -117,14 +117,14 @@ Existing online VNE heuristics manage residual capacity, path feasibility, and e
 % 주석 박스
 \begin{comment}
     (a)는 이전 VNR들의 임베딩 이후 형성된 substrate network의 잔여 자원 상태를 나타내며, (b)는 새롭게 도착한 VNR을 나타낸다. 자원의 총량 측면에서는 기저 네트워크에는 요청을 수용할 수 있을 만큼의 잔여 자원이  존재하지만, 이들 자원이 VNR의 노드 및 링크 요구 사항을 동시에 만족하도록 결합될 수 없기 때문에 해당 요청은 거절된다. 본 연구에서는 이처럼 잔여 자원이 존재함에도 향후 VNR을 위해 다른 잔여 자원과 효과적으로 결합하여 사용되기 어려운 상태를 Resource Fragmentation으로 본다.
+    향후 다른 자원과 얼마나 효과적으로 결합될 수 있는지
 \end{comment}
 
-
-
+% 자원 파편화를 정량화하기 위한 설명을 해야 함
 VNE에서 잔여 자원의 가치는 단순히 남아 있는 CPU 또는 bandwidth의 절대량만으로 결정되지 않는다. VNR은 node와 link가 결합된 그래프 구조이므로, 특정 substrate resource에 충분한 잔여 용량이 존재하더라도 주변 자원과 함께 향후 요청을 구성하기 어렵다면 그 자원의 실질적인 활용 가능성은 낮다. 
-예를들어, (a)는 이전 VNR들의 임베딩 이후 형성된 substrate network의 잔여 자원 상태를 나타내며, (b)는 새롭게 도착한 VNR을 나타낸다. 자원의 총량 측면에서는 기저 네트워크에는 요청을 수용할 수 있을 만큼의 잔여 자원이  존재하지만, 이들 자원이 VNR의 노드 및 링크 요구 사항을 동시에 만족하도록 결합될 수 없기 때문에 해당 요청은 거절된다. 
-본 연구에서는 이를 Resource Fragmentation으로 보고
+예를들어, (a)는 이전 VNR들의 임베딩 이후 형성된 substrate network의 잔여 자원 상태를 나타내며, (b)는 새롭게 도착한 VNR을 나타낸다. 자원의 총량 측면에서는 기저 네트워크에는 요청을 수용할 수 있을 만큼의 잔여 자원이 존재하지만, 이들 자원이 VNR의 노드 및 링크 요구 사항을 동시에 만족하도록 결합될 수 없기 때문에 해당 임베딩 요청은 거절된다. 
 
+따라서 online VNE에서는 현재 요청의 feasibility뿐 아니라 향후 다른 자원과 얼마나 효과적으로 결합될 수 있는지를 함께 고려할 필요가 있다.
 따라서 online VNE에서는 현재 요청의 feasibility뿐 아니라 임베딩 이후 남는 자원이 다른 잔여 자원과 얼마나 효과적으로 결합될 수 있는지를 함께 고려할 필요가 있다.
 
 본 논문에서는 이러한 관점에서 external connectivity를 이용해 잔여 자원의 결합 가능성을 평가하기위해, 잔여 자원량과 외부 자원으로 연결될 수 있는 정도를 함께 고려하여, 자원이 물리적으로 남아 있음에도 다른 자원과 결합되기 어려운 상태를 fragmentation으로 정량화한다. 이를 위해 잔여 자원량과 normalized external connectivity를 결합한 External-Connectivity-based Fragmentation (\ecf) metric을 정의한다.
