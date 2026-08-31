@@ -582,23 +582,23 @@ following VNE-RFD~\cite{lu2022resource}
 \label{sec:performance_evaluation}
 
 \todobox{실험 설정 및 평가 지표}{
-    \item \ecfvne{}의 online embedding 성능을 VNE-RFD-B, VNE-RFD-D, D-ViNE, R-ViNE와 비교한다. 각 실험 조건에서는 동일한 substrate와 VNR realization을 모든 알고리즘에 적용하는 paired setting을 사용하며, 서로 독립적인 25개 sample의 평균으로 결과를 산출하여 입력 표본 차이에 따른 변동을 줄인다.
+    \item \ecfvne{}의 online embedding 성능을 VNE-RFD-B, VNE-RFD-D, D-ViNE, R-ViNE와 비교한다.
 
     \item Substrate node의 CPU capacity와 substrate link의 bandwidth capacity는 각각 $U(50,100)$에서 생성한다. 각 VNR은 2--10개의 virtual node를 갖는 connected Erd\H{o}s--R\'{e}nyi graph $G(n,0.4)$로 생성하며, virtual node의 CPU demand는 $U(0,20)$, virtual link의 bandwidth demand는 $U(0,50)$에서 생성한다.
 
-    \item VNR은 Poisson process에 따라 도착하고 holding time은 평균 1,000 time units의 exponential distribution을 따른다. 각 simulation은 60,000 time units 동안 수행하며, 최초 10,000 time units는 warm-up으로 사용하고 이후 50,000 time units에서 성능 지표를 집계한다.
+    \item VNR은 Poisson process에 따라 도착하고 holding time은 평균 1,000 time units의 exponential distribution을 따른다. 각 simulation은 초기 과도 상태(initial transient)를 제거하고 정상 상태(steady-state)에서 50,000 time units 성능 지표를 집계한다.
 
-    \item 주요 평가지표는 VNR acceptance ratio, revenue-to-cost ratio, average CPU utilization, average link utilization이다. Revenue는 수락된 VNR의 CPU와 bandwidth demand의 합으로 계산하고, cost는 할당된 CPU와 실제 substrate path에서 소비된 bandwidth를 함께 반영한다. Resource utilization은 수락한 VNR의 양에도 영향을 받으므로 acceptance ratio와 revenue-to-cost ratio를 함께 고려하여 해석한다.
+    \item 주요 평가지표는 VNR acceptance ratio, revenue-to-cost ratio, average CPU utilization, average link utilization이다.
 }
 
 \todobox{ER substrate의 연결 밀도에 따른 성능}{
-    \item 먼저 synthetic environment에서 substrate connectivity의 영향을 분리하여 확인한다. Substrate network는 50개 node의 connected Erd\H{o}s--R\'{e}nyi graph $G(50,p_s)$로 생성하고, $p_s\in\{0.05,0.10,0.15,0.20,0.25\}$로 변화시킨다. 이때 VNR arrival rate는 1,000 time units당 50개로 고정하여 workload 차이를 제거한다.
+    \item Substrate network는 50개 node의 connected Erd\H{o}s--R\'{e}nyi graph $G(50,p_s)$로 생성하고, $p_s\in\{0.05,0.10,0.15,0.20,0.25\}$로 변화시킨다. 이때 VNR arrival rate는 1,000 time units당 50개로 고정한다.
 
     \item $p_s$가 증가하면 substrate의 link와 가능한 routing path가 증가하므로 모든 알고리즘의 VNR 수용 가능성도 전반적으로 향상된다. 그러나 \ecfvne{}는 전체 $p_s$ 범위에서 가장 높은 acceptance ratio를 유지하며, sparse substrate뿐 아니라 path diversity가 충분한 dense substrate에서도 잔여 자원의 향후 활용 가능성을 효과적으로 보존한다.
 
     \item Revenue-to-cost ratio에서는 VNE-RFD-B와 VNE-RFD-D가 일부 조건에서 더 높은 값을 보이지만, \ecfvne{}는 substrate density가 변해도 비교적 안정적인 값을 유지하면서 더 많은 VNR을 수용한다. 이는 \ecfvne{}의 acceptance ratio 향상이 단순히 embedding cost를 과도하게 증가시킨 결과만으로 설명되지 않음을 보여준다.
 
-    \item CPU utilization은 \ecfvne{}가 더 많은 VNR을 지속적으로 수락함에 따라 높게 나타난다. 반면 link utilization은 $p_s$가 증가할수록 추가적인 substrate path가 제공되기 때문에 acceptance ratio와 동일한 방향으로 증가하지 않을 수 있으며, 따라서 utilization의 절대값보다는 수용률과 비용 효율을 함께 고려하여 평가한다.
+    \item CPU utilization은 \ecfvne{}가 더 많은 VNR을 지속적으로 수락함에 따라 높게 나타난다. 반면 link utilization은 $p_s$가 증가할수록 추가적인 substrate의 link와 가능한 routing path가 제공되기 때문에 acceptance ratio와 동일한 방향으로 증가하지 않을 수 있다.
 }
 
 \todobox{실제 Topology Zoo network에서의 성능}{
