@@ -116,7 +116,7 @@ Existing online VNE heuristics manage residual capacity, path feasibility, and e
 
 VNE에서 잔여 자원의 가치는 단순히 남아 있는 CPU 또는 bandwidth의 절대량만으로 결정되지 않는다. VNR은 node와 link가 결합된 그래프 구조이므로, 특정 substrate resource에 충분한 잔여 용량이 존재하더라도 주변 자원과 함께 향후 요청을 구성하기 어렵다면 그 자원의 실질적인 활용 가능성은 낮다. 따라서 online VNE에서는 현재 요청의 feasibility뿐 아니라 임베딩 이후 남는 자원이 다른 잔여 자원과 얼마나 효과적으로 결합될 수 있는지를 함께 고려할 필요가 있다.
 
-본 논문에서는 이러한 관점에서 external connectivity를 이용해 잔여 자원의 결합 가능성을 평가하는 \ecfvne{}를 제안한다. \ecfvne{}는 잔여 자원량과 외부 자원으로 연결될 수 있는 정도를 함께 고려하여, 자원이 물리적으로 남아 있음에도 다른 자원과 결합되기 어려운 상태를 fragmentation으로 정량화한다. 이를 위해 잔여 자원량과 normalized external connectivity를 결합한 External-Connectivity-based Fragmentation (\ecf) metric을 정의한다.
+본 논문에서는 이러한 관점에서 external connectivity를 이용해 잔여 자원의 결합 가능성을 평가하기위해, 잔여 자원량과 외부 자원으로 연결될 수 있는 정도를 함께 고려하여, 자원이 물리적으로 남아 있음에도 다른 자원과 결합되기 어려운 상태를 fragmentation으로 정량화한다. 이를 위해 잔여 자원량과 normalized external connectivity를 결합한 External-Connectivity-based Fragmentation (\ecf) metric을 정의한다.
 
 Node embedding과 link routing은 서로 다른 형태의 자원 결합을 요구한다. Substrate node의 CPU는 인접 substrate link의 bandwidth를 통해 다른 자원과 연결되어야 하며, substrate link의 bandwidth는 양 끝점에서 다른 link와 연속적으로 연결되어 substrate path를 구성할 수 있어야 한다. 따라서 본 논문은 동일한 external-connectivity 관점을 유지하면서도, node와 link가 VNE에서 수행하는 역할에 맞추어 fragmentation을 각각 정의한다.
 
