@@ -86,7 +86,7 @@ Online virtual network embedding must accommodate arriving requests while preser
 \todobox{초록에 추가할 내용}{
     \item Online VNE에서는 현재 VNR을 수용하는 것뿐 아니라 이후 도착하는 요청을 위해 잔여 substrate resource의 활용 가능성을 보존하는 것이 중요하다. 기존 방법들은 잔여 자원의 절대량이나 부하 분산을 주로 고려하지만, 남은 자원이 향후 VNR을 구성하는 다른 자원과 실제로 결합될 수 있는 정도는 직접 정량화하지 않는다.
 
-    \item 본 논문에서는 이러한 잔여 자원의 결합 가능성을 external connectivity로 정량화하는 \ecfvne{}를 제안한다. \ecfvne{}는 잔여 자원량과 normalized external connectivity를 결합한 External-Connectivity-based Fragmentation (\ecf) metric을 사용하고, node embedding과 link routing이 요구하는 서로 다른 자원 결합 관계에 맞게 node와 link fragmentation을 정의한다.
+    \item 본 논문에서는 이러한 잔여 자원의 결합 가능성을 external connectivity로 정량화하는 \ecfvne{}를 제안한다. \ecfvne{}는 잔여 자원량과 external connectivity를 결합한 External-Connectivity-based Fragmentation (\ecf) metric을 사용하고, node embedding과 link routing이 요구하는 서로 다른 자원 결합 관계에 맞게 node와 link fragmentation을 정의한다.
 
     \item 또한 임베딩 전후의 fragmentation 변화에서 자원 자체가 소비되는 효과와 남은 자원의 connectivity가 저하되는 효과를 분리하고, 후자만을 induced fragmentation cost로 반영한다. 이를 load-balancing cost와 함께 node candidate 및 path selection에 적용하여 현재 요청의 실행 가능성과 향후 잔여 자원의 활용 가능성을 동시에 고려한다.
 
@@ -142,11 +142,14 @@ Existing online VNE heuristics manage residual capacity, path feasibility, and e
     \label{fig:combined_figures}
 \end{figure}
 
-% 자원 파편화를 정량화하기 위한 설명
-Fig.~\ref{fig:combined_figures}은 자원 파편화를 설명한다. Fig.~\ref{fig:vn}는 새롭게 도착한 VNR을 나타내고, Fig.~\ref{fig:sn}는 substrate network의 잔여 자원 상태를 나타낸다. 자원의 총량 측면에서는 기저 네트워크에는 요청을 수용할 수 있을 만큼의 잔여 자원이 존재하지만, 이들 자원이 VNR의 노드 및 링크 요구 사항을 동시에 만족하도록 결합될 수 없기 때문에 해당 임베딩 요청은 거절된다. 이처럼, VNE에서 잔여 자원의 가치는 단순히 남아 있는 CPU 또는 bandwidth의 절대량만으로 결정되지 않는다. VNR은 node와 link가 결합된 그래프 구조이므로, 특정 substrate resource에 충분한 잔여 용량이 존재하더라도 주변 자원과 함께 향후 요청을 구성하기 어렵다면 그 자원의 실질적인 활용 가능성은 낮다. 따라서 Resource Fragmetation 은 잔여 자원과 그것의 결합 가능성으로 평가될 수 있다.
+usability
 
-% 
-본 논문에서는 결합 가능성을 external connectivity를 이용해 평가하고, 잔여 자원량과 외부 자원으로 연결될 수 있는 정도를 함께 고려하여, 자원이 물리적으로 남아 있음에도 다른 자원과 결합되기 어려운 상태를 한다. 이를 위해 잔여 자원량과 normalized external connectivity를 결합한 External-Connectivity-based Fragmentation (\ecf) metric을 정의한다.
+% 자원 파편화를 정량화하기 위한 설명
+Fig.~\ref{fig:combined_figures}은 자원 파편화를 설명한다. Fig.~\ref{fig:vn}는 새롭게 도착한 VNR을 나타내고, Fig.~\ref{fig:sn}는 substrate network의 잔여 자원 상태를 나타낸다. 자원의 총량 측면에서는 기저 네트워크에는 요청을 수용할 수 있을 만큼의 잔여 자원이 존재하지만, 이들 자원이 VNR의 노드 및 링크 요구 사항을 동시에 만족하도록 활용될 수 없기 때문에 해당 임베딩 요청은 거절된다. 이처럼, VNE에서 잔여 자원의 가치는 단순히 남아 있는 CPU 또는 bandwidth의 절대량만으로 결정되지 않는다. VNR은 node와 link가 결합된 그래프 구조이므로, 특정 substrate resource에 충분한 잔여 용량이 존재하더라도 주변 자원과 함께 향후 요청을 구성하기 어렵다면 그 자원의 실질적인 활용 가능성은 낮다. 따라서 Resource Fragmetation 은 잔여 자원과 그것의 활용 가능성으로 평가될 수 있다.
+
+% 자원의 결합 가능성을 외부 자원과의 연결성에 초점을 두고 external connectrivity로 정의한다.  
+본 논문에서는 다른 자원과의 결합 가능성을 external connectrivity 로 정의하고,
+이를 위해 잔여 자원량과 결합한 External-Connectivity-based Fragmentation (\ecf) metric을 정의한다.
 
 Node embedding과 link routing은 서로 다른 형태의 자원 결합을 요구한다. Substrate node의 CPU는 인접 substrate link의 bandwidth를 통해 다른 자원과 연결되어야 하며, substrate link의 bandwidth는 양 끝점에서 다른 link와 연속적으로 연결되어 substrate path를 구성할 수 있어야 한다. 따라서 본 논문은 동일한 external-connectivity 관점을 유지하면서도, node와 link가 VNE에서 수행하는 역할에 맞추어 fragmentation을 각각 정의한다.
 
@@ -231,7 +234,7 @@ $M=(M_N,M_L)$
 \hline
 
 $\mathrm{Conn}$
-& Normalized external connectivity of a residual resource \\
+& external connectivity of a residual resource \\
 \hline
 
 $F$
@@ -303,7 +306,7 @@ f_{uv}^l+f_{vu}^l
 본 논문에서는 잔여 자원량과 external connectivity를 결합하여 잔여 자원의 향후 활용 가능성을 나타내는 External-Connectivity-based Fragmentation (\ecf) metric을 정의한다. \ecf{}는 node와 link에 공통된 기본 형태를 사용하되, 두 자원이 VNE에서 다른 자원과 결합되는 방식의 차이를 각각 반영한다.
 
 \subsection{기본 정의와 External Connectivity}
-VNE에서 잔여 자원의 활용 가능성은 해당 자원의 양뿐 아니라 주변 자원과의 결합 가능성에 의해 결정된다. 잔여 자원량을 $R$, normalized external connectivity를 $\mathrm{Conn}$이라 할 때, 외부 자원과 결합하여 실제로 활용할 수 있는 잔여 자원을 $R\mathrm{Conn}$으로 본다. 이에 따라 fragmentation score를 다음과 같이 정의한다.
+VNE에서 잔여 자원의 활용 가능성은 해당 자원의 양뿐 아니라 주변 자원과의 결합 가능성에 의해 결정된다. 잔여 자원량을 $R$, external connectivity를 $\mathrm{Conn}$이라 할 때, 외부 자원과 결합하여 실제로 활용할 수 있는 잔여 자원을 $R\mathrm{Conn}$으로 본다. 이에 따라 fragmentation score를 다음과 같이 정의한다.
 \[
 F=R(1-\mathrm{Conn}).
 \]
@@ -327,7 +330,7 @@ B_{\mathrm{res}}(A)
 =
 \sum_{e\in\delta(A)}r_e
 \]
-이며, normalized external connectivity는
+이며, external connectivity는
 \[
 \mathrm{Conn}(A)
 =
