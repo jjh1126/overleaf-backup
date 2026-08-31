@@ -65,7 +65,7 @@ VNE 자원 파편화에 대한 본 논문의 핵심 철학 :
 % \doi{10.1109/ACCESS.2024.0429000}
 \doi{} % ieeeaccess.cls expects this macro to be defined; fill before submission
 
-\title{Fragmentation-Aware Online Virtual Network Embedding via External Connectivity}
+\title{ECF-VNE: Fragmentation-Aware Online Virtual Network Embedding via External Connectivity}
 
 \author{\uppercase{Jae-Hong Jung}\authorrefmark{1}, 
 \uppercase{Bon-Seung Ku}\authorrefmark{1}, AND 
@@ -84,11 +84,13 @@ VNE 자원 파편화에 대한 본 논문의 핵심 철학 :
 \begin{abstract}
 Online virtual network embedding must accommodate arriving requests while preserving residual substrate resources for future demands.
 \todobox{초록에 추가할 내용}{
-    \item 기존 방법들의 한계: 잔여 자원의 절대량이나 부하 분산을 주로 고려하며, 잔여 자원이 향후 VNR을 구성하는 다른 자원과 실제로 결합될 수 있는지에 대한 활용 가능성은 직접 정량화하지 않는다는 점을 간단히 지적한다.
-    \item 제안 기법의 이름을 처음 명시한다: external connectivity를 이용해 잔여 자원의 활용 가능성을 평가하는 \ecfvne{}를 제안한다고 선언한다.
-    \item \ecfvne{}의 핵심 지표를 External-Connectivity-based Fragmentation (\ecf) metric으로 정의하고, node embedding과 link routing이 요구하는 서로 다른 자원 결합 관계에 맞게 node/link fragmentation을 각각 구성한다고 설명한다.
-    \item 임베딩 전후의 fragmentation 변화에서 자원 자체의 직접 소비 효과를 분리하고, connectivity 저하에 의해 유도되는 induced fragmentation만을 목적함수에 반영한다는 점을 언급한다.
-    \item 실험 결과에서는 \ecfvne{}가 비교 기법 대비 VNR acceptance ratio를 향상시키면서 revenue-to-cost ratio와 substrate utilization 측면에서의 trade-off를 함께 보였다는 식으로 정리한다. 정확한 수치는 최종 실험 표에서 채운다.
+    \item Online VNE에서는 현재 VNR을 수용하는 것뿐 아니라 이후 도착하는 요청을 위해 잔여 substrate resource의 활용 가능성을 보존하는 것이 중요하다. 기존 방법들은 잔여 자원의 절대량이나 부하 분산을 주로 고려하지만, 남은 자원이 향후 VNR을 구성하는 다른 자원과 실제로 결합될 수 있는 정도는 직접 정량화하지 않는다.
+
+    \item 본 논문에서는 이러한 잔여 자원의 결합 가능성을 external connectivity로 정량화하는 \ecfvne{}를 제안한다. \ecfvne{}는 잔여 자원량과 normalized external connectivity를 결합한 External-Connectivity-based Fragmentation (\ecf) metric을 사용하고, node embedding과 link routing이 요구하는 서로 다른 자원 결합 관계에 맞게 node와 link fragmentation을 정의한다.
+
+    \item 또한 임베딩 전후의 fragmentation 변화에서 자원 자체가 소비되는 효과와 남은 자원의 connectivity가 저하되는 효과를 분리하고, 후자만을 induced fragmentation cost로 반영한다. 이를 load-balancing cost와 함께 node candidate 및 path selection에 적용하여 현재 요청의 실행 가능성과 향후 잔여 자원의 활용 가능성을 동시에 고려한다.
+
+    \item 실험 결과, \ecfvne{}는 synthetic ER substrate의 연결 밀도와 실제 Topology Zoo network의 workload가 변하는 조건에서도 비교 기법보다 높은 VNR acceptance ratio를 일관되게 보였다. 일부 조건에서 revenue-to-cost ratio의 trade-off가 존재하지만, 더 많은 VNR을 수용하면서 substrate resource를 지속적으로 활용한다는 점에서 online embedding의 장기적 수용 성능을 개선하였다.
 }
 
 \end{abstract}
@@ -113,22 +115,17 @@ In practical deployments, VNE operates in a dynamic setting where VNRs arrive an
 Existing online VNE heuristics manage residual capacity, path feasibility, and embedding cost during node and link routing. However, their control granularity is mainly limited to individual substrate nodes, adjacent link sets, candidate paths, or aggregate load balancing objectives. These approaches do not explicitly quantify resource fragmentation in the residual substrate state.
 
 \todobox{이후 서론 구성}{
-    \item 기존 방법의 한계를 설명한 직후 제안 기법의 이름을 처음 명시한다. ``본 논문에서는 external connectivity를 기반으로 잔여 자원의 결합 가능성을 정량화하는 \ecfvne{}를 제안한다''는 흐름으로 연결한다.
-    \item \ecfvne{}의 핵심 관점은 잔여 자원의 가치가 절대량만으로 결정되는 것이 아니라, 향후 VNR을 구성하기 위해 다른 잔여 자원과 결합될 수 있는 정도에 의해 결정된다는 점임을 강조한다.
-    \item 이 결합 가능성을 External-Connectivity-based Fragmentation (\ecf) metric으로 정의한다고 예고한다. \ecf{}는 잔여 자원량과 normalized external connectivity를 결합하여 usable residual resource와 fragmentation을 정량화한다.
-    \item Node embedding과 link routing은 서로 다른 자원 결합 구조를 요구하므로, 동일한 \ecf{} 기본 형태를 node fragmentation과 link fragmentation에 각각 특수화한다고 설명한다.
-    \item 임베딩에 의한 fragmentation 변화에서 직접적인 자원 소비 효과와 connectivity 저하 효과를 분해하고, 후자를 induced fragmentation cost로 정의하여 \ecfvne{}의 candidate 및 path selection에 반영한다고 예고한다.
-    \item 기여점은 (1) 잔여량이 아닌 활용 가능성 기반의 fragmentation 관점, (2) external connectivity에 기반한 \ecf{} metric, (3) node/link 역할에 맞춘 metric 특수화, (4) induced fragmentation과 직접 자원 소비의 분리, (5) 이를 online VNE에 적용한 \ecfvne{} 알고리즘으로 정리한다.
+    \item VNE에서 잔여 자원의 가치는 단순히 남아 있는 CPU나 bandwidth의 양으로만 결정되지 않는다. VNR은 node와 link가 결합된 그래프이므로, 하나의 잔여 자원이 충분히 남아 있더라도 주변 자원과 함께 향후 요청을 구성하기 어렵다면 그 자원의 실질적인 활용 가능성은 낮아진다.
+
+    \item 본 논문에서는 이러한 관점에서 external connectivity를 이용해 잔여 자원의 결합 가능성을 평가하는 \ecfvne{}를 제안한다. \ecfvne{}는 잔여 자원량과 외부 자원으로 연결될 수 있는 정도를 함께 고려하여, 자원이 존재하지만 다른 자원과 결합되기 어려운 상태를 fragmentation으로 정량화한다.
+
+    \item Node embedding과 link routing은 서로 다른 형태의 자원 결합을 요구한다. Substrate node의 CPU는 인접 link의 bandwidth를 통해 다른 자원과 연결되어야 하고, substrate link의 bandwidth는 양 끝점에서 다른 link와 이어져 substrate path를 구성할 수 있어야 한다. 따라서 동일한 external connectivity 관점을 node와 link의 역할에 맞게 각각 특수화한다.
+
+    \item 또한 임베딩으로 인해 fragmentation score가 변할 때, 직접적인 자원 소비와 잔여 자원의 connectivity 저하는 서로 다른 효과를 갖는다. \ecfvne{}는 두 효과를 분리하고 connectivity 저하로 인해 발생한 induced fragmentation을 embedding cost에 반영하여, 현재 VNR을 수용한 이후에도 잔여 자원이 향후 요청에 활용될 수 있도록 한다.
+
+    \item 본 논문의 주요 기여는 잔여 자원의 양이 아닌 활용 가능성을 중심으로 resource fragmentation을 정의하고, external connectivity에 기반한 통일된 \ecf{} metric을 node와 link에 적용하며, induced fragmentation을 직접 자원 소비와 분리하여 online VNE의 node 및 path selection에 반영하는 \ecfvne{}를 제안하는 것이다.
 }
 
-% \todobox{서론 구성 (전체 흐름 정리)}{
-%     \item 1. 동기 : Online VNE에서 요청을 반복적으로 수용/해제하다 보면, 개별 자원(CPU/BW)의 총 잔여량이 충분해도 수락률이 저하되는 현상이 나타남을 지적. 메모리 단편화(memory fragmentation)에 대한 비유로 시작하면 직관적: 블록은 남아있지만 연속된 큰 블록이 없어 할당이 실패하는 상황과 유사 (여기서 예시 figure 배치)
-%     \item 2. 기존 접근의 한계 : 기존 연구는 이 현상을 잔여 CPU/BW의 절대량 또는 부하 분산(load balancing) 문제로만 다루며, ``이 자원이 실제로 향후 요청 구성에 활용될 수 있는가''라는 활용 가능성 자체는 정량화하지 않음을 지적
-%     \item 3. 핵심 재정의 -- 논문의 빅 아이디어 : VNE 요청은 개별 자원의 집합이 아니라 그래프이므로, 잔여 자원의 가치는 양 자체가 아니라 다른 잔여 자원과 결합하여 향후 요청 구조를 구성할 수 있는지에 달려 있다는 관점 제시. 이 단계에서는 아직 node/link를 구분하지 않음
-%     \item 4. 지표 예고 : 이 결합 가능성을 정량화하기 위해 external connectivity(경계 용량 비율)라는 구조적 지표를 사용함을 짧게 예고. Max-flow min-cut으로 정당화된다는 점을 한 문장으로 언급
-%     \item 5. Node/link 분기 : VNE가 CPU를 소비하는 node embedding과 BW를 소비하는 link routing이라는 서로 다른 역할의 두 하위 문제로 구성되므로, 각 자원이 결합해야 하는 대상도 역할에 따라 다름을 설명: 노드는 이종 자원(주변 BW)과 결합해야 하고, 링크는 동종 자원(주변 BW)끼리 사슬처럼 이어져야 함. 한 문단으로 압축하고 자세한 정의는 Section~\ref{sec:metric_definition_of_resource_fragmentation}으로 미룸
-%     \item 6. Contribution 요약 : (i) 잔여량이 아닌 활용 가능성 기반의 파편화 재정의, (ii) max-flow min-cut에 기반한 통일된 external connectivity 정의, (iii) node/link 역할에 맞는 지표 특수화, (iv) 임베딩으로 인한 induced fragmentation을 자원 소비 효과와 분리, (v) 이를 반영한 online VNE 목적함수 제안
-% }
 
 \begin{figure}[htbp]
     \centering
@@ -175,9 +172,9 @@ Guan et al.~\cite{guan2023multidimensional} study multidimensional resource frag
 
 Lu and Zhang~\cite{lu2022resource} address a more closely related notion of resource fragmentation. They define the resource fragmentation degree (RFD) for substrate nodes and links based on the observation that the usability of a residual resource depends on surrounding residual resources. For a substrate node, RFD incorporates residual resources of neighboring nodes and paths within a bounded hop count. For a substrate link, RFD incorporates the residual resources of adjacent links and the substrate nodes shared by those links. Their formulation is motivated by an extension of graph connectivity and aggregates these surrounding resource states to quantify the fragmentation degree of each substrate element. This connectivity extension depends on a hop-bounded neighborhood and its associated hyperparameter, whereas the external connectivity used in this paper is justified directly by the boundary cut, equivalently the max-flow between a resource region and its exterior, and requires no hop-count tuning.
 
-The ECF metric shares with RFD the observation that residual resource amount alone is insufficient to characterize future usability. The distinction lies in how the relevant resource relationships are modeled. Rather than deriving a connectivity-inspired fragmentation degree from surrounding nodes and paths, the ECF metric directly follows the resource combinations required by the two VNE mapping operations. For node embedding, it evaluates the residual resource of a substrate node together with the residual resources of its adjacent substrate links, because both are required to support a virtual node and its incident virtual links. For link routing, it evaluates the residual resource of a substrate link together with the adjacent link resources at each of its two endpoints. The two endpoint states are evaluated separately, and the endpoint with lower adjacent-resource availability determines the resulting value because insufficient adjacent resources at either endpoint can limit the use of the substrate link as part of a path.
+The proposed metric shares with RFD the observation that residual resource amount alone is insufficient to characterize future usability. The distinction lies in how the relevant resource relationships are modeled. Rather than deriving a connectivity-inspired fragmentation degree from surrounding nodes and paths, the proposed metric directly follows the resource combinations required by the two VNE mapping operations. For node embedding, it evaluates the residual resource of a substrate node together with the residual resources of its adjacent substrate links, because both are required to support a virtual node and its incident virtual links. For link routing, it evaluates the residual resource of a substrate link together with the adjacent link resources at each of its two endpoints. The two endpoint states are evaluated separately, and the endpoint with lower adjacent-resource availability determines the resulting value because insufficient adjacent resources at either endpoint can limit the use of the substrate link as part of a path.
 
-Accordingly, the ECF metric differs from the reviewed fragmentation metrics not in whether neighboring resources are considered, but in how their relationships are defined. It characterizes residual-resource usability according to the distinct resource combinations required by node embedding and link routing, aiming to identify residual resources that remain available but are difficult to combine with other resources in future VNR embeddings. In addition, the formulation distinguishes the direct resource-consumption effect of an embedding from the connectivity degradation it induces, with the latter represented through the external connectivity metric introduced in the next section.
+Accordingly, the proposed metric differs from the reviewed fragmentation metrics not in whether neighboring resources are considered, but in how their relationships are defined. It characterizes residual-resource usability according to the distinct resource combinations required by node embedding and link routing, aiming to identify residual resources that remain available but are difficult to combine with other resources in future VNR embeddings. In addition, the formulation distinguishes the direct resource-consumption effect of an embedding from the connectivity degradation it induces, with the latter represented through the external connectivity metric introduced in the next section.
 
 \section{System Model}
 \label{sec:system_model}
@@ -225,7 +222,7 @@ Accordingly, the ECF metric differs from the reviewed fragmentation metrics not 
 \label{sec:metric_definition_of_resource_fragmentation}
 
 \todobox{\ecf{} 지표 정의}{
-    \item 본 절에서 정의하는 fragmentation 지표를 External-Connectivity-based Fragmentation (\ecf) metric으로 명명한다. 이후 node/link fragmentation과 induced fragmentation은 모두 \ecf{}의 구성 요소로 통일하여 지칭한다.
+    \item 본 논문에서는 잔여 자원량과 external connectivity를 결합하여 자원의 활용 가능성을 나타내는 지표를 External-Connectivity-based Fragmentation (\ecf) metric으로 정의한다. \ecf{}는 node와 link에 공통된 기본 형태를 사용하되, 두 자원이 VNE에서 결합되는 방식의 차이를 각각 반영한다.
 
     \item 기본 관점: VNE에서 잔여 자원의 활용 가능성은 해당 자원량과 주변 자원과의 결합 가능성에 의해 결정된다. 잔여 자원량을 $R$, normalized external connectivity를 $\mathrm{Conn}$이라 할 때 usable residual resource를 $R\mathrm{Conn}$으로 두고, fragmentation score를
     \[
@@ -374,7 +371,7 @@ Accordingly, the ECF metric differs from the reviewed fragmentation metrics not 
 \label{sec:problem_formulation}
 
 \todobox{\ecfvne{} 문제 정식화}{
-    \item 본 절의 목적함수는 \ecfvne{}의 embedding objective로 제시한다. Load-balancing cost와 \ecf{} 기반 induced fragmentation cost를 서로 다른 역할의 항으로 명확히 구분한다.
+    \item \ecfvne{}는 현재 VNR을 특정 substrate resource에 과도하게 집중시키지 않으면서, 그 임베딩이 남기는 잔여 자원의 활용 가능성도 함께 보존하도록 목적함수를 구성한다. 이를 위해 load-balancing cost와 \ecf{} 기반 induced fragmentation cost를 서로 독립적인 항으로 결합한다.
 
     \item 결정변수: $x_{nv}\in\{0,1\}$는 가상 노드 $n\in N^V$의 기저 노드 $v\in N^S$에 대한 매핑 여부를 나타낸다. $f_{uv}^l\ge0$는 가상 링크 $l\in L^V$의 bandwidth 중 arc $(u,v)\in A^S$를 통과하는 flow이다.
 
@@ -567,90 +564,52 @@ following VNE-RFD~\cite{lu2022resource}
 \end{algorithmic}
 \end{algorithm}
 
-\todobox{\ecfvne{} Embedding Algorithm}{
 
-    \item Algorithm framework:
-    본 절의 제안 알고리즘을 \ecfvne{}로 통일하여 지칭한다. \ecfvne{}는 앞서 정의한 \ecf{} 기반 induced fragmentation cost를 VNE-RFD의 online embedding framework에 결합한다.
-    제안 알고리즘은 VNE-RFD~\cite{lu2022resource}의 online embedding
-    framework를 사용한다.
-    Virtual-node processing order, feasible substrate-node candidate generation,
-    $K$-shortest-path search, bounded backtracking은 VNE-RFD를 따른다.
-    이 절에서는 앞서 정의한 induced fragmentation을
-    substrate-node 및 path selection에 적용하는 방법만 설명한다.
 
-    \item Candidate evaluation:
-    현재 virtual node $n$의 각 feasible substrate-node candidate
-    $v\in D(n)$를 고정한 뒤, 이미 배치된 neighboring virtual node와
-    연결되는 incident virtual links를 순차적으로 routing한다.
-    각 virtual link에 대해 feasible $K$-shortest paths를 생성하고,
-    load-balancing cost와 induced fragmentation cost의 합이 가장 작은
-    path를 선택하여 tentative substrate state에 반영한다.
+\todobox{\ecfvne{} 임베딩 알고리즘}{
+    \item \ecfvne{}는 VNE-RFD~\cite{lu2022resource}의 online embedding framework를 기반으로 하며, virtual-node processing order, feasible substrate-node candidate generation, $K$-shortest-path search, bounded backtracking 절차를 사용한다. 차이는 각 node candidate와 path를 평가할 때 앞서 정의한 load-balancing cost와 induced fragmentation cost를 함께 반영한다는 점이다.
 
-    모든 필요한 incident virtual links의 routing이 완료되면
-    node load-balancing cost, link load-balancing cost,
-    그리고 candidate 적용 전후의 induced fragmentation cost를 이용해
-    candidate score를 계산한다.
+    \item 현재 virtual node $n$에 대해 feasible substrate-node candidate $v\in D(n)$를 하나씩 가정하고, 이미 배치된 neighboring virtual node와 연결되는 incident virtual link를 순차적으로 routing한다. 각 virtual link에서는 feasible $K$-shortest paths 중 load-balancing cost와 induced fragmentation cost의 합이 가장 작은 경로를 선택하여 tentative substrate state에 반영한다.
 
-    \item Candidate selection and backtracking:
-    Feasible candidates를 candidate score의 오름차순으로 정렬하고
-    가장 낮은 비용의 candidate부터 적용한다.
-    이후 embedding이 실패하면 VNE-RFD의 bounded backtracking procedure에 따라
-    이전 단계로 복귀하여 다음 candidate를 평가한다.
-    Backtracking 횟수가 $\Delta$를 초과하면 해당 VNR을 reject한다.
+    \item 필요한 incident virtual link의 routing이 완료되면 node load-balancing cost, link load-balancing cost, 그리고 candidate 적용 전후의 induced fragmentation cost를 합하여 candidate score를 계산한다. Feasible candidate는 이 score의 오름차순으로 정렬되며, 가장 낮은 비용의 candidate부터 적용한다.
 
-    \item 알고리즘 복잡도:
-    제안 알고리즘에서는 하나의 induced fragmentation cost를 계산할 때
-    모든 기저 노드와 링크의 external connectivity 변화를 평가한다.
-    기저 노드 $v$의 차수를 $d_v^S$라 하면,
-    전체 node fragmentation 계산에는 $O(|L^S|)$,
-    전체 link fragmentation 계산에는
-    $O(\sum_{v\in N^S}(d_v^S)^2)$가 필요하다.
-    따라서 한 번의 fragmentation cost 계산 복잡도를
-    \[
-    T_F
-    =
-    O\!\left(\sum_{v\in N^S}(d_v^S)^2\right)
-    \subseteq
-    O(|N^S||L^S|)
-    \]
-    로 둘 수 있다.
-    
-    각 virtual node에 대해 최대 $|N^S|$개의 substrate-node candidate를 평가하고,
-    각 candidate에서 이미 배치된 인접 virtual node와의 link routing을 수행한다.
-    $K$-shortest-path search의 복잡도를
-    \[
-    T_{\mathrm{KSP}}
-    =
-    O(|L^S|+|N^S|\log |N^S|+K)
-    \]
-    로 두면~\cite{lu2022resource},
-    각 virtual link의 경로 선택에는 $K$개 path의 fragmentation cost 평가가 추가되므로
-    $O(T_{\mathrm{KSP}}+KT_F)$가 필요하다.
-    하나의 virtual node가 최악의 경우 $O(|N^V|)$개의 이미 배치된 이웃과 연결되고,
-    bounded backtracking으로 인해 최대 $\Delta$회의 추가 탐색이 발생하므로,
-    하나의 VNR에 대한 전체 최악 시간 복잡도는
-    \[
-    O\!\left(
-    (|N^V|+\Delta)|N^S|
-    \left[
-    |N^V|
-    \left(
-    T_{\mathrm{KSP}}+KT_F
-    \right)
-    +T_F
-    \right]
-    \right)
-    \]
-    이다.
-    여기서 $\Delta$와 $K$를 고정된 algorithm parameter로 두더라도,
-    제안 지표를 반복 계산하는 $T_F$가 candidate evaluation의 추가 계산 비용으로 남는다.
+    \item 이후 단계에서 embedding이 불가능해지면 VNE-RFD의 bounded backtracking 절차에 따라 이전 단계로 복귀하여 다음 candidate를 선택한다. Backtracking 횟수가 $\Delta$를 초과하거나 더 이상 feasible candidate가 존재하지 않으면 해당 VNR을 reject하고, 모든 virtual node와 link가 성공적으로 배치되면 embedding을 commit한다.
+
+    \item 하나의 induced fragmentation cost를 계산할 때 전체 node fragmentation에는 $O(|L^S|)$, 전체 link fragmentation에는 $O(\sum_{v\in N^S}(d_v^S)^2)$의 연산이 필요하다. 따라서 fragmentation 평가의 복잡도는 $T_F=O(\sum_{v\in N^S}(d_v^S)^2)\subseteq O(|N^S||L^S|)$이며, $K$-shortest-path search와 candidate evaluation 과정에서 이 비용이 반복적으로 추가된다.
 }
 
+\section{Performance Evaluation}
+\label{sec:performance_evaluation}
 
+\todobox{실험 설정 및 평가 지표}{
+    \item \ecfvne{}의 online embedding 성능을 VNE-RFD-B, VNE-RFD-D, D-ViNE, R-ViNE와 비교한다. 각 실험 조건에서는 동일한 substrate와 VNR realization을 모든 알고리즘에 적용하는 paired setting을 사용하며, 서로 독립적인 25개 sample의 평균으로 결과를 산출하여 입력 표본 차이에 따른 변동을 줄인다.
 
+    \item Substrate node의 CPU capacity와 substrate link의 bandwidth capacity는 각각 $U(50,100)$에서 생성한다. 각 VNR은 2--10개의 virtual node를 갖는 connected Erd\H{o}s--R\'{e}nyi graph $G(n,0.4)$로 생성하며, virtual node의 CPU demand는 $U(0,20)$, virtual link의 bandwidth demand는 $U(0,50)$에서 생성한다.
 
+    \item VNR은 Poisson process에 따라 도착하고 holding time은 평균 1,000 time units의 exponential distribution을 따른다. 각 simulation은 60,000 time units 동안 수행하며, 최초 10,000 time units는 warm-up으로 사용하고 이후 50,000 time units에서 성능 지표를 집계한다.
 
+    \item 주요 평가지표는 VNR acceptance ratio, revenue-to-cost ratio, average CPU utilization, average link utilization이다. Revenue는 수락된 VNR의 CPU와 bandwidth demand의 합으로 계산하고, cost는 할당된 CPU와 실제 substrate path에서 소비된 bandwidth를 함께 반영한다. Resource utilization은 수락한 VNR의 양에도 영향을 받으므로 acceptance ratio와 revenue-to-cost ratio를 함께 고려하여 해석한다.
+}
 
+\todobox{ER substrate의 연결 밀도에 따른 성능}{
+    \item 먼저 synthetic environment에서 substrate connectivity의 영향을 분리하여 확인한다. Substrate network는 50개 node의 connected Erd\H{o}s--R\'{e}nyi graph $G(50,p_s)$로 생성하고, $p_s\in\{0.05,0.10,0.15,0.20,0.25\}$로 변화시킨다. 이때 VNR arrival rate는 1,000 time units당 50개로 고정하여 workload 차이를 제거한다.
+
+    \item $p_s$가 증가하면 substrate의 link와 가능한 routing path가 증가하므로 모든 알고리즘의 VNR 수용 가능성도 전반적으로 향상된다. 그러나 \ecfvne{}는 전체 $p_s$ 범위에서 가장 높은 acceptance ratio를 유지하며, sparse substrate뿐 아니라 path diversity가 충분한 dense substrate에서도 잔여 자원의 향후 활용 가능성을 효과적으로 보존한다.
+
+    \item Revenue-to-cost ratio에서는 VNE-RFD-B와 VNE-RFD-D가 일부 조건에서 더 높은 값을 보이지만, \ecfvne{}는 substrate density가 변해도 비교적 안정적인 값을 유지하면서 더 많은 VNR을 수용한다. 이는 \ecfvne{}의 acceptance ratio 향상이 단순히 embedding cost를 과도하게 증가시킨 결과만으로 설명되지 않음을 보여준다.
+
+    \item CPU utilization은 \ecfvne{}가 더 많은 VNR을 지속적으로 수락함에 따라 높게 나타난다. 반면 link utilization은 $p_s$가 증가할수록 추가적인 substrate path가 제공되기 때문에 acceptance ratio와 동일한 방향으로 증가하지 않을 수 있으며, 따라서 utilization의 절대값보다는 수용률과 비용 효율을 함께 고려하여 평가한다.
+}
+
+\todobox{실제 Topology Zoo network에서의 성능}{
+    \item Synthetic ER graph에서 관찰한 결과가 특정 random topology에 한정되지 않는지 확인하기 위해 Internet Topology Zoo의 실제 network topology를 substrate로 사용한다. 원본 topology의 parallel edge는 병합하여 simple graph로 변환하고, 규모가 유사한 Palmetto $(45,64)$, Bell Canada $(48,64)$, Surfnet $(50,68)$을 선택한다. 여기서 괄호는 각각 node와 link의 개수를 나타낸다.
+
+    \item 세 topology의 규모를 유사하게 유지함으로써 network size 차이에 의한 영향을 완화하면서, 실제 네트워크가 갖는 서로 다른 연결 구조에 대한 \ecfvne{}의 robustness를 평가한다. Substrate resource와 VNR generation, holding time, simulation duration, paired sampling 조건은 ER 실험과 동일하게 두고, VNR arrival rate만 1,000 time units당 5, 10, 15, 20, 25개로 변화시켜 workload 증가에 따른 성능을 비교한다.
+
+    \item 세 topology 모두에서 arrival rate가 증가하면 resource contention이 커지면서 acceptance ratio가 감소하지만, \ecfvne{}는 모든 topology와 arrival rate에서 가장 높은 acceptance ratio를 유지한다. 이는 ER graph의 $p$-sweep에서 나타난 수용률 향상이 실제 network structure에서도 일관되게 재현됨을 보여준다.
+
+    \item Revenue-to-cost ratio에서는 VNE-RFD-B와 VNE-RFD-D가 일부 조건에서 더 높은 비용 효율을 보이지만, \ecfvne{}는 그보다 많은 VNR을 수용하며 높은 CPU utilization을 보인다. Link utilization 역시 topology와 workload에 따라 차이가 있으나, 세 실제 topology에서 \ecfvne{}의 상대적인 acceptance ratio 우위가 유지된다는 점은 external connectivity 기반 fragmentation 제어가 특정 substrate 구조에 종속되지 않음을 뒷받침한다.
+}
 
 % \nocite{*}
 \bibliographystyle{IEEEtran}
