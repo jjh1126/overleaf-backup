@@ -26,6 +26,10 @@
   \end{mdframed}%
 }
 
+% 제안 기법 명칭
+\newcommand{\ecf}{ECF}
+\newcommand{\ecfvne}{ECF-VNE}
+
 \usepackage{verbatim}
 \begin{comment}
 
@@ -80,10 +84,11 @@ VNE 자원 파편화에 대한 본 논문의 핵심 철학 :
 \begin{abstract}
 Online virtual network embedding must accommodate arriving requests while preserving residual substrate resources for future demands.
 \todobox{초록에 추가할 내용}{
-    \item 기존 방법들에 대한 간단 비판: 잔여 자원의 절대량이나 부하 분산 중심이며, 잔여 자원이 실제로 향후 요청 구성에 활용될 수 있는지(usability)는 정량화하는 연구는 드물다. (1-2문장)
-    \item 우리가 제안하는 것: 잔여 자원이 다른 자원과 결합될 수 있는 정도를 external connectivity로 정량화하고, node embedding과 link routing이 요구하는 서로 다른 결합 방식에 맞게 각각의 파편화 지표를 정의 (2-4문장)
-    \item 임베딩 결정으로 인한 induced fragmentation을 자원 직접 소비 효과와 분리하여 online VNE 목적함수에 반영했다는 점 언급
-    \item SOTA 대비 개선되었다는 언급 (2-3문장, 실험 이후 채울 것)
+    \item 기존 방법들의 한계: 잔여 자원의 절대량이나 부하 분산을 주로 고려하며, 잔여 자원이 향후 VNR을 구성하는 다른 자원과 실제로 결합될 수 있는지에 대한 활용 가능성은 직접 정량화하지 않는다는 점을 간단히 지적한다.
+    \item 제안 기법의 이름을 처음 명시한다: external connectivity를 이용해 잔여 자원의 활용 가능성을 평가하는 \ecfvne{}를 제안한다고 선언한다.
+    \item \ecfvne{}의 핵심 지표를 External-Connectivity-based Fragmentation (\ecf) metric으로 정의하고, node embedding과 link routing이 요구하는 서로 다른 자원 결합 관계에 맞게 node/link fragmentation을 각각 구성한다고 설명한다.
+    \item 임베딩 전후의 fragmentation 변화에서 자원 자체의 직접 소비 효과를 분리하고, connectivity 저하에 의해 유도되는 induced fragmentation만을 목적함수에 반영한다는 점을 언급한다.
+    \item 실험 결과에서는 \ecfvne{}가 비교 기법 대비 VNR acceptance ratio를 향상시키면서 revenue-to-cost ratio와 substrate utilization 측면에서의 trade-off를 함께 보였다는 식으로 정리한다. 정확한 수치는 최종 실험 표에서 채운다.
 }
 
 \end{abstract}
@@ -108,9 +113,12 @@ In practical deployments, VNE operates in a dynamic setting where VNRs arrive an
 Existing online VNE heuristics manage residual capacity, path feasibility, and embedding cost during node and link routing. However, their control granularity is mainly limited to individual substrate nodes, adjacent link sets, candidate paths, or aggregate load balancing objectives. These approaches do not explicitly quantify resource fragmentation in the residual substrate state.
 
 \todobox{이후 서론 구성}{
-
-    \item 
-
+    \item 기존 방법의 한계를 설명한 직후 제안 기법의 이름을 처음 명시한다. ``본 논문에서는 external connectivity를 기반으로 잔여 자원의 결합 가능성을 정량화하는 \ecfvne{}를 제안한다''는 흐름으로 연결한다.
+    \item \ecfvne{}의 핵심 관점은 잔여 자원의 가치가 절대량만으로 결정되는 것이 아니라, 향후 VNR을 구성하기 위해 다른 잔여 자원과 결합될 수 있는 정도에 의해 결정된다는 점임을 강조한다.
+    \item 이 결합 가능성을 External-Connectivity-based Fragmentation (\ecf) metric으로 정의한다고 예고한다. \ecf{}는 잔여 자원량과 normalized external connectivity를 결합하여 usable residual resource와 fragmentation을 정량화한다.
+    \item Node embedding과 link routing은 서로 다른 자원 결합 구조를 요구하므로, 동일한 \ecf{} 기본 형태를 node fragmentation과 link fragmentation에 각각 특수화한다고 설명한다.
+    \item 임베딩에 의한 fragmentation 변화에서 직접적인 자원 소비 효과와 connectivity 저하 효과를 분해하고, 후자를 induced fragmentation cost로 정의하여 \ecfvne{}의 candidate 및 path selection에 반영한다고 예고한다.
+    \item 기여점은 (1) 잔여량이 아닌 활용 가능성 기반의 fragmentation 관점, (2) external connectivity에 기반한 \ecf{} metric, (3) node/link 역할에 맞춘 metric 특수화, (4) induced fragmentation과 직접 자원 소비의 분리, (5) 이를 online VNE에 적용한 \ecfvne{} 알고리즘으로 정리한다.
 }
 
 % \todobox{서론 구성 (전체 흐름 정리)}{
@@ -127,7 +135,7 @@ Existing online VNE heuristics manage residual capacity, path feasibility, and e
     % 첫 번째 서브피규어 (a)
     \begin{subfigure}[b]{0.18\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{figures/fig1_vn.png}
+        \includegraphics[width=\textwidth]{figures/fig1_vn.pdf}
         \caption{Virtual Network}
         \label{fig:fig1_1}
     \end{subfigure}
@@ -135,7 +143,7 @@ Existing online VNE heuristics manage residual capacity, path feasibility, and e
     % 두 번째 서브피규어 (b)
     \begin{subfigure}[b]{0.25\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{figures/fig1_sn.png}
+        \includegraphics[width=\textwidth]{figures/fig1_sn.pdf}
         \caption{Substrate Network}
         \label{fig:fig1_2}
     \end{subfigure}
@@ -167,9 +175,9 @@ Guan et al.~\cite{guan2023multidimensional} study multidimensional resource frag
 
 Lu and Zhang~\cite{lu2022resource} address a more closely related notion of resource fragmentation. They define the resource fragmentation degree (RFD) for substrate nodes and links based on the observation that the usability of a residual resource depends on surrounding residual resources. For a substrate node, RFD incorporates residual resources of neighboring nodes and paths within a bounded hop count. For a substrate link, RFD incorporates the residual resources of adjacent links and the substrate nodes shared by those links. Their formulation is motivated by an extension of graph connectivity and aggregates these surrounding resource states to quantify the fragmentation degree of each substrate element. This connectivity extension depends on a hop-bounded neighborhood and its associated hyperparameter, whereas the external connectivity used in this paper is justified directly by the boundary cut, equivalently the max-flow between a resource region and its exterior, and requires no hop-count tuning.
 
-The proposed metric shares with RFD the observation that residual resource amount alone is insufficient to characterize future usability. The distinction lies in how the relevant resource relationships are modeled. Rather than deriving a connectivity-inspired fragmentation degree from surrounding nodes and paths, the proposed metric directly follows the resource combinations required by the two VNE mapping operations. For node embedding, it evaluates the residual resource of a substrate node together with the residual resources of its adjacent substrate links, because both are required to support a virtual node and its incident virtual links. For link routing, it evaluates the residual resource of a substrate link together with the adjacent link resources at each of its two endpoints. The two endpoint states are evaluated separately, and the endpoint with lower adjacent-resource availability determines the resulting value because insufficient adjacent resources at either endpoint can limit the use of the substrate link as part of a path.
+The ECF metric shares with RFD the observation that residual resource amount alone is insufficient to characterize future usability. The distinction lies in how the relevant resource relationships are modeled. Rather than deriving a connectivity-inspired fragmentation degree from surrounding nodes and paths, the ECF metric directly follows the resource combinations required by the two VNE mapping operations. For node embedding, it evaluates the residual resource of a substrate node together with the residual resources of its adjacent substrate links, because both are required to support a virtual node and its incident virtual links. For link routing, it evaluates the residual resource of a substrate link together with the adjacent link resources at each of its two endpoints. The two endpoint states are evaluated separately, and the endpoint with lower adjacent-resource availability determines the resulting value because insufficient adjacent resources at either endpoint can limit the use of the substrate link as part of a path.
 
-Accordingly, the proposed metric differs from the reviewed fragmentation metrics not in whether neighboring resources are considered, but in how their relationships are defined. It characterizes residual-resource usability according to the distinct resource combinations required by node embedding and link routing, aiming to identify residual resources that remain available but are difficult to combine with other resources in future VNR embeddings. In addition, the formulation distinguishes the direct resource-consumption effect of an embedding from the connectivity degradation it induces, with the latter represented through the external connectivity metric introduced in the next section.
+Accordingly, the ECF metric differs from the reviewed fragmentation metrics not in whether neighboring resources are considered, but in how their relationships are defined. It characterizes residual-resource usability according to the distinct resource combinations required by node embedding and link routing, aiming to identify residual resources that remain available but are difficult to combine with other resources in future VNR embeddings. In addition, the formulation distinguishes the direct resource-consumption effect of an embedding from the connectivity degradation it induces, with the latter represented through the external connectivity metric introduced in the next section.
 
 \section{System Model}
 \label{sec:system_model}
@@ -213,10 +221,12 @@ Accordingly, the proposed metric differs from the reviewed fragmentation metrics
 }
 
 
-\section{Metric Definition of Resource Fragmentation}
+\section{External-Connectivity-Based Fragmentation Metric}
 \label{sec:metric_definition_of_resource_fragmentation}
 
-\todobox{지표 정의}{
+\todobox{\ecf{} 지표 정의}{
+    \item 본 절에서 정의하는 fragmentation 지표를 External-Connectivity-based Fragmentation (\ecf) metric으로 명명한다. 이후 node/link fragmentation과 induced fragmentation은 모두 \ecf{}의 구성 요소로 통일하여 지칭한다.
+
     \item 기본 관점: VNE에서 잔여 자원의 활용 가능성은 해당 자원량과 주변 자원과의 결합 가능성에 의해 결정된다. 잔여 자원량을 $R$, normalized external connectivity를 $\mathrm{Conn}$이라 할 때 usable residual resource를 $R\mathrm{Conn}$으로 두고, fragmentation score를
     \[
     F=R(1-\mathrm{Conn})
@@ -363,7 +373,9 @@ Accordingly, the proposed metric differs from the reviewed fragmentation metrics
 \section{Problem Formulation}
 \label{sec:problem_formulation}
 
-\todobox{문제 정식화}{
+\todobox{\ecfvne{} 문제 정식화}{
+    \item 본 절의 목적함수는 \ecfvne{}의 embedding objective로 제시한다. Load-balancing cost와 \ecf{} 기반 induced fragmentation cost를 서로 다른 역할의 항으로 명확히 구분한다.
+
     \item 결정변수: $x_{nv}\in\{0,1\}$는 가상 노드 $n\in N^V$의 기저 노드 $v\in N^S$에 대한 매핑 여부를 나타낸다. $f_{uv}^l\ge0$는 가상 링크 $l\in L^V$의 bandwidth 중 arc $(u,v)\in A^S$를 통과하는 flow이다.
 
     \item Node mapping 제약:
@@ -446,12 +458,12 @@ Accordingly, the proposed metric differs from the reviewed fragmentation metrics
 
 }
 
-\section{Fragmentation-Aware Embedding Algorithm}
+\section{ECF-VNE Embedding Algorithm}
 \label{sec:embedding_algorithm}
 
 \begin{algorithm}[t]
-\caption{Fragmentation-Aware Online VNE}
-\label{alg:proposed_vne}
+\caption{ECF-VNE: External-Connectivity-Based Fragmentation-Aware Online VNE}
+\label{alg:ecf_vne}
 \begin{algorithmic}[1]
 
 \STATE Input:
@@ -555,9 +567,10 @@ following VNE-RFD~\cite{lu2022resource}
 \end{algorithmic}
 \end{algorithm}
 
-\todobox{Fragmentation-Aware Embedding Algorithm}{
+\todobox{\ecfvne{} Embedding Algorithm}{
 
     \item Algorithm framework:
+    본 절의 제안 알고리즘을 \ecfvne{}로 통일하여 지칭한다. \ecfvne{}는 앞서 정의한 \ecf{} 기반 induced fragmentation cost를 VNE-RFD의 online embedding framework에 결합한다.
     제안 알고리즘은 VNE-RFD~\cite{lu2022resource}의 online embedding
     framework를 사용한다.
     Virtual-node processing order, feasible substrate-node candidate generation,
