@@ -649,88 +649,46 @@ rolls back the previous decision and examines the next feasible candidate
 according to the bounded-backtracking procedure. The VNR is rejected when
 no feasible embedding can be found within the backtracking budget $\Delta$.
 
-
 \begin{algorithm}[!t]
 \caption{ECF-VNE Online Embedding}
 \label{alg:ecf_embedding}
 \footnotesize
 \begin{algorithmic}[1]
 
-\STATE \textbf{Input:}
-substrate network $G^S$, arriving VNR $G^V$, $K$, and $\Delta$
-
-\STATE \textbf{Output:}
-embedding $M$ or \textsc{Reject}
-
+\STATE \textbf{Input:} $G^S$, $G^V$, $K$, $\Delta$
+\STATE \textbf{Output:} embedding $M$ or \textsc{Reject}
 \STATE Initialize $M$
 
 \FOR{each $n\in N^V$ according to the VNE-RFD processing order}
 
-    \STATE Generate feasible substrate-node candidates in $N^S$
+    \STATE Generate feasible substrate-node candidates
 
-    \FOR{each feasible $v\in N^S$}
-
-        \STATE Temporarily set $M_N(n)\leftarrow v$
-
-        \FOR{each $l=\{n,m\}\in L^V$ with $M_N(m)$ defined}
-
-            \STATE Generate up to $K$ feasible shortest paths
-            between $v$ and $M_N(m)$
-
-            \IF{no feasible path exists}
-                \STATE Discard $v$ and restore $M$
-                \STATE Continue with the next feasible $v$
-            \ENDIF
-
-            \FOR{each feasible path}
-
-                \STATE Temporarily assign the path to $M_L(l)$
-
-                \STATE Obtain the corresponding transition
-                $\rho\rightarrow\rho'$
-
-                \STATE Evaluate
-                $\beta C_{\mathrm{LB}}
-                +\lambda\Phi(\rho\rightarrow\rho')$
-
-                \STATE Restore the tentative link allocation
-
-            \ENDFOR
-
-            \STATE Retain in $M_L(l)$ the path with the smallest
-            evaluated value
-
-        \ENDFOR
-
-        \STATE Evaluate the tentative extension of $M$ using
-        $\beta C_{\mathrm{LB}}
-        +\lambda\Phi(\rho\rightarrow\rho')$
-
+    \FOR{each candidate $v$}
+        \STATE Tentatively set $M_N(n)\leftarrow v$
+        \STATE Route newly activated virtual links using up to $K$ feasible paths
+        \STATE Evaluate the tentative embedding using
+        $\beta C_{\mathrm{LB}}+\lambda\Phi(\rho\rightarrow\rho')$
         \STATE Restore $M$
-
     \ENDFOR
 
-    \STATE Consider feasible substrate-node candidates in ascending
-    order of the evaluated value
+    \STATE Rank feasible candidates by the evaluated value
 
-    \STATE Commit the selected node and its associated link mappings to $M$
+    \STATE Commit the best feasible candidate and its link mappings
 
-    \IF{no feasible candidate can be committed}
-        \STATE Roll back previous mappings according to $\Delta$
-
-        \IF{no further candidate can be examined}
-            \STATE return \textsc{Reject}
-        \ENDIF
+    \IF{no candidate leads to a feasible continuation}
+        \STATE Backtrack to the next candidate according to $\Delta$
     \ENDIF
 
 \ENDFOR
 
-\STATE return $M$
+\IF{a complete embedding is found}
+    \STATE return $M$
+\ELSE
+    \STATE return \textsc{Reject}
+\ENDIF
 
 \end{algorithmic}
 \end{algorithm}
-
-
 
 
 \section{Performance Evaluation}
