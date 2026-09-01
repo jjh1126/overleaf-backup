@@ -769,7 +769,7 @@ candidate generation, commitment, rollback, and bounded backtracking remain unch
 Algorithm~\ref{alg:ecf_eval} summarizes the evaluation of a tentative embedding $M$.
 
 \begin{algorithm}[!t]
-    \caption{ECF-Based Tentative Embedding Evaluation}
+    \caption{ECF-Based Embedding Evaluation}
     \label{alg:ecf_eval}
     \footnotesize
     \begin{algorithmic}[1]
@@ -860,7 +860,7 @@ combined with the proposed ECF metric.
 The CPU capacity of each substrate node and the bandwidth capacity of each substrate link are
 independently generated from $U(50,100)$. Each VNR is generated as a connected Erd\H{o}s--R\'{e}nyi
 graph $G(n,0.4)$ containing 2--10 virtual nodes. The CPU demand of each virtual node is generated
-from $U(0,20)$, while the bandwidth demand of each virtual link is generated from $U(0,50)$.
+from $U(0,20)$, while the bandwidth demand of each virtual link is generated from $U(0,50)$. 
 
 VNRs arrive according to a Poisson process, and their holding times follow an exponential
 distribution with a mean of 1,000 time units. For each simulation, the initial transient period is
