@@ -544,93 +544,112 @@ Here $\beta$ and $\lambda$ control the relative contributions of load balancing 
 \section{ECF-VNE Embedding Algorithm}
 \label{sec:embedding_algorithm}
 
-The proposed \ecfvne{} algorithm is implemented within the online embedding
+The proposed \vneecf{} algorithm is implemented within the online embedding
 framework of VNE-RFD~\cite{lu2022resource}. We retain the virtual-node
 processing order, feasible substrate-node candidate generation,
 $K$-shortest-path search, and bounded backtracking procedure of VNE-RFD.
-The proposed modification lies in how substrate-node candidates and routing
-paths are evaluated. Specifically, \ecfvne{} augments the conventional
-load-balancing cost with the induced fragmentation cost defined in
+The proposed modification lies in the evaluation of substrate-node candidates
+and routing paths: each tentative embedding decision is evaluated using both
+the load-balancing cost and the induced fragmentation cost defined in
 Section~\ref{sec:metric_definition_of_resource_fragmentation}.
 
-Let $S$ denote the current residual substrate state and let $S'$ denote the
-state obtained after tentatively applying an embedding decision. We denote
-the induced fragmentation penalty associated with this state transition by
+To describe the state transitions during candidate evaluation, let $\rho$
+denote a residual substrate state. For any transition from state $\rho$ to
+$\rho'$, we write
 \[
-\Phi(S\rightarrow S')
+\Phi(\rho\rightarrow\rho')
 =
-\Delta F_{\mathrm{frag}}(S\rightarrow S').
+\Delta F_{\mathrm{frag}}(\rho\rightarrow\rho'),
 \]
-Thus, $\Phi(S\rightarrow S')$ measures the degradation in the usability of
-the residual substrate resources caused by the tentative decision.
+where $\Phi(\rho\rightarrow\rho')$ represents the induced fragmentation
+caused by the tentative embedding decision. The residual CPU of substrate
+node $v$ and the residual bandwidth of substrate link $e$ under state $\rho$
+are denoted by $r_v(\rho)$ and $r_e(\rho)$, respectively.
 
-For a virtual link $l$ with bandwidth demand $d_l$, let
-$\mathcal{P}_l$ denote the feasible $K$-shortest paths between its mapped
-endpoints. Given the current tentative substrate state $S$, we define the
-load-balancing cost of a path $P\in\mathcal{P}_l$ as
+For the evaluation of a substrate-node candidate $v$ for virtual node $n$,
+let $\rho^{\mathrm{pre}}$ denote the residual substrate state before the
+candidate is tentatively applied. During the sequential routing of virtual
+links incident to $n$, $\rho^{\mathrm{cur}}$ denotes the current tentative
+state. For a candidate substrate path $P$, let $\rho^P$ denote the state
+obtained by tentatively allocating the corresponding virtual-link bandwidth
+on $P$ from $\rho^{\mathrm{cur}}$. Finally, $\rho^{n,v}$ denotes the
+tentative substrate state after mapping $n$ onto $v$ and routing all incident
+virtual links whose opposite endpoints have already been mapped.
+
+For a virtual link $l$ with bandwidth demand $d_l$, let $\mathcal{P}_l$
+denote the set of feasible $K$-shortest paths between its mapped endpoints.
+Given the current tentative state $\rho^{\mathrm{cur}}$, the load-balancing
+cost of a candidate path $P\in\mathcal{P}_l$ is
 \[
-C_{\mathrm{LB}}^{l}(P;S)
+C_{\mathrm{LB}}^{l}(P;\rho^{\mathrm{cur}})
 =
 \sum_{e\in P}
-\frac{d_l}{r_e(S)+\epsilon}.
+\frac{d_l}
+     {r_e(\rho^{\mathrm{cur}})+\epsilon}.
 \]
-For each candidate path $P$, the algorithm tentatively allocates $d_l$
-along $P$, producing the residual state $S_P$, and evaluates the path as
+Each path is then evaluated according to
 \[
 J_{\mathrm{path}}(P)
 =
-\beta C_{\mathrm{LB}}^{l}(P;S)
+\beta
+C_{\mathrm{LB}}^{l}(P;\rho^{\mathrm{cur}})
 +
-\lambda\Phi(S\rightarrow S_P).
+\lambda
+\Phi(\rho^{\mathrm{cur}}\rightarrow\rho^P).
 \]
-The path with the minimum cost is then selected:
+The selected substrate path is
 \[
 P_l^*
 =
 \arg\min_{P\in\mathcal{P}_l}
 J_{\mathrm{path}}(P).
 \]
-After selecting $P_l^*$, its bandwidth allocation is applied to the
-tentative substrate state before the next incident virtual link is
-evaluated. Hence, each subsequent routing decision is evaluated with respect
-to the residual state resulting from the preceding decisions.
+After $P_l^*$ is selected, its bandwidth allocation is committed to the
+tentative state, and $\rho^{\mathrm{cur}}$ is updated accordingly before
+the next incident virtual link is evaluated. Therefore, the routing decision
+for each virtual link reflects the residual-resource state produced by the
+preceding routing decisions.
 
-In the proposed embedding heuristic, each virtual link is assigned to a
-single substrate path selected from its feasible $K$-shortest paths.
-Therefore, although the flow-based formulation in
-Section~\ref{sec:problem_formulation} provides a general feasibility model,
-the embedding algorithm performs unsplittable single-path routing.
+The proposed embedding heuristic uses unsplittable routing. That is, each
+virtual link is assigned to a single substrate path selected from its feasible
+$K$-shortest paths. The flow-based formulation in
+Section~\ref{sec:problem_formulation} provides the general feasibility
+constraints, whereas the proposed heuristic realizes each virtual-link
+mapping using a single path.
 
-For a virtual node $n$ and a feasible substrate-node candidate $v$, let
-$S_0$ denote the residual substrate state before tentatively mapping $n$.
-The node load-balancing cost is
+For virtual node $n$ and substrate-node candidate $v$, the node
+load-balancing cost is defined as
 \[
-C_N(n,v;S_0)
+C_N(n,v;\rho^{\mathrm{pre}})
 =
-\frac{d_n}{r_v(S_0)+\epsilon}.
+\frac{d_n}
+     {r_v(\rho^{\mathrm{pre}})+\epsilon}.
 \]
-After tentatively mapping $n$ onto $v$, the algorithm sequentially routes
-each incident virtual link whose opposite endpoint has already been mapped.
-Let $C_L$ denote the accumulated load-balancing cost of the selected paths
-and let $S_{n,v}$ denote the resulting tentative substrate state. The
-candidate score is then defined as
+After tentatively mapping $n$ onto $v$, all virtual links connecting $n$ to
+already mapped neighboring virtual nodes are routed sequentially using the
+path-evaluation rule above. Let $C_L$ denote the accumulated load-balancing
+cost of the selected paths. Once these routing decisions have been completed,
+the resulting tentative substrate state is denoted by $\rho^{n,v}$, and the
+candidate score is
 \[
 J_{\mathrm{cand}}(n,v)
 =
 \beta
 \left(
-C_N(n,v;S_0)+C_L
+C_N(n,v;\rho^{\mathrm{pre}})
++
+C_L
 \right)
 +
 \lambda
-\Phi(S_0\rightarrow S_{n,v}).
+\Phi(\rho^{\mathrm{pre}}\rightarrow\rho^{n,v}).
 \]
-Feasible substrate-node candidates are ranked in ascending order of
-$J_{\mathrm{cand}}(n,v)$, and this ranking is supplied to the bounded
+The feasible substrate-node candidates are ranked in ascending order of
+$J_{\mathrm{cand}}(n,v)$, and this ranking is passed to the bounded
 backtracking procedure of VNE-RFD.
 
-Algorithm~\ref{alg:ecf_eval} summarizes the ECF-based candidate evaluation
-performed within the VNE-RFD embedding framework.
+Algorithm~\ref{alg:ecf_eval} summarizes the proposed ECF-based candidate
+evaluation.
 
 \begin{algorithm}[!t]
 \caption{ECF-Based Candidate Evaluation}
@@ -638,18 +657,21 @@ performed within the VNE-RFD embedding framework.
 \footnotesize
 \begin{algorithmic}[1]
 
-\STATE \textbf{Input:} $S_0$, virtual node $n$, candidate $v$, $K$
-\STATE \textbf{Output:} $J_{\mathrm{cand}}(n,v)$ and selected paths,
+\STATE \textbf{Input:}
+$\rho^{\mathrm{pre}}$, virtual node $n$, candidate $v$, $K$
+
+\STATE \textbf{Output:}
+$J_{\mathrm{cand}}(n,v)$ and selected paths,
 or \textsc{Infeasible}
 
 \STATE Tentatively map $n$ onto $v$
+\STATE Let $\rho^{\mathrm{cur}}$ be the resulting tentative state
 \STATE $C_L\leftarrow0$
 
 \FOR{each $l=\{n,m\}\in L^V$ with already mapped $m$}
 
-    \STATE Let $S$ be the current tentative substrate state
-    \STATE Generate feasible $K$-shortest paths $\mathcal{P}_l$
-    between $v$ and $M_N(m)$
+    \STATE Generate feasible $K$-shortest paths
+    $\mathcal{P}_l$ between $v$ and $M_N(m)$
 
     \IF{$\mathcal{P}_l=\emptyset$}
         \STATE return \textsc{Infeasible}
@@ -657,35 +679,31 @@ or \textsc{Infeasible}
 
     \FOR{each $P\in\mathcal{P}_l$}
 
-        \STATE Tentatively allocate $d_l$ on $P$ to obtain $S_P$
+        \STATE Tentatively allocate $d_l$ on $P$ to obtain $\rho^P$
 
-        \STATE $J_{\mathrm{path}}(P)
-        \leftarrow
-        \beta C_{\mathrm{LB}}^{l}(P;S)
-        +\lambda\Phi(S\rightarrow S_P)$
-
-        \STATE Restore $S$
+        \STATE $J_{\mathrm{path}}(P)\leftarrow
+        \beta C_{\mathrm{LB}}^{l}(P;\rho^{\mathrm{cur}})
+        +\lambda\Phi(\rho^{\mathrm{cur}}\rightarrow\rho^P)$
 
     \ENDFOR
 
-    \STATE $P_l^*
-    \leftarrow
+    \STATE $P_l^*\leftarrow
     \arg\min_{P\in\mathcal{P}_l}J_{\mathrm{path}}(P)$
 
-    \STATE $C_L
-    \leftarrow
-    C_L+C_{\mathrm{LB}}^{l}(P_l^*;S)$
+    \STATE $C_L\leftarrow
+    C_L+C_{\mathrm{LB}}^{l}(P_l^*;\rho^{\mathrm{cur}})$
 
     \STATE Allocate $d_l$ on $P_l^*$
+    \STATE Set $M_L(l)\leftarrow P_l^*$
+    \STATE Update $\rho^{\mathrm{cur}}$
 
 \ENDFOR
 
-\STATE Let $S_{n,v}$ be the resulting tentative substrate state
+\STATE Let $\rho^{n,v}\leftarrow\rho^{\mathrm{cur}}$
 
-\STATE $J_{\mathrm{cand}}(n,v)
-\leftarrow
-\beta\bigl(C_N(n,v;S_0)+C_L\bigr)
-+\lambda\Phi(S_0\rightarrow S_{n,v})$
+\STATE $J_{\mathrm{cand}}(n,v)\leftarrow
+\beta\bigl(C_N(n,v;\rho^{\mathrm{pre}})+C_L\bigr)
++\lambda\Phi(\rho^{\mathrm{pre}}\rightarrow\rho^{n,v})$
 
 \STATE return
 $\bigl(J_{\mathrm{cand}}(n,v),\{P_l^*\}\bigr)$
@@ -693,27 +711,29 @@ $\bigl(J_{\mathrm{cand}}(n,v),\{P_l^*\}\bigr)$
 \end{algorithmic}
 \end{algorithm}
 
-For each virtual node processed according to the VNE-RFD ordering, the
-procedure in Algorithm~\ref{alg:ecf_eval} is applied to its feasible
-substrate-node candidates. The resulting candidates are considered in
-ascending order of $J_{\mathrm{cand}}$. Candidate commitment, rollback, and
-the bounded backtracking budget $\Delta$ follow the original VNE-RFD
-procedure. Consequently, \ecfvne{} preserves the embedding framework of
-VNE-RFD while replacing its candidate-evaluation criterion with one that
-jointly accounts for current load concentration and the induced
-fragmentation of the residual substrate.
+For each virtual node processed according to the VNE-RFD ordering,
+Algorithm~\ref{alg:ecf_eval} is applied to its feasible substrate-node
+candidates. The candidates are considered in ascending order of
+$J_{\mathrm{cand}}$. Once a candidate is committed, its node mapping is
+recorded in $M_N$ and the selected virtual-link paths are recorded in $M_L$.
+Candidate commitment, rollback, and the bounded backtracking budget $\Delta$
+otherwise follow the original VNE-RFD procedure. Thus, \vneecf{} preserves
+the embedding framework of VNE-RFD while replacing its candidate-evaluation
+criterion with one that accounts for both immediate resource load and the
+usability of the residual substrate after embedding.
 
-Computing one induced fragmentation penalty requires evaluating the changes
-in node and link fragmentation over the substrate. The node component
-requires $O(|L^S|)$ operations. For the link component, evaluating the
-external connectivity of both endpoints of every substrate link requires
+The additional computational overhead introduced by \vneecf{} is dominated
+by the evaluation of the induced fragmentation penalty $\Phi$. Computing
+the node-fragmentation component requires $O(|L^S|)$ operations. For the
+link-fragmentation component, the external connectivity of the two endpoints
+of every substrate link is evaluated, yielding
 \[
 O\!\left(
 \sum_{v\in N^S}(d_v^S)^2
 \right)
 \]
-operations in total, where $d_v^S$ denotes the substrate degree of node $v$.
-Therefore, the complexity of one induced-fragmentation evaluation is
+operations in total, where $d_v^S$ denotes the degree of substrate node $v$.
+Accordingly, one induced-fragmentation evaluation requires
 \[
 O\!\left(
 \sum_{v\in N^S}(d_v^S)^2
@@ -721,9 +741,8 @@ O\!\left(
 \subseteq
 O(|N^S||L^S|).
 \]
-This fragmentation evaluation is repeatedly performed for the routing-path
-and substrate-node candidates examined by the underlying VNE-RFD procedure.
-
+This additional evaluation is performed for the routing-path candidates and
+substrate-node candidates examined by the underlying VNE-RFD procedure.
 
 
 \section{Performance Evaluation}
