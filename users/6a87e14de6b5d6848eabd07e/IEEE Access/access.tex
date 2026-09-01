@@ -177,93 +177,93 @@ Accordingly, the proposed metric differs from the reviewed fragmentation metrics
 \setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{1.12}
 
-\begin{tabular}{|p{0.22\columnwidth}|p{0.68\columnwidth}|}
+\begin{tabular}{|p{0.24\columnwidth}|p{0.66\columnwidth}|}
 \hline
 \textbf{Symbol} & \textbf{Description} \\
 \hline
 
 $G^S=(N^S,L^S)$
-& Substrate network \\
+& Substrate network with node set $N^S$ and link set $L^S$ \\
+\hline
+
+$A^S$
+& Directed arc set obtained from the substrate links for flow representation \\
 \hline
 
 $G^V=(N^V,L^V)$
-& Virtual network request (VNR) \\
+& Virtual network request (VNR) with node set $N^V$ and link set $L^V$ \\
 \hline
 
-$c_v,\; r_v$
-& Initial and residual CPU capacity of substrate node $v$, respectively \\
+$c_v,\;r_v$
+& Initial and residual CPU capacities of substrate node $v$ \\
 \hline
 
-$c_e,\; r_e$
-& Initial and residual bandwidth capacity of substrate link $e$, respectively \\
+$c_e,\;r_e$
+& Initial and residual bandwidth capacities of substrate link $e$ \\
 \hline
 
-$d_n$
-& CPU demand of virtual node $n$ \\
+$d_n,\;d_l$
+& CPU demand of virtual node $n$ and bandwidth demand of virtual link $l$ \\
 \hline
 
-$d_l$
-& Bandwidth demand of virtual link $l$ \\
-\hline
-
-$M_N$
-& Virtual-to-substrate node mapping \\
-\hline
-
-$M_L$
-& Virtual-link-to-substrate-path mapping \\
+$M_N,\;M_L$
+& Virtual-node mapping and virtual-link routing mapping \\
 \hline
 
 $M=(M_N,M_L)$
 & Complete VNR embedding \\
 \hline
 
-$\mathrm{Conn}$
-& Normalized external connectivity of a residual resource \\
+$x_{nv}$
+& Binary variable indicating whether virtual node $n$ is mapped to substrate node $v$ \\
 \hline
 
-$F$
-& Fragmentation score based on residual resource and connectivity \\
+$f_{uv}^{l}$
+& Bandwidth flow of virtual link $l$ traversing substrate arc $(u,v)$ \\
 \hline
 
-$F_N(v)$
-& Fragmentation score of substrate node $v$ \\
+$\mathrm{Conn}_N,\;\mathrm{Conn}_L$
+& External-connectivity measures for substrate nodes and links \\
 \hline
 
-$F_L(e)$
-& Fragmentation score of substrate link $e$ \\
+$I_N,\;I_L$
+& Connectivity-deficiency factors for substrate nodes and links \\
 \hline
 
-$\Delta F_{\mathrm{frag}}(M)$
-& Induced-fragmentation cost caused by embedding $M$ \\
+$\Delta F_{\mathrm{frag}}$
+& Normalized induced-fragmentation cost of an embedding decision \\
 \hline
 
 $C_{\mathrm{LB}}$
-& Load-balancing cost of an embedding \\
+& Demand-to-residual-capacity load-balancing cost \\
 \hline
 
 $J$
 & Overall embedding objective function \\
 \hline
 
-$\beta,\lambda$
-& Weight parameters of the objective function: $\beta$ scales the load-balancing cost and $\lambda$ scales the induced-fragmentation cost \\
+$\beta,\;\lambda$
+& Coefficients of the load-balancing and induced-fragmentation terms \\
 \hline
 
 $\gamma$
-& Relative weight between node and link induced-fragmentation costs in $\Delta F_{\mathrm{frag}}$ \\
+& Relative weight between node and link induced-fragmentation costs \\
 \hline
 
-$C_{N,\mathrm{tot}},\;C_{L,\mathrm{tot}}$
-& Total initial CPU capacity of substrate nodes and total initial bandwidth capacity of substrate links, used to normalize induced-fragmentation costs to be dimensionless \\
+$\rho$
+& Residual substrate state used during tentative embedding evaluation \\
+\hline
+
+$\Phi(\rho\!\rightarrow\!\rho')$
+& Induced-fragmentation cost associated with a transition between two residual substrate states \\
 \hline
 
 $K,\;\Delta$
-& Number of candidate shortest paths per virtual link, and maximum bounded-backtracking count per VNR \\
+& Number of candidate paths and bounded-backtracking budget, respectively \\
 \hline
 
 $\epsilon$
-& Small positive constant that prevents division by zero in the load-balancing cost \\
+& Small positive constant used to avoid division by zero \\
 \hline
 
 \end{tabular}
