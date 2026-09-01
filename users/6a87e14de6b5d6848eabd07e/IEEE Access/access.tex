@@ -511,7 +511,7 @@ x_{nv}-x_{mv}
 Thus, a flow of $d_l$ is generated at the substrate node with $x_{nv}=1$ and absorbed in equal amount at the substrate node with $x_{mv}=1$.
 
 \subsection{Objective Function}
-External connectivity evaluates how well a residual resource can combine with surrounding resources, but it does not directly represent the absolute residual capacity of an individual substrate resource or the load concentration on a particular resource. To complement this, we use the following demand-to-residual-capacity load-balancing cost \ref{chowdhury2012vineyard}:
+External connectivity evaluates how well a residual resource can combine with surrounding resources, but it does not directly represent the absolute residual capacity of an individual substrate resource or the load concentration on a particular resource. To complement this, we adopt the following demand-to-residual-capacity load-balancing cost ~\cite{chowdhury2012vineyard}:
 \[
 C_{\mathrm{LB}}(x,f)
 =
@@ -524,7 +524,7 @@ C_{\mathrm{LB}}(x,f)
 \frac{f_{uv}^l}
 {r_{\{u,v\}}+\epsilon},
 \]
-where $\epsilon>0$ is a small constant that prevents division by zero. Placing the same demand on a resource with smaller residual capacity increases the cost, which discourages load concentration on particular substrate resources. Assigning the same demand to a resource with smaller residual capacity incurs a larger cost, thereby discouraging load concentration on heavily utilized substrate resources.
+where $\epsilon>0$ is a small constant that prevents division by zero. Assigning the same demand to a resource with smaller residual capacity incurs a larger cost, thereby discouraging load concentration on heavily utilized substrate resources.
 
 We define the overall objective by combining load balancing and normalized induced fragmentation as
 \[
@@ -539,7 +539,7 @@ J(x,f)
 \qquad
 \beta,\lambda\ge0.
 \]
-Here $\beta$ scales the aggregate load-balancing cost and $\lambda$ scales the aggregate induced-fragmentation cost. Because both $C_{\mathrm{LB}}$ and $\Delta F_{\mathrm{frag}}$ are dimensionless and take values on comparable scales, the ratio $\lambda/\beta$ has a direct interpretation as the trade-off between load balancing and fragmentation control, and $\gamma$ further shapes the node--link balance within the fragmentation term. In this way, \vneecf{} simultaneously considers the resource efficiency of the current request and the residual-resource usability after embedding, without hidden dependence on the absolute CPU or bandwidth scale of the substrate.
+Here $\beta$ and $\lambda$ control the relative contributions of load balancing and induced fragmentation, respectively, while $\gamma$ controls the relative contribution of node fragmentation within the fragmentation term. In this way, \vneecf{} jointly considers load concentration for the current request and the usability of residual substrate resources after embedding.
 
 \section{VNE-ECF-LB Embedding Algorithm}
 \label{sec:embedding_algorithm}
