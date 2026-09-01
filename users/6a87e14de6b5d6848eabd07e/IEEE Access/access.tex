@@ -219,7 +219,7 @@ $M=(M_N,M_L)$
 \hline
 
 $\mathrm{Conn}$
-& external connectivity of a residual resource \\
+& Normalized external connectivity of a residual resource \\
 \hline
 
 $F$
@@ -246,8 +246,24 @@ $J$
 & Overall embedding objective function \\
 \hline
 
-$\alpha,\beta,\lambda$
-& Weight parameters of the objective function \\
+$\beta,\lambda$
+& Weight parameters of the objective function: $\beta$ scales the load-balancing cost and $\lambda$ scales the induced-fragmentation cost \\
+\hline
+
+$\gamma$
+& Relative weight between node and link induced-fragmentation costs in $\Delta F_{\mathrm{frag}}$ \\
+\hline
+
+$C_{N,\mathrm{tot}},\;C_{L,\mathrm{tot}}$
+& Total initial CPU capacity of substrate nodes and total initial bandwidth capacity of substrate links, used to normalize induced-fragmentation costs to be dimensionless \\
+\hline
+
+$K,\;\Delta$
+& Number of candidate shortest paths per virtual link, and maximum bounded-backtracking count per VNR \\
+\hline
+
+$\epsilon$
+& Small positive constant that prevents division by zero in the load-balancing cost \\
 \hline
 
 \end{tabular}
@@ -256,13 +272,13 @@ $\alpha,\beta,\lambda$
 \section{System Model}
 \label{sec:system_model}
 
-Substrate network는 weighted undirected graph $G^S=(N^S,L^S)$로 정의한다. 여기서 $N^S$와 $L^S$는 각각 substrate node와 substrate link의 집합이다. Substrate node $v\in N^S$의 초기 CPU 용량과 현재 잔여 CPU 용량을 각각 $c_v$와 $r_v$로 두며, substrate link $e=\{u,v\}\in L^S$의 초기 bandwidth 용량과 현재 잔여 bandwidth 용량을 각각 $c_e$와 $r_e$로 정의한다. Virtual-link routing의 경로와 flow를 표현하기 위해 각 무방향 substrate link $\{u,v\}\in L^S$를 두 방향 arc $(u,v)$와 $(v,u)$로 확장하고, 이들의 집합을 $A^S$로 둔다.
+We model the substrate network as a weighted undirected graph $G^S=(N^S,L^S)$, where $N^S$ and $L^S$ denote the sets of substrate nodes and substrate links, respectively. For each substrate node $v\in N^S$, we let $c_v$ and $r_v$ denote its initial and current residual CPU capacities, and for each substrate link $e=\{u,v\}\in L^S$, we let $c_e$ and $r_e$ denote its initial and current residual bandwidth capacities. To represent paths and flows for virtual-link routing, we expand each undirected substrate link $\{u,v\}\in L^S$ into two directed arcs $(u,v)$ and $(v,u)$, and we collect these arcs into the set $A^S$.
 
-하나의 VNR은 weighted undirected graph $G^V=(N^V,L^V)$로 표현한다. $N^V$와 $L^V$는 각각 virtual node와 virtual link의 집합이며, virtual node $n\in N^V$의 CPU 요구량을 $d_n$, virtual link $l=\{n,m\}\in L^V$의 bandwidth 요구량을 $d_l$로 정의한다.
+We represent a VNR as a weighted undirected graph $G^V=(N^V,L^V)$. Here $N^V$ and $L^V$ are the sets of virtual nodes and virtual links, respectively; we let $d_n$ denote the CPU demand of virtual node $n\in N^V$, and $d_l$ the bandwidth demand of virtual link $l=\{n,m\}\in L^V$.
 
-Node mapping은 $M_N:N^V\rightarrow N^S$로 정의한다. 각 virtual node는 정확히 하나의 substrate node에 매핑되며, 동일한 VNR에 속한 서로 다른 virtual node는 서로 다른 substrate node에 매핑되는 것을 가정한다. Binary variable $x_{nv}\in\{0,1\}$를 사용하며, $x_{nv}=1$이면 virtual node $n$이 substrate node $v$에 매핑되었음을 의미한다. Link mapping은 $M_L:L^V\rightarrow\mathcal{P}^S$로 정의하며, virtual link $l=\{n,m\}$은 $M_N(n)$과 $M_N(m)$을 연결하는 substrate path에 매핑된다. 이때 $f_{uv}^l\ge0$는 arc $(u,v)\in A^S$를 통과하는 virtual link $l$의 bandwidth flow를 나타낸다.
+We define the node mapping as $M_N:N^V\rightarrow N^S$. Each virtual node is mapped to exactly one substrate node, and we assume that distinct virtual nodes of the same VNR are mapped to distinct substrate nodes. We use the binary variable $x_{nv}\in\{0,1\}$, where $x_{nv}=1$ indicates that virtual node $n$ is mapped to substrate node $v$. We define the link mapping as $M_L:L^V\rightarrow\mathcal{P}^S$, where each virtual link $l=\{n,m\}$ is mapped to substrate paths connecting $M_N(n)$ and $M_N(m)$. We let $f_{uv}^l\ge0$ denote the bandwidth flow of virtual link $l$ that traverses arc $(u,v)\in A^S$.
 
-전체 VNR embedding을 $M=(M_N,M_L)$로 정의한다. 임베딩 $M$을 적용한 이후 substrate node와 substrate link의 잔여 자원은 각각 다음과 같이 갱신된다.
+We define the complete VNR embedding as $M=(M_N,M_L)$. After applying an embedding $M$, we update the residual resources of substrate nodes and substrate links, respectively, as follows.
 \[
 r_v(M)
 =
@@ -281,7 +297,8 @@ f_{uv}^l+f_{vu}^l
 \qquad
 \forall\{u,v\}\in L^S.
 \]
-이와 같이 정의된 임베딩 전후의 residual substrate state는 이후 \ecf{} metric과 induced fragmentation cost를 계산하는 기준이 된다.
+The pre- and post-embedding residual substrate states defined above serve as the basis for computing the \ecf{} metric and the induced fragmentation cost in the following sections.
+
 
 
 
