@@ -305,7 +305,7 @@ The pre- and post-embedding residual substrate states defined above serve as the
 We now define the External-Connectivity-based Fragmentation (\ecf) metric, which combines residual amount and external connectivity to represent the future usability of a residual resource. The \ecf{} metric uses a common base form for nodes and links, but specializes to reflect the different ways in which each resource combines with other resources in VNE.
 
 \subsection{Base Definition and External Connectivity}
-In VNE, the usability of a residual resource depends not only on its amount but also on its combinability with surrounding resources. Let $R$ denote the residual amount and $\mathrm{Conn}$ the normalized external connectivity; we view $R\mathrm{Conn}$ as the effectively usable portion of the residual resource that can combine with external resources. We accordingly define the fragmentation score as
+In VNE, the usability of a residual resource depends not only on its amount but also on its combinability with surrounding resources. Let $R$ denote the residual amount and $\mathrm{Conn}$ the normalized external connectivity; we view $R\cdot\mathrm{Conn}$ as the effectively usable portion of the residual resource that can combine with external resources. We accordingly define the fragmentation score as
 \[
 F=R(1-\mathrm{Conn}).
 \]
