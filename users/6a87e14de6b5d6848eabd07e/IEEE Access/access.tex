@@ -664,16 +664,16 @@ exceed its residual bandwidth:
 The source and destination of each virtual link $l=\{n,m\}\in L^V$ are determined by the node
 mapping, and we express this via the flow-conservation constraint
 \[
-    \sum_{(v,w)\in A^S}f_{vw}^l
+\begin{aligned}
+    \sum_{(v,w)\in A^S} f_{vw}^l
     -
-    \sum_{(w,v)\in A^S}f_{wv}^l
-    =
-    d_l
-    \left(
-    x_{nv}-x_{mv}
-    \right),
-    \qquad
-    \forall v\in N^S.
+    \sum_{(w,v)\in A^S} f_{wv}^l
+    &=
+    d_l\left(x_{nv}-x_{mv}\right),
+    \\
+    &\forall v\in N^S,\quad
+    \forall l=\{n,m\}\in L^V.
+\end{aligned}
 \]
 Thus, a flow of $d_l$ is generated at the substrate node with $x_{nv}=1$ and absorbed in equal
 amount at the substrate node with $x_{mv}=1$.
@@ -684,16 +684,17 @@ but it does not directly represent the absolute residual capacity of an individu
 resource or the load concentration on a particular resource. To complement this, we adopt the
 following demand-to-residual-capacity load-balancing cost ~\cite{chowdhury2012vineyard}:
 \[
+\begin{aligned}
     C_{\mathrm{LB}}(x,f)
     =
     \sum_{n\in N^V}
     \sum_{v\in N^S}
     \frac{d_n}{r_v+\epsilon}x_{nv}
-    +
-    \sum_{l\in L^V}
+     +\sum_{l\in L^V}
     \sum_{(u,v)\in A^S}
     \frac{f_{uv}^l}
     {r_{\{u,v\}}+\epsilon},
+\end{aligned}
 \]
 where $\epsilon>0$ is a small constant that prevents division by zero. Assigning the same demand to
 a resource with smaller residual capacity incurs a larger cost, thereby discouraging load
@@ -704,16 +705,17 @@ cost resulting from the embedding specified by the decision variables $x$ and $f
 
 We define the overall objective by combining load balancing and normalized induced fragmentation as
 \[
+\begin{aligned}
     \min_{x,f}
     \quad
     J(x,f)
     =
     \beta\,C_{\mathrm{LB}}(x,f)
-    +
-    \lambda\,
+    +\lambda\,
     \Delta F_{\mathrm{frag}}(x,f),
     \qquad
     \beta,\lambda\ge0.
+\end{aligned}
 \]
 Here $\beta$ and $\lambda$ control the relative contributions of load balancing and induced
 fragmentation, respectively, while $\gamma$ controls the relative contribution of node fragmentation
@@ -861,6 +863,7 @@ The CPU capacity of each substrate node and the bandwidth capacity of each subst
 independently generated from $U(50,100)$. Each VNR is generated as a connected Erd\H{o}s--R\'{e}nyi
 graph $G(n,0.4)$ containing 2--10 virtual nodes. The CPU demand of each virtual node is generated
 from $U(0,20)$, while the bandwidth demand of each virtual link is generated from $U(0,50)$. 
+The objective-function weights are fixed to $\beta=\lambda=\gamma=1$ throughout all experiments, and the maximum number of backtracking attempts is set to $\Delta=100$.
 
 VNRs arrive according to a Poisson process, and their holding times follow an exponential
 distribution with a mean of 1,000 time units. For each simulation, the initial transient period is
