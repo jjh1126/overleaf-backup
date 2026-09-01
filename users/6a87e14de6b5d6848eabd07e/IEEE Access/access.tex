@@ -21,8 +21,7 @@
 \newcommand{\todobox}[2]{%
   \begin{mdframed}[frametitle={#1}]%
     \begin{itemize}
-      #2
-    \end{itemize}%
+      #2 \end{itemize}%
   \end{mdframed}%
 }
 
@@ -37,14 +36,10 @@
 
 \usepackage{bm}
 \makeatletter
-\AtBeginDocument{\DeclareMathVersion{bold}
-\SetSymbolFont{operators}{bold}{T1}{times}{b}{n}
-\SetSymbolFont{NewLetters}{bold}{T1}{times}{b}{it}
-\SetMathAlphabet{\mathrm}{bold}{T1}{times}{b}{n}
-\SetMathAlphabet{\mathit}{bold}{T1}{times}{b}{it}
-\SetMathAlphabet{\mathbf}{bold}{T1}{times}{b}{n}
-\SetMathAlphabet{\mathtt}{bold}{OT1}{pcr}{b}{n}
-\SetSymbolFont{symbols}{bold}{OMS}{cmsy}{b}{n}
+\AtBeginDocument{\DeclareMathVersion{bold} \SetSymbolFont{operators}{bold}{T1}{times}{b}{n}
+\SetSymbolFont{NewLetters}{bold}{T1}{times}{b}{it} \SetMathAlphabet{\mathrm}{bold}{T1}{times}{b}{n}
+\SetMathAlphabet{\mathit}{bold}{T1}{times}{b}{it} \SetMathAlphabet{\mathbf}{bold}{T1}{times}{b}{n}
+\SetMathAlphabet{\mathtt}{bold}{OT1}{pcr}{b}{n} \SetSymbolFont{symbols}{bold}{OMS}{cmsy}{b}{n}
 \renewcommand\boldmath{\@nomath\boldmath\mathversion{bold}}}
 \makeatother
 
@@ -59,9 +54,8 @@
 
 \title{Fragmentation-Aware Online Virtual Network Embedding via External Connectivity}
 
-\author{\uppercase{Jae-Hong Jung}\authorrefmark{1}, 
-\uppercase{Bon-Seung Ku}\authorrefmark{1}, AND 
-\uppercase{Gu-In Kwon}\authorrefmark{1}}
+\author{\uppercase{Jae-Hong Jung}\authorrefmark{1}, \uppercase{Bon-Seung Ku}\authorrefmark{1}, AND
+    \uppercase{Gu-In Kwon}\authorrefmark{1}}
 
 \address[1]{Department of Electrical and Computer Engineering, Inha University, 100 Inha-ro, Michuhol-gu, Incheon 22211, South Korea}
 \tfootnote{This research was funded by INHA University.}
@@ -75,42 +69,32 @@
 
 \begin{abstract}
 
-In online virtual network embedding (VNE), it is important not only to
-accommodate the currently arriving virtual network request (VNR), but
-also to preserve the usability of residual substrate resources for
-future requests. Existing approaches mainly consider the absolute
-amount of residual resources or load balancing, but do not directly
-quantify the extent to which the remaining resources can be combined
-with other resources required to construct future VNR embeddings.
-This paper proposes an External-Connectivity-based Fragmentation
-(\ecf{}) metric that quantifies residual-resource usability by
-combining the residual resource amount with external connectivity.
-The metric is separately defined for substrate nodes and links to
-reflect the different resource relationships required by node
-embedding and virtual-link routing.
-We further decompose the change in fragmentation before and after an
-embedding into the effect of direct resource consumption and the
-degradation in the connectivity of the resources that remain after
-the embedding. The latter is defined as the induced fragmentation
-cost. Based on this formulation, VNE-ECF-LB integrates the induced
-fragmentation cost with a load-balancing cost when evaluating node
-candidates and routing paths. We also consider VNE-ECF, which removes
-the load-balancing term, to isolate the contribution of the proposed
-fragmentation control.
-Experimental results on synthetic Erd\H{o}s--R\'{e}nyi substrates
-with different connectivity densities and real Internet Topology Zoo
-networks under varying workloads show that VNE-ECF-LB consistently
-improves the VNR acceptance ratio compared with the considered
-baselines. Although a trade-off in the revenue-to-cost ratio is
-observed under some conditions, the proposed method improves
-long-term VNR admission by continuously utilizing substrate resources
-while preserving their usability for subsequent requests.
+    In online virtual network embedding (VNE), it is important not only to accommodate the currently
+    arriving virtual network request (VNR), but also to preserve the usability of residual substrate
+    resources for future requests. Existing approaches mainly consider the absolute amount of
+    residual resources or load balancing, but do not directly quantify the extent to which the
+    remaining resources can be combined with other resources required to construct future VNR
+    embeddings. This paper proposes an External-Connectivity-based Fragmentation (\ecf{}) metric
+    that quantifies residual-resource usability by combining the residual resource amount with
+    external connectivity. The metric is separately defined for substrate nodes and links to reflect
+    the different resource relationships required by node embedding and virtual-link routing. We
+    further decompose the change in fragmentation before and after an embedding into the effect of
+    direct resource consumption and the degradation in the connectivity of the resources that remain
+    after the embedding. The latter is defined as the induced fragmentation cost. Based on this
+    formulation, VNE-ECF-LB integrates the induced fragmentation cost with a load-balancing cost
+    when evaluating node candidates and routing paths. We also consider VNE-ECF, which removes the
+    load-balancing term, to isolate the contribution of the proposed fragmentation control.
+    Experimental results on synthetic Erd\H{o}s--R\'{e}nyi substrates with different connectivity
+    densities and real Internet Topology Zoo networks under varying workloads show that VNE-ECF-LB
+    consistently improves the VNR acceptance ratio compared with the considered baselines. Although
+    a trade-off in the revenue-to-cost ratio is observed under some conditions, the proposed method
+    improves long-term VNR admission by continuously utilizing substrate resources while preserving
+    their usability for subsequent requests.
 
 \end{abstract}
 
 \begin{keywords}
-Virtual Network Embedding, online VNE, resource fragmentation,
-external connectivity
+    Virtual Network Embedding, online VNE, resource fragmentation, external connectivity
 \end{keywords}
 
 \titlepgskip=-21pt
@@ -119,41 +103,31 @@ external connectivity
 \section{Introduction}
 \label{sec:introduction}
 
-Modern network infrastructures must serve diverse tenants and
-applications simultaneously. These services range from
-latency-sensitive real-time traffic to bandwidth-intensive data
-transfers, and their resource requirements are often heterogeneous.
-Network virtualization addresses these requirements by abstracting
-physical infrastructure into virtual resources. Each service request
-is commonly modeled as a virtual network request (VNR) with node and
-link resource requirements. Mapping a VNR onto the substrate network
-requires node embedding and virtual-link routing, a process known as
-virtual network embedding (VNE)~\cite{satpathy2025virtual}.
+Modern network infrastructures must serve diverse tenants and applications simultaneously. These
+services range from latency-sensitive real-time traffic to bandwidth-intensive data transfers, and
+their resource requirements are often heterogeneous. Network virtualization addresses these
+requirements by abstracting physical infrastructure into virtual resources. Each service request is
+commonly modeled as a virtual network request (VNR) with node and link resource requirements.
+Mapping a VNR onto the substrate network requires node embedding and virtual-link routing, a process
+known as virtual network embedding (VNE)~\cite{satpathy2025virtual}.
 
-In practical deployments, VNE operates in a dynamic setting in which
-VNRs arrive and depart over time. Each embedding decision must
-therefore be made online under changing substrate-resource
-availability. This setting is challenging for two reasons. First, VNE
-is computationally intractable: the decision version is NP-complete,
-and optimization variants are NP-hard~\cite{rost2020hardness}.
-Practical algorithms therefore rely on heuristic strategies rather
-than globally optimal solutions. Second, each locally feasible
-embedding changes the residual substrate state available to future
-requests. As VNRs are repeatedly embedded and released, residual
-resources may become distributed in ways that make future embeddings
-difficult even when sufficient aggregate capacity remains. This
-degradation of future resource usability is commonly referred to as
-resource fragmentation~\cite{fischer2013virtual}. A locally feasible
-embedding may therefore serve the current request while increasing
-the likelihood that subsequent requests are rejected.
+In practical deployments, VNE operates in a dynamic setting in which VNRs arrive and depart over
+time. Each embedding decision must therefore be made online under changing substrate-resource
+availability. This setting is challenging for two reasons. First, VNE is computationally
+intractable: the decision version is NP-complete, and optimization variants are
+NP-hard~\cite{rost2020hardness}. Practical algorithms therefore rely on heuristic strategies rather
+than globally optimal solutions. Second, each locally feasible embedding changes the residual
+substrate state available to future requests. As VNRs are repeatedly embedded and released, residual
+resources may become distributed in ways that make future embeddings difficult even when sufficient
+aggregate capacity remains. This degradation of future resource usability is commonly referred to as
+resource fragmentation~\cite{fischer2013virtual}. A locally feasible embedding may therefore serve
+the current request while increasing the likelihood that subsequent requests are rejected.
 
-Existing online VNE heuristics manage residual capacity, path
-feasibility, and embedding cost during node embedding and virtual-link
-routing. However, their control granularity is mainly limited to
-individual substrate nodes, adjacent link sets, candidate paths, or
-aggregate load-balancing objectives. Such approaches do not directly
-quantify fragmentation in terms of the usability of the residual
-substrate resources.
+Existing online VNE heuristics manage residual capacity, path feasibility, and embedding cost during
+node embedding and virtual-link routing. However, their control granularity is mainly limited to
+individual substrate nodes, adjacent link sets, candidate paths, or aggregate load-balancing
+objectives. Such approaches do not directly quantify fragmentation in terms of the usability of the
+residual substrate resources.
 
 \begin{figure}[!t]
     \centering
@@ -175,118 +149,177 @@ substrate resources.
     \label{fig:combined_figures}
 \end{figure}
 
-Fig.~\ref{fig:combined_figures} illustrates the resource-fragmentation
-problem. Fig.~\ref{fig:vn} shows a newly arriving VNR, while
-Fig.~\ref{fig:sn} represents the residual-resource state of the
-substrate network. In terms of aggregate resource capacity, the
-substrate network may contain sufficient residual resources to
-accommodate the request. Nevertheless, the VNR can still be rejected
-when these resources cannot be effectively combined to simultaneously
-satisfy its node and link requirements.
+Fig.~\ref{fig:combined_figures} illustrates the resource-fragmentation problem. Fig.~\ref{fig:vn}
+shows a newly arriving VNR, while Fig.~\ref{fig:sn} represents the residual-resource state of the
+substrate network. In terms of aggregate resource capacity, the substrate network may contain
+sufficient residual resources to accommodate the request. Nevertheless, the VNR can still be
+rejected when these resources cannot be effectively combined to simultaneously satisfy its node and
+link requirements.
 
-Thus, the value of a residual resource in VNE is not determined solely
-by the absolute amount of remaining CPU or bandwidth. Because a VNR
-has a graph structure in which nodes and links must be embedded
-together, a substrate resource with sufficient residual capacity may
-still have limited practical usability if it cannot be effectively
-combined with surrounding resources for a future embedding. Resource
-fragmentation should therefore be evaluated by considering both the
-amount of residual resources and their usability. In this work, we
-represent this usability through external connectivity and define the
-External-Connectivity-based Fragmentation (\ecf{}) metric by combining
+Thus, the value of a residual resource in VNE is not determined solely by the absolute amount of
+remaining CPU or bandwidth. Because a VNR has a graph structure in which nodes and links must be
+embedded together, a substrate resource with sufficient residual capacity may still have limited
+practical usability if it cannot be effectively combined with surrounding resources for a future
+embedding. Resource fragmentation should therefore be evaluated by considering both the amount of
+residual resources and their usability. In this work, we represent this usability through external
+connectivity and define the External-Connectivity-based Fragmentation (\ecf{}) metric by combining
 external connectivity with the residual resource amount.
 
-Node embedding and virtual-link routing require different forms of
-resource combination. The residual CPU of a substrate node must be
-connected to other resources through the bandwidth of its incident
-substrate links. In contrast, the residual bandwidth of a substrate
-link must be continuously connected with other links so that it can
-form a substrate path or a larger embedding structure. We therefore
-specialize the same external-connectivity principle to substrate nodes
-and links according to their respective roles in VNE.
+Node embedding and virtual-link routing require different forms of resource combination. The
+residual CPU of a substrate node must be connected to other resources through the bandwidth of its
+incident substrate links. In contrast, the residual bandwidth of a substrate link must be
+continuously connected with other links so that it can form a substrate path or a larger embedding
+structure. We therefore specialize the same external-connectivity principle to substrate nodes and
+links according to their respective roles in VNE.
 
-In addition, a change in the fragmentation score before and after an
-embedding contains two different effects: direct resource consumption
-and the degradation in the connectivity of the resources that remain.
-These effects should be distinguished. For example, fragmentation may
-decrease simply because an already isolated resource is consumed,
-whereas an appropriate embedding may instead preserve the connectivity
-of the remaining resources and prevent further fragmentation. We
-therefore separate these two effects and define only the loss caused by
-the connectivity degradation of the remaining resources as the
-\emph{induced fragmentation cost}.
+In addition, a change in the fragmentation score before and after an embedding contains two
+different effects: direct resource consumption and the degradation in the connectivity of the
+resources that remain. These effects should be distinguished. For example, fragmentation may
+decrease simply because an already isolated resource is consumed, whereas an appropriate embedding
+may instead preserve the connectivity of the remaining resources and prevent further fragmentation.
+We therefore separate these two effects and define only the loss caused by the connectivity
+degradation of the remaining resources as the \emph{induced fragmentation cost}.
 
-Based on this formulation, VNE-ECF-LB jointly considers the induced
-fragmentation cost and a conventional load-balancing cost when
-evaluating node candidates and routing paths. The fragmentation term
-aims to preserve the combinability of residual resources for future
-VNRs, while the load-balancing term discourages excessive
-concentration of the current demand on individual substrate
-resources. For performance evaluation, we additionally consider
-VNE-ECF, an ablation variant obtained by removing the load-balancing
-term from VNE-ECF-LB. This comparison isolates the effect of the
-proposed ECF-based fragmentation control and the additional
-contribution of load balancing.
+Based on this formulation, VNE-ECF-LB jointly considers the induced fragmentation cost and a
+conventional load-balancing cost when evaluating node candidates and routing paths. The
+fragmentation term aims to preserve the combinability of residual resources for future VNRs, while
+the load-balancing term discourages excessive concentration of the current demand on individual
+substrate resources. For performance evaluation, we additionally consider VNE-ECF, an ablation
+variant obtained by removing the load-balancing term from VNE-ECF-LB. This comparison isolates the
+effect of the proposed ECF-based fragmentation control and the additional contribution of load
+balancing.
 
-The main contributions of this paper are summarized as follows.
-First, we characterize resource fragmentation based on the
-combinability of residual resources rather than solely on their
-absolute remaining capacity, and formulate a unified
-external-connectivity-based \ecf{} metric specialized for substrate
-nodes and links. Second, we separate induced fragmentation from the
-direct effect of resource consumption and incorporate this cost into
-online node and path selection through VNE-ECF-LB, thereby considering
-both the current embedding and the usability of the substrate
+The main contributions of this paper are summarized as follows. First, we characterize resource
+fragmentation based on the combinability of residual resources rather than solely on their absolute
+remaining capacity, and formulate a unified external-connectivity-based \ecf{} metric specialized
+for substrate nodes and links. Second, we separate induced fragmentation from the direct effect of
+resource consumption and incorporate this cost into online node and path selection through
+VNE-ECF-LB, thereby considering both the current embedding and the usability of the substrate
 resources left for future requests.
 \section{Related Work}
 \label{sec:related_work}
 
 \subsection{Resource- and Topology-Aware VNE}
 
-Conventional VNE heuristics commonly prioritize candidate substrate nodes according to residual CPU, residual bandwidth, node degree, centrality, or combinations of these quantities. PageRank-inspired and other resource-aware node-ranking heuristics use resource and topology information to estimate the suitability of substrate nodes, followed by virtual link routing through shortest paths or $k$ shortest paths~\cite{cao2017novel,hashmi2020vne}. Other studies use betweenness centrality, closeness centrality, degree, strength, and multiple topology attributes to guide node embedding~\cite{ding2015virtual,guler2016closeness,feng2014topology}. More recent multi-criteria methods further combine several node attributes into a single ranking score. NORD combines entropy-based weighting with TOPSIS to rank substrate nodes~\cite{tg2023nord}, while simplified ELECTRE evaluates candidate substrate nodes using multiple node metrics and constraints~\cite{zhang2018virtual}. These approaches primarily use resource and topology information to estimate candidate-node suitability for the current embedding decision rather than to characterize fragmentation of the residual substrate state.
+Conventional VNE heuristics commonly prioritize candidate substrate nodes according to residual CPU,
+residual bandwidth, node degree, centrality, or combinations of these quantities. PageRank-inspired
+and other resource-aware node-ranking heuristics use resource and topology information to estimate
+the suitability of substrate nodes, followed by virtual link routing through shortest paths or $k$
+shortest paths~\cite{cao2017novel,hashmi2020vne}. Other studies use betweenness centrality,
+closeness centrality, degree, strength, and multiple topology attributes to guide node
+embedding~\cite{ding2015virtual,guler2016closeness,feng2014topology}. More recent multi-criteria
+methods further combine several node attributes into a single ranking score. NORD combines
+entropy-based weighting with TOPSIS to rank substrate nodes~\cite{tg2023nord}, while simplified
+ELECTRE evaluates candidate substrate nodes using multiple node metrics and
+constraints~\cite{zhang2018virtual}. These approaches primarily use resource and topology
+information to estimate candidate-node suitability for the current embedding decision rather than to
+characterize fragmentation of the residual substrate state.
 
-Another line of work coordinates node embedding and link routing because independently selected node embeddings can lead to infeasible or costly link routings. Coordinated approaches therefore solve the two mapping operations jointly or through coupled stages~\cite{chowdhury2012vineyard,lu2023performance,nguyen2022toward}. Related methods extend this consideration by incorporating congestion, energy consumption, latency, or path characteristics into embedding decisions~\cite{pham2019congestion,zheng2017link,yan2019latency}. Such coordination determines how node and link allocation decisions interact and can improve the feasibility or cost of an embedding. However, coordination and resource fragmentation address different aspects of VNE: coordination determines how an embedding is constructed, whereas fragmentation metrics characterize the usability of the residual resources left by that embedding.
+Another line of work coordinates node embedding and link routing because independently selected node
+embeddings can lead to infeasible or costly link routings. Coordinated approaches therefore solve
+the two mapping operations jointly or through coupled
+stages~\cite{chowdhury2012vineyard,lu2023performance,nguyen2022toward}. Related methods extend this
+consideration by incorporating congestion, energy consumption, latency, or path characteristics into
+embedding decisions~\cite{pham2019congestion,zheng2017link,yan2019latency}. Such coordination
+determines how node and link allocation decisions interact and can improve the feasibility or cost
+of an embedding. However, coordination and resource fragmentation address different aspects of VNE:
+coordination determines how an embedding is constructed, whereas fragmentation metrics characterize
+the usability of the residual resources left by that embedding.
 
-Load-balancing approaches address another related aspect by discouraging excessive resource concentration on particular substrate nodes or links~\cite{gong2014toward,shanbhag2015vhub,li2022load}. Some load-balancing methods additionally use global resource information or neighboring bandwidth when evaluating node-embedding potential. These objectives seek a balanced distribution of substrate utilization. Resource balance and resource fragmentation, however, are not equivalent. From the fragmentation perspective adopted in this paper, the relevant question is whether a residual resource can still be used together with the other resources required by a future mapping operation, rather than only whether residual resources are evenly distributed across the substrate network. This distinction does not exclude load balancing; instead, this paper retains load balancing separately through the resource-usage term $C_{\mathrm{use}}$, while modeling fragmentation cost as a distinct objective.
+Load-balancing approaches address another related aspect by discouraging excessive resource
+concentration on particular substrate nodes or
+links~\cite{gong2014toward,shanbhag2015vhub,li2022load}. Some load-balancing methods additionally
+use global resource information or neighboring bandwidth when evaluating node-embedding potential.
+These objectives seek a balanced distribution of substrate utilization. Resource balance and
+resource fragmentation, however, are not equivalent. From the fragmentation perspective adopted in
+this paper, the relevant question is whether a residual resource can still be used together with the
+other resources required by a future mapping operation, rather than only whether residual resources
+are evenly distributed across the substrate network. This distinction does not exclude load
+balancing; instead, this paper retains load balancing separately through the resource-usage term
+$C_{\mathrm{use}}$, while modeling fragmentation cost as a distinct objective.
 
 \subsection{Survivable VNE Under Substrate Failures}
 
-Survivable VNE addresses service availability under substrate failures. Prior studies reserve backup paths or redundant node and link resources, construct backup topologies, or remap affected virtual components after failures~\cite{liao2014survivable,chowdhury2016dedicated,liu2017scheme,zheng2019heuristic,sun2011framework,zhu2014heuristic}. Shahriar et al.~\cite{shahriar2019virtual} formulate Connectivity-aware Virtual Network Embedding (CoViNE), which guarantees VN connectivity under multiple substrate link failures without requiring full bandwidth protection. CoViNE uses VN augmentation and disjointness requirements to preserve connectivity after failures. Survivable VNE concerns whether an embedded VN can continue to satisfy a survivability requirement after substrate failures, whereas this paper considers the usability of residual resources resulting from online embedding decisions under normal operation.
+Survivable VNE addresses service availability under substrate failures. Prior studies reserve backup
+paths or redundant node and link resources, construct backup topologies, or remap affected virtual
+components after
+failures~\cite{liao2014survivable,chowdhury2016dedicated,liu2017scheme,zheng2019heuristic,sun2011framework,zhu2014heuristic}.
+Shahriar et al.~\cite{shahriar2019virtual} formulate Connectivity-aware Virtual Network Embedding
+(CoViNE), which guarantees VN connectivity under multiple substrate link failures without requiring
+full bandwidth protection. CoViNE uses VN augmentation and disjointness requirements to preserve
+connectivity after failures. Survivable VNE concerns whether an embedded VN can continue to satisfy
+a survivability requirement after substrate failures, whereas this paper considers the usability of
+residual resources resulting from online embedding decisions under normal operation.
 
 \subsection{Fragmentation-Aware VNE}
 
-The following studies are most closely related to the fragmentation notion considered in this paper. Fragmentation-aware VNE explicitly considers residual resources that become difficult to use despite remaining available. 
+The following studies are most closely related to the fragmentation notion considered in this paper.
+Fragmentation-aware VNE explicitly considers residual resources that become difficult to use despite
+remaining available.
 
-Guan et al.~\cite{guan2023multidimensional} study multidimensional resource fragmentation for VNE in MEC systems interconnected by optical networks. For physical nodes, their formulation characterizes fragmentation through imbalanced utilization of computing and wireless resources. For physical links, it identifies unusable or difficult-to-use optical spectrum fragments created under spectrum continuity and consistency constraints. Their bilevel formulation also accounts for the dependency between virtual node embedding and virtual link routing. Thus, their fragmentation model focuses on imbalance among heterogeneous node resources and contiguity of optical spectrum resources, which differs from the CPU--bandwidth resource relationships addressed in this paper. Whereas this paper treats node and link fragmentation as two instances of the same general form $F=R(1-\mathrm{Conn})$, Guan et al. formulate two problems with different characteristics: node imbalance and link spectrum continuity.
+Guan et al.~\cite{guan2023multidimensional} study multidimensional resource fragmentation for VNE in
+MEC systems interconnected by optical networks. For physical nodes, their formulation characterizes
+fragmentation through imbalanced utilization of computing and wireless resources. For physical
+links, it identifies unusable or difficult-to-use optical spectrum fragments created under spectrum
+continuity and consistency constraints. Their bilevel formulation also accounts for the dependency
+between virtual node embedding and virtual link routing. Thus, their fragmentation model focuses on
+imbalance among heterogeneous node resources and contiguity of optical spectrum resources, which
+differs from the CPU--bandwidth resource relationships addressed in this paper. Whereas this paper
+treats node and link fragmentation as two instances of the same general form $F=R(1-\mathrm{Conn})$,
+Guan et al. formulate two problems with different characteristics: node imbalance and link spectrum
+continuity.
 
-Lu and Zhang~\cite{lu2022resource} address a more closely related notion of resource fragmentation. They define the resource fragmentation degree (RFD) for substrate nodes and links based on the observation that the usability of a residual resource depends on surrounding residual resources. For a substrate node, RFD incorporates residual resources of neighboring nodes and paths within a bounded hop count. For a substrate link, RFD incorporates the residual resources of adjacent links and the substrate nodes shared by those links. Their formulation is motivated by an extension of graph connectivity and aggregates these surrounding resource states to quantify the fragmentation degree of each substrate element. This connectivity extension depends on a hop-bounded neighborhood and its associated hyperparameter, whereas the external connectivity used in this paper is justified directly by the boundary cut, equivalently the max-flow between a resource region and its exterior, and requires no hop-count tuning.
+Lu and Zhang~\cite{lu2022resource} address a more closely related notion of resource fragmentation.
+They define the resource fragmentation degree (RFD) for substrate nodes and links based on the
+observation that the usability of a residual resource depends on surrounding residual resources. For
+a substrate node, RFD incorporates residual resources of neighboring nodes and paths within a
+bounded hop count. For a substrate link, RFD incorporates the residual resources of adjacent links
+and the substrate nodes shared by those links. Their formulation is motivated by an extension of
+graph connectivity and aggregates these surrounding resource states to quantify the fragmentation
+degree of each substrate element. This connectivity extension depends on a hop-bounded neighborhood
+and its associated hyperparameter, whereas the external connectivity used in this paper is justified
+directly by the boundary cut, equivalently the max-flow between a resource region and its exterior,
+and requires no hop-count tuning.
 
-The proposed metric shares with RFD the observation that residual resource amount alone is insufficient to characterize future usability. The distinction lies in how the relevant resource relationships are modeled. Rather than deriving a connectivity-inspired fragmentation degree from surrounding nodes and paths, the proposed metric directly follows the resource combinations required by the two VNE mapping operations. For node embedding, it evaluates the residual resource of a substrate node together with the residual resources of its adjacent substrate links, because both are required to support a virtual node and its incident virtual links. For link routing, it evaluates the residual resource of a substrate link together with the adjacent link resources at each of its two endpoints. The two endpoint states are evaluated separately, and the endpoint with lower adjacent-resource availability determines the resulting value because insufficient adjacent resources at either endpoint can limit the use of the substrate link as part of a path.
+The proposed metric shares with RFD the observation that residual resource amount alone is
+insufficient to characterize future usability. The distinction lies in how the relevant resource
+relationships are modeled. Rather than deriving a connectivity-inspired fragmentation degree from
+surrounding nodes and paths, the proposed metric directly follows the resource combinations required
+by the two VNE mapping operations. For node embedding, it evaluates the residual resource of a
+substrate node together with the residual resources of its adjacent substrate links, because both
+are required to support a virtual node and its incident virtual links. For link routing, it
+evaluates the residual resource of a substrate link together with the adjacent link resources at
+each of its two endpoints. The two endpoint states are evaluated separately, and the endpoint with
+lower adjacent-resource availability determines the resulting value because insufficient adjacent
+resources at either endpoint can limit the use of the substrate link as part of a path.
 
-Accordingly, the proposed metric differs from the reviewed fragmentation metrics not in whether neighboring resources are considered, but in how their relationships are defined. It characterizes residual-resource usability according to the distinct resource combinations required by node embedding and link routing, aiming to identify residual resources that remain available but are difficult to combine with other resources in future VNR embeddings. In addition, the formulation distinguishes the direct resource-consumption effect of an embedding from the connectivity degradation it induces, with the latter represented through the external connectivity metric introduced in the next section.
+Accordingly, the proposed metric differs from the reviewed fragmentation metrics not in whether
+neighboring resources are considered, but in how their relationships are defined. It characterizes
+residual-resource usability according to the distinct resource combinations required by node
+embedding and link routing, aiming to identify residual resources that remain available but are
+difficult to combine with other resources in future VNR embeddings. In addition, the formulation
+distinguishes the direct resource-consumption effect of an embedding from the connectivity
+degradation it induces, with the latter represented through the external connectivity metric
+introduced in the next section.
 
-\begin{table}[t]
+\begin{table}[!t]
 \caption{\textbf{Notation specification}}
 \label{tab:notation}
 \centering
 \setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{1.12}
 
-\begin{tabular}{|p{0.24\columnwidth}|p{0.66\columnwidth}|}
+\begin{tabular}{|p{0.30\columnwidth}|p{0.60\columnwidth}|}
 \hline
 \textbf{Symbol} & \textbf{Description} \\
 \hline
 
 $G^S=(N^S,L^S)$
-& Substrate network with node set $N^S$ and link set $L^S$ \\
-\hline
-
-$A^S$
-& Directed arc set obtained from the substrate links for flow representation \\
+& Substrate network \\
 \hline
 
 $G^V=(N^V,L^V)$
-& Virtual network request (VNR) with node set $N^V$ and link set $L^V$ \\
+& Virtual network request \\
 \hline
 
 $c_v,\;r_v$
@@ -295,26 +328,6 @@ $c_v,\;r_v$
 
 $c_e,\;r_e$
 & Initial and residual bandwidth capacities of substrate link $e$ \\
-\hline
-
-$d_n,\;d_l$
-& CPU demand of virtual node $n$ and bandwidth demand of virtual link $l$ \\
-\hline
-
-$M_N,\;M_L$
-& Virtual-node mapping and virtual-link routing mapping \\
-\hline
-
-$M=(M_N,M_L)$
-& Complete VNR embedding \\
-\hline
-
-$x_{nv}$
-& Binary variable indicating whether virtual node $n$ is mapped to substrate node $v$ \\
-\hline
-
-$f_{uv}^{l}$
-& Bandwidth flow of virtual link $l$ traversing substrate arc $(u,v)$ \\
 \hline
 
 $\mathrm{Conn}_N,\;\mathrm{Conn}_L$
@@ -326,31 +339,19 @@ $I_N,\;I_L$
 \hline
 
 $\Delta F_{\mathrm{frag}}$
-& Normalized induced-fragmentation cost of an embedding decision \\
+& Normalized induced-fragmentation cost \\
 \hline
 
 $C_{\mathrm{LB}}$
-& Demand-to-residual-capacity load-balancing cost \\
+& Load-balancing cost \\
 \hline
 
-$J$
-& Overall embedding objective function \\
+$\beta,\;\lambda,\;\gamma$
+& Objective-function weights \\
 \hline
 
-$\beta,\;\lambda$
-& Coefficients of the load-balancing and induced-fragmentation terms \\
-\hline
-
-$\gamma$
-& Relative weight between node and link induced-fragmentation costs \\
-\hline
-
-$K,\;\Delta$
-& Number of candidate paths and bounded-backtracking budget, respectively \\
-\hline
-
-$\epsilon$
-& Small positive constant used to avoid division by zero \\
+$K,\;\Delta,\;\epsilon$
+& Candidate-path, backtracking, and numerical parameters \\
 \hline
 
 \end{tabular}
@@ -359,675 +360,695 @@ $\epsilon$
 \section{System Model}
 \label{sec:system_model}
 
-We model the substrate network as a weighted undirected graph $G^S=(N^S,L^S)$, where $N^S$ and $L^S$ denote the sets of substrate nodes and substrate links, respectively. For each substrate node $v\in N^S$, we let $c_v$ and $r_v$ denote its initial and current residual CPU capacities, and for each substrate link $e=\{u,v\}\in L^S$, we let $c_e$ and $r_e$ denote its initial and current residual bandwidth capacities. To represent paths and flows for virtual-link routing, we expand each undirected substrate link $\{u,v\}\in L^S$ into two directed arcs $(u,v)$ and $(v,u)$, and we collect these arcs into the set $A^S$.
+We model the substrate network as a weighted undirected graph $G^S=(N^S,L^S)$, where $N^S$ and $L^S$
+denote the sets of substrate nodes and substrate links, respectively. For each substrate node $v\in
+N^S$, we let $c_v$ and $r_v$ denote its initial and current residual CPU capacities, and for each
+substrate link $e=\{u,v\}\in L^S$, we let $c_e$ and $r_e$ denote its initial and current residual
+bandwidth capacities. To represent paths and flows for virtual-link routing, we expand each
+undirected substrate link $\{u,v\}\in L^S$ into two directed arcs $(u,v)$ and $(v,u)$, and we
+collect these arcs into the set $A^S$.
 
-We represent a VNR as a weighted undirected graph $G^V=(N^V,L^V)$. Here $N^V$ and $L^V$ are the sets of virtual nodes and virtual links, respectively; we let $d_n$ denote the CPU demand of virtual node $n\in N^V$, and $d_l$ the bandwidth demand of virtual link $l=\{n,m\}\in L^V$.
+We represent a VNR as a weighted undirected graph $G^V=(N^V,L^V)$. Here $N^V$ and $L^V$ are the sets
+of virtual nodes and virtual links, respectively; we let $d_n$ denote the CPU demand of virtual node
+$n\in N^V$, and $d_l$ the bandwidth demand of virtual link $l=\{n,m\}\in L^V$.
 
-We define the node mapping as $M_N:N^V\rightarrow N^S$. Each virtual node is mapped to exactly one substrate node, and we assume that distinct virtual nodes of the same VNR are mapped to distinct substrate nodes. We use the binary variable $x_{nv}\in\{0,1\}$, where $x_{nv}=1$ indicates that virtual node $n$ is mapped to substrate node $v$. We define the link mapping as $M_L:L^V\rightarrow\mathcal{P}^S$, where each virtual link $l=\{n,m\}$ is mapped to substrate paths connecting $M_N(n)$ and $M_N(m)$. We let $f_{uv}^l\ge0$ denote the bandwidth flow of virtual link $l$ that traverses arc $(u,v)\in A^S$.
+We define the node mapping as $M_N:N^V\rightarrow N^S$. Each virtual node is mapped to exactly one
+substrate node, and we assume that distinct virtual nodes of the same VNR are mapped to distinct
+substrate nodes. We use the binary variable $x_{nv}\in\{0,1\}$, where $x_{nv}=1$ indicates that
+virtual node $n$ is mapped to substrate node $v$. We define the link mapping as
+$M_L:L^V\rightarrow\mathcal{P}^S$, where each virtual link $l=\{n,m\}$ is mapped to substrate paths
+connecting $M_N(n)$ and $M_N(m)$. We let $f_{uv}^l\ge0$ denote the bandwidth flow of virtual link
+$l$ that traverses arc $(u,v)\in A^S$.
 
-We define the complete VNR embedding as $M=(M_N,M_L)$. After applying an embedding $M$, we update the residual resources of substrate nodes and substrate links, respectively, as follows.
+We define the complete VNR embedding as $M=(M_N,M_L)$. After applying an embedding $M$, we update
+the residual resources of substrate nodes and substrate links, respectively, as follows.
 \[
-r_v(M)
-=
-r_v-\sum_{n\in N^V}d_nx_{nv},
-\qquad \forall v\in N^S,
+    r_v(M)
+    =
+    r_v-\sum_{n\in N^V}d_nx_{nv},
+    \qquad \forall v\in N^S,
 \]
 \[
-r_{\{u,v\}}(M)
-=
-r_{\{u,v\}}
--
-\sum_{l\in L^V}
-\left(
-f_{uv}^l+f_{vu}^l
-\right),
-\qquad
-\forall\{u,v\}\in L^S.
+    r_{\{u,v\}}(M)
+    =
+    r_{\{u,v\}}
+    -
+    \sum_{l\in L^V}
+    \left(
+    f_{uv}^l+f_{vu}^l
+    \right),
+    \qquad
+    \forall\{u,v\}\in L^S.
 \]
-The pre- and post-embedding residual substrate states defined above serve as the basis for computing the \ecf{} metric and the induced fragmentation cost in the following sections.
+The pre- and post-embedding residual substrate states defined above serve as the basis for computing
+the \ecf{} metric and the induced fragmentation cost in the following sections.
 
 \section{External-Connectivity-Based Fragmentation Metric}
 \label{sec:metric_definition_of_resource_fragmentation}
 
-We now define the External-Connectivity-based Fragmentation (\ecf) metric, which combines residual amount and external connectivity to represent the future usability of a residual resource. The \ecf{} metric uses a common base form for nodes and links, but specializes to reflect the different ways in which each resource combines with other resources in VNE.
+We now define the External-Connectivity-based Fragmentation (\ecf) metric, which combines residual
+amount and external connectivity to represent the future usability of a residual resource. The
+\ecf{} metric uses a common base form for nodes and links, but specializes to reflect the different
+ways in which each resource combines with other resources in VNE.
 
 \subsection{Base Definition and External Connectivity}
-In VNE, the usability of a residual resource depends not only on its amount but also on its combinability with surrounding resources. Let $R$ denote the residual amount and $\mathrm{Conn}$ the normalized external connectivity; we view $R\cdot\mathrm{Conn}$ as the effectively usable portion of the residual resource that can combine with external resources. We accordingly define the fragmentation score as
+In VNE, the usability of a residual resource depends not only on its amount but also on its
+combinability with surrounding resources. Let $R$ denote the residual amount and $\mathrm{Conn}$ the
+normalized external connectivity; we view $R\cdot\mathrm{Conn}$ as the effectively usable portion of
+the residual resource that can combine with external resources. We accordingly define the
+fragmentation score as
 \[
-F=R(1-\mathrm{Conn}).
+    F=R(1-\mathrm{Conn}).
 \]
-When $\mathrm{Conn}$ approaches one, the residual resource can be combined with external resources sufficiently and fragmentation is small; in contrast, as external connectivity decreases, the fragmentation score grows for the same residual amount.
+When $\mathrm{Conn}$ approaches one, the residual resource can be combined with external resources
+sufficiently and fragmentation is small; in contrast, as external connectivity decreases, the
+fragmentation score grows for the same residual amount.
 
-To make external connectivity concrete, we consider any $\emptyset\neq A\subsetneq N^S$ and let $\bar A=N^S\setminus A$. We define the boundary link set that connects the region $A$ with its exterior $\bar A$ as
+To make external connectivity concrete, we consider any $\emptyset\neq A\subsetneq N^S$ and let
+$\bar A=N^S\setminus A$. We define the boundary link set that connects the region $A$ with its
+exterior $\bar A$ as
 \[
-\delta(A)
-=
-\{\,e=\{u,v\}\in L^S
-\mid
-u\in A,\ v\in\bar A\,\}.
+    \delta(A)
+    =
+    \{\,e=\{u,v\}\in L^S
+    \mid
+    u\in A,\ v\in\bar A\,\}.
 \]
 We define the initial and current bandwidth capacities of this boundary as
 \[
-B_{\mathrm{cap}}(A)
-=
-\sum_{e\in\delta(A)}c_e,
-\qquad
-B_{\mathrm{res}}(A)
-=
-\sum_{e\in\delta(A)}r_e,
+    B_{\mathrm{cap}}(A)
+    =
+    \sum_{e\in\delta(A)}c_e,
+    \qquad
+    B_{\mathrm{res}}(A)
+    =
+    \sum_{e\in\delta(A)}r_e,
 \]
 and we define the normalized external connectivity as
 \[
-\mathrm{Conn}(A)
-=
-\begin{cases}
-\dfrac{B_{\mathrm{res}}(A)}{B_{\mathrm{cap}}(A)},
-& B_{\mathrm{cap}}(A)>0,\\[1mm]
-0,
-& B_{\mathrm{cap}}(A)=0.
-\end{cases}
+    \mathrm{Conn}(A)
+    =
+    \begin{cases}
+        \dfrac{B_{\mathrm{res}}(A)}{B_{\mathrm{cap}}(A)},
+         & B_{\mathrm{cap}}(A)>0, \\[1mm]
+        0,
+         & B_{\mathrm{cap}}(A)=0.
+    \end{cases}
 \]
-If we connect $A$ and $\bar A$ to a super source and a super sink, respectively, the cut that separates the two regions coincides with $\delta(A)$; the boundary capacity therefore represents the capacity available for region $A$ to connect with its exterior.
+If we connect $A$ and $\bar A$ to a super source and a super sink, respectively, the cut that
+separates the two regions coincides with $\delta(A)$; the boundary capacity therefore represents the
+capacity available for region $A$ to connect with its exterior.
 
-Two properties motivate this specific choice of connectivity term. First, $\mathrm{Conn}(A)$ is a normalized max-flow upper bound between $A$ and $\bar A$: by the max-flow min-cut theorem, any single-commodity flow from $A$ to $\bar A$ cannot exceed $B_{\mathrm{res}}(A)$. Thus, if $\mathrm{Conn}(A)= 0$, region $A$ cannot support any additional external combination regardless of how the demand is routed. Second, $\mathrm{Conn}$ is monotone under embedding: because every embedding only removes bandwidth from $\delta(A)$, we have $B_{\mathrm{res}}(A;M)\le B_{\mathrm{res}}(A)$ and therefore $\mathrm{Conn}(A;M)\le\mathrm{Conn}(A)$. 
-Consequently $I(A;M)-I(A)\ge0$ for every $A$, so the induced fragmentation cost is non-negative by construction. These two properties keep the metric interpretable as a resource-usability bound and ensure that the induced fragmentation cost behaves consistently under embedding.
+Two properties motivate this specific choice of connectivity term. First, $\mathrm{Conn}(A)$ is a
+normalized max-flow upper bound between $A$ and $\bar A$: by the max-flow min-cut theorem, any
+single-commodity flow from $A$ to $\bar A$ cannot exceed $B_{\mathrm{res}}(A)$. Thus, if
+$\mathrm{Conn}(A)= 0$, region $A$ cannot support any additional external combination regardless of
+how the demand is routed. Second, $\mathrm{Conn}$ is monotone under embedding: because every
+embedding only removes bandwidth from $\delta(A)$, we have $B_{\mathrm{res}}(A;M)\le
+B_{\mathrm{res}}(A)$ and therefore $\mathrm{Conn}(A;M)\le\mathrm{Conn}(A)$. Consequently
+$I(A;M)-I(A)\ge0$ for every $A$, so the induced fragmentation cost is non-negative by construction.
+These two properties keep the metric interpretable as a resource-usability bound and ensure that the
+induced fragmentation cost behaves consistently under embedding.
 
 \subsection{Node Fragmentation}
-For a substrate node $v\in N^S$, we set $A=\{v\}$, so that the external connectivity of the node is given by
+For a substrate node $v\in N^S$, we set $A=\{v\}$, so that the external connectivity of the node is
+given by
 \[
-\mathrm{Conn}_N(v)
-=
-\begin{cases}
-\dfrac{\sum_{e\in\delta(\{v\})}r_e}
-{\sum_{e\in\delta(\{v\})}c_e},
-& \sum_{e\in\delta(\{v\})}c_e>0,\\[1mm]
-0,
-& \text{otherwise.}
-\end{cases}
+    \mathrm{Conn}_N(v)
+    =
+    \begin{cases}
+        \dfrac{\sum_{e\in\delta(\{v\})}r_e}
+        {\sum_{e\in\delta(\{v\})}c_e},
+         & \sum_{e\in\delta(\{v\})}c_e>0, \\[1mm]
+        0,
+         & \text{otherwise.}
+    \end{cases}
 \]
-In VNE, the residual CPU of a substrate node must combine with the bandwidth of its adjacent links to reach other substrate resources; therefore, a reduction in adjacent bandwidth lowers the future usability of that CPU. Accordingly, we define the node connectivity-deficiency factor and the node fragmentation score as
+In VNE, the residual CPU of a substrate node must combine with the bandwidth of its adjacent links
+to reach other substrate resources; therefore, a reduction in adjacent bandwidth lowers the future
+usability of that CPU. Accordingly, we define the node connectivity-deficiency factor and the node
+fragmentation score as
 \[
-I_N(v)=1-\mathrm{Conn}_N(v),
-\qquad
-F_N(v)=r_v I_N(v).
+    I_N(v)=1-\mathrm{Conn}_N(v),
+    \qquad
+    F_N(v)=r_v I_N(v).
 \]
 
 \subsection{Link Fragmentation}
-For the residual bandwidth of a substrate link $e=\{u,v\}$ to be usable for virtual-link routing, it must connect with other substrate links at both endpoints so as to form a continuous substrate path. Because the residual bandwidth of the central link $e$ itself is captured directly through $r_e$, we exclude $e$ itself when computing the external connectivity at its endpoints. That is, we define
+For the residual bandwidth of a substrate link $e=\{u,v\}$ to be usable for virtual-link routing, it
+must connect with other substrate links at both endpoints so as to form a continuous substrate path.
+Because the residual bandwidth of the central link $e$ itself is captured directly through $r_e$, we
+exclude $e$ itself when computing the external connectivity at its endpoints. That is, we define
 \[
-\delta(u\mid e)
-=
-\delta(\{u\})\setminus\{e\},
-\qquad
-\delta(v\mid e)
-=
-\delta(\{v\})\setminus\{e\}.
+    \delta(u\mid e)
+    =
+    \delta(\{u\})\setminus\{e\},
+    \qquad
+    \delta(v\mid e)
+    =
+    \delta(\{v\})\setminus\{e\}.
 \]
 The external connectivity at endpoint $u$ is then
 \[
-\mathrm{Conn}(u\mid e)
-=
-\begin{cases}
-\dfrac{\sum_{q\in\delta(u\mid e)}r_q}
-{\sum_{q\in\delta(u\mid e)}c_q},
-& \sum_{q\in\delta(u\mid e)}c_q>0,\\[1mm]
-0,
-& \text{otherwise,}
-\end{cases}
+    \mathrm{Conn}(u\mid e)
+    =
+    \begin{cases}
+        \dfrac{\sum_{q\in\delta(u\mid e)}r_q}
+        {\sum_{q\in\delta(u\mid e)}c_q},
+         & \sum_{q\in\delta(u\mid e)}c_q>0, \\[1mm]
+        0,
+         & \text{otherwise,}
+    \end{cases}
 \]
 and we define $\mathrm{Conn}(v\mid e)$ analogously.
 
-For link $e$ to be used as part of a substrate path, connectivity to a subsequent link is required at both endpoints; we therefore treat the endpoint with lower external connectivity as the one that limits the usability of the link. Accordingly, we define
+For link $e$ to be used as part of a substrate path, connectivity to a subsequent link is required
+at both endpoints; we therefore treat the endpoint with lower external connectivity as the one that
+limits the usability of the link. Accordingly, we define
 \[
-\mathrm{Conn}_L(e)
-=
-\min
-\left\{
-\mathrm{Conn}(u\mid e),
-\mathrm{Conn}(v\mid e)
-\right\},
+    \mathrm{Conn}_L(e)
+    =
+    \min
+    \left\{
+    \mathrm{Conn}(u\mid e),
+    \mathrm{Conn}(v\mid e)
+    \right\},
 \]
 and we define the link connectivity-deficiency factor and the link fragmentation score as
 \[
-I_L(e)=1-\mathrm{Conn}_L(e),
-\qquad
-F_L(e)=r_e I_L(e).
+    I_L(e)=1-\mathrm{Conn}_L(e),
+    \qquad
+    F_L(e)=r_e I_L(e).
 \]
 
-We aggregate the two endpoint connectivities with a $\min$ rather than an average or a product for two reasons. Structurally, extending $e$ into a substrate path requires a further link at both endpoints, so a path can be formed only if both $\mathrm{Conn}(u\mid e)$ and $\mathrm{Conn}(v\mid e)$ remain positive; a $\min$ preserves this bottleneck semantics. Empirically, we compared $\min$, arithmetic mean, and geometric mean in a pilot run on ER $G(50,0.15)$ and observed that $\min$ produced the highest acceptance ratio, with the geometric mean second and the arithmetic mean last; the ordering matches the intuition that a link's usability is limited by its weakest endpoint. We therefore keep $\min$ as the default aggregation and treat other choices as a hyperparameter that can be revisited when both endpoints are known to carry symmetric load.
+We aggregate the two endpoint connectivities with a $\min$ rather than an average or a product for
+two reasons. Structurally, extending $e$ into a substrate path requires a further link at both
+endpoints, so a path can be formed only if both $\mathrm{Conn}(u\mid e)$ and $\mathrm{Conn}(v\mid
+e)$ remain positive; a $\min$ preserves this bottleneck semantics. Empirically, we compared $\min$,
+arithmetic mean, and geometric mean in a pilot run on ER $G(50,0.15)$ and observed that $\min$
+produced the highest acceptance ratio, with the geometric mean second and the arithmetic mean last;
+the ordering matches the intuition that a link's usability is limited by its weakest endpoint. We
+therefore keep $\min$ as the default aggregation and treat other choices as a hyperparameter that
+can be revisited when both endpoints are known to carry symmetric load.
 
 \subsection{Induced Fragmentation Cost}
-The difference between the pre- and post-embedding fragmentation scores contains both the direct effect of resources being consumed and the effect of the connectivity of the remaining resources changing after that consumption. For a general fragmentation score $F=RI$, we decompose the change caused by embedding $M$ as
+The difference between the pre- and post-embedding fragmentation scores contains both the direct
+effect of resources being consumed and the effect of the connectivity of the remaining resources
+changing after that consumption. For a general fragmentation score $F=RI$, we decompose the change
+caused by embedding $M$ as
 \[
-F(M)-F
-=
-\bigl(R(M)-R\bigr)I
-+
-R(M)\bigl(I(M)-I\bigr).
+    F(M)-F
+    =
+    \bigl(R(M)-R\bigr)I
+    +
+    R(M)\bigl(I(M)-I\bigr).
 \]
-The first term captures the direct consumption effect from the reduction in the resource amount itself, while the second term captures the additional fragmentation effect caused by the degraded connectivity of the remaining resources after embedding. Because our objective is to measure the loss of usability of the resources that remain, we retain only the second term as induced fragmentation.
+The first term captures the direct consumption effect from the reduction in the resource amount
+itself, while the second term captures the additional fragmentation effect caused by the degraded
+connectivity of the remaining resources after embedding. Because our objective is to measure the
+loss of usability of the resources that remain, we retain only the second term as induced
+fragmentation.
 
 We accordingly define the induced fragmentation cost of nodes and links as
 \[
-\Delta F_N(M)
-=
-\sum_{v\in N^S}
-r_v(M)
-\left(
-I_N(v;M)-I_N(v)
-\right),
+    \Delta F_N(M)
+    =
+    \sum_{v\in N^S}
+    r_v(M)
+    \left(
+    I_N(v;M)-I_N(v)
+    \right),
 \]
 \[
-\Delta F_L(M)
-=
-\sum_{e\in L^S}
-r_e(M)
-\left(
-I_L(e;M)-I_L(e)
-\right),
+    \Delta F_L(M)
+    =
+    \sum_{e\in L^S}
+    r_e(M)
+    \left(
+    I_L(e;M)-I_L(e)
+    \right),
 \]
-To make node and link induced-fragmentation costs comparable in a single scalar objective, we normalize each term by the corresponding substrate-wide capacity budget. Let $C_{N,\mathrm{tot}}=\sum_{v\in N^S}c_v$ denote the total initial CPU capacity of the substrate and $C_{L,\mathrm{tot}}=\sum_{e\in L^S}c_e$ the total initial bandwidth capacity. The normalized induced-fragmentation costs are then
+To make node and link induced-fragmentation costs comparable in a single scalar objective, we
+normalize each term by the corresponding substrate-wide capacity budget. Let
+$C_{N,\mathrm{tot}}=\sum_{v\in N^S}c_v$ denote the total initial CPU capacity of the substrate and
+$C_{L,\mathrm{tot}}=\sum_{e\in L^S}c_e$ the total initial bandwidth capacity. The normalized
+induced-fragmentation costs are then
 \[
-\widetilde{\Delta F}_N(M)=\frac{\Delta F_N(M)}{C_{N,\mathrm{tot}}},
-\qquad
-\widetilde{\Delta F}_L(M)=\frac{\Delta F_L(M)}{C_{L,\mathrm{tot}}},
+    \widetilde{\Delta F}_N(M)=\frac{\Delta F_N(M)}{C_{N,\mathrm{tot}}},
+    \qquad
+    \widetilde{\Delta F}_L(M)=\frac{\Delta F_L(M)}{C_{L,\mathrm{tot}}},
 \]
-both of which are dimensionless and lie in $[0,1]$ under the monotonicity property of Section~\ref{sec:metric_definition_of_resource_fragmentation}. We define the overall induced fragmentation cost as
+both of which are dimensionless and lie in $[0,1]$ under the monotonicity property of
+Section~\ref{sec:metric_definition_of_resource_fragmentation}. We define the overall induced
+fragmentation cost as
 \[
-\Delta F_{\mathrm{frag}}(M)
-=
-\widetilde{\Delta F}_L(M)
-+
-\gamma\,\widetilde{\Delta F}_N(M),
-\qquad
-\gamma\ge0,
+    \Delta F_{\mathrm{frag}}(M)
+    =
+    \widetilde{\Delta F}_L(M)
+    +
+    \gamma\,\widetilde{\Delta F}_N(M),
+    \qquad
+    \gamma\ge0,
 \]
-where $\gamma$ controls the relative weight between node and link fragmentation. Because both normalized terms share the same $[0,1]$ scale, $\gamma$ carries a clear ratio interpretation rather than absorbing the CPU-to-bandwidth unit gap.
+where $\gamma$ controls the relative weight between node and link fragmentation. Because both
+normalized terms share the same $[0,1]$ scale, $\gamma$ carries a clear ratio interpretation rather
+than absorbing the CPU-to-bandwidth unit gap.
 
 
 \section{Problem Formulation}
 \label{sec:problem_formulation}
 
-The goal of \ecfvne{} is to satisfy the resource requirements of the current VNR without concentrating them on particular substrate resources, while at the same time preserving the usability of the substrate resources that remain after embedding. To this end, we compose the conventional load-balancing cost and the \ecf-based induced fragmentation cost from the previous section as independent terms and combine them into a single objective function.
+The goal of \ecfvne{} is to satisfy the resource requirements of the current VNR without
+concentrating them on particular substrate resources, while at the same time preserving the
+usability of the substrate resources that remain after embedding. To this end, we compose the
+conventional load-balancing cost and the \ecf-based induced fragmentation cost from the previous
+section as independent terms and combine them into a single objective function.
 
-The decision variable $x_{nv}\in\{0,1\}$ indicates whether virtual node $n\in N^V$ is mapped to substrate node $v\in N^S$, and $f_{uv}^l\ge0$ denotes the portion of the bandwidth demand of virtual link $l\in L^V$ that traverses arc $(u,v)\in A^S$.
+The decision variable $x_{nv}\in\{0,1\}$ indicates whether virtual node $n\in N^V$ is mapped to
+substrate node $v\in N^S$, and $f_{uv}^l\ge0$ denotes the portion of the bandwidth demand of virtual
+link $l\in L^V$ that traverses arc $(u,v)\in A^S$.
 
 \subsection{Embedding Constraints}
-Each virtual node must be mapped to exactly one substrate node, and to prevent virtual nodes of the same VNR from being mapped to the same substrate node, we impose
+Each virtual node must be mapped to exactly one substrate node, and to prevent virtual nodes of the
+same VNR from being mapped to the same substrate node, we impose
 \[
-\sum_{v\in N^S}x_{nv}=1,
-\qquad
-\forall n\in N^V,
+    \sum_{v\in N^S}x_{nv}=1,
+    \qquad
+    \forall n\in N^V,
 \]
 \[
-\sum_{n\in N^V}x_{nv}\le1,
-\qquad
-\forall v\in N^S.
+    \sum_{n\in N^V}x_{nv}\le1,
+    \qquad
+    \forall v\in N^S.
 \]
-In addition, the total CPU demand allocated by the node mapping must not exceed the current residual CPU of each substrate node:
+In addition, the total CPU demand allocated by the node mapping must not exceed the current residual
+CPU of each substrate node:
 \[
-\sum_{n\in N^V}d_nx_{nv}
-\le r_v,
-\qquad
-\forall v\in N^S.
+    \sum_{n\in N^V}d_nx_{nv}
+    \le r_v,
+    \qquad
+    \forall v\in N^S.
 \]
 
-For virtual-link routing, the sum of flows traversing a substrate link in both directions must not exceed its residual bandwidth:
+For virtual-link routing, the sum of flows traversing a substrate link in both directions must not
+exceed its residual bandwidth:
 \[
-\sum_{l\in L^V}
-\left(
-f_{uv}^l+f_{vu}^l
-\right)
-\le r_{\{u,v\}},
-\qquad
-\forall\{u,v\}\in L^S.
+    \sum_{l\in L^V}
+    \left(
+    f_{uv}^l+f_{vu}^l
+    \right)
+    \le r_{\{u,v\}},
+    \qquad
+    \forall\{u,v\}\in L^S.
 \]
-The source and destination of each virtual link $l=\{n,m\}\in L^V$ are determined by the node mapping, and we express this via the flow-conservation constraint
+The source and destination of each virtual link $l=\{n,m\}\in L^V$ are determined by the node
+mapping, and we express this via the flow-conservation constraint
 \[
-\sum_{(v,w)\in A^S}f_{vw}^l
--
-\sum_{(w,v)\in A^S}f_{wv}^l
-=
-d_l
-\left(
-x_{nv}-x_{mv}
-\right),
-\qquad
-\forall v\in N^S.
+    \sum_{(v,w)\in A^S}f_{vw}^l
+    -
+    \sum_{(w,v)\in A^S}f_{wv}^l
+    =
+    d_l
+    \left(
+    x_{nv}-x_{mv}
+    \right),
+    \qquad
+    \forall v\in N^S.
 \]
-Thus, a flow of $d_l$ is generated at the substrate node with $x_{nv}=1$ and absorbed in equal amount at the substrate node with $x_{mv}=1$.
+Thus, a flow of $d_l$ is generated at the substrate node with $x_{nv}=1$ and absorbed in equal
+amount at the substrate node with $x_{mv}=1$.
 
 \subsection{Objective Function}
-External connectivity evaluates how well a residual resource can combine with surrounding resources, but it does not directly represent the absolute residual capacity of an individual substrate resource or the load concentration on a particular resource. To complement this, we adopt the following demand-to-residual-capacity load-balancing cost ~\cite{chowdhury2012vineyard}:
+External connectivity evaluates how well a residual resource can combine with surrounding resources,
+but it does not directly represent the absolute residual capacity of an individual substrate
+resource or the load concentration on a particular resource. To complement this, we adopt the
+following demand-to-residual-capacity load-balancing cost ~\cite{chowdhury2012vineyard}:
 \[
-C_{\mathrm{LB}}(x,f)
-=
-\sum_{n\in N^V}
-\sum_{v\in N^S}
-\frac{d_n}{r_v+\epsilon}x_{nv}
-+
-\sum_{l\in L^V}
-\sum_{(u,v)\in A^S}
-\frac{f_{uv}^l}
-{r_{\{u,v\}}+\epsilon},
+    C_{\mathrm{LB}}(x,f)
+    =
+    \sum_{n\in N^V}
+    \sum_{v\in N^S}
+    \frac{d_n}{r_v+\epsilon}x_{nv}
+    +
+    \sum_{l\in L^V}
+    \sum_{(u,v)\in A^S}
+    \frac{f_{uv}^l}
+    {r_{\{u,v\}}+\epsilon},
 \]
-where $\epsilon>0$ is a small constant that prevents division by zero. Assigning the same demand to a resource with smaller residual capacity incurs a larger cost, thereby discouraging load concentration on heavily utilized substrate resources.
+where $\epsilon>0$ is a small constant that prevents division by zero. Assigning the same demand to
+a resource with smaller residual capacity incurs a larger cost, thereby discouraging load
+concentration on heavily utilized substrate resources.
 
-For the formulation below, we write $\Delta F_{\mathrm{frag}}(x,f)$ for the induced fragmentation cost resulting from the embedding specified by the decision variables $x$ and $f$.
+For the formulation below, we write $\Delta F_{\mathrm{frag}}(x,f)$ for the induced fragmentation
+cost resulting from the embedding specified by the decision variables $x$ and $f$.
 
-We define the overall objective by combining load balancing and normalized
-induced fragmentation as
+We define the overall objective by combining load balancing and normalized induced fragmentation as
 \[
-\min_{x,f}
-\quad
-J(x,f)
-=
-\beta\,C_{\mathrm{LB}}(x,f)
-+
-\lambda\,
-\Delta F_{\mathrm{frag}}(x,f),
-\qquad
-\beta,\lambda\ge0.
+    \min_{x,f}
+    \quad
+    J(x,f)
+    =
+    \beta\,C_{\mathrm{LB}}(x,f)
+    +
+    \lambda\,
+    \Delta F_{\mathrm{frag}}(x,f),
+    \qquad
+    \beta,\lambda\ge0.
 \]
-Here $\beta$ and $\lambda$ control the relative contributions of load
-balancing and induced fragmentation, respectively, while $\gamma$ controls
-the relative contribution of node fragmentation within the fragmentation
-term. In this way, \ecfvne{} jointly considers load concentration for the
-current request and the usability of residual substrate resources after
-embedding.
+Here $\beta$ and $\lambda$ control the relative contributions of load balancing and induced
+fragmentation, respectively, while $\gamma$ controls the relative contribution of node fragmentation
+within the fragmentation term. In this way, \ecfvne{} jointly considers load concentration for the
+current request and the usability of residual substrate resources after embedding.
 
 \section{ECF-VNE Embedding Algorithm}
 \label{sec:embedding_algorithm}
 
-The proposed \ecfvne{} method is implemented within the online embedding
-framework of VNE-RFD~\cite{lu2022resource}. We retain its virtual-node
-processing order, feasible substrate-node candidate generation,
-$K$-shortest-path routing, and bounded backtracking procedure. The proposed
-method changes only the criterion used to evaluate a tentative embedding.
-Each tentative embedding $M$ generated by the underlying framework is
-evaluated according to both its immediate resource usage and the induced
-fragmentation of the residual substrate resources.
+The proposed \ecfvne{} method is implemented within the online embedding framework of
+VNE-RFD~\cite{lu2022resource}. We retain its virtual-node processing order, feasible substrate-node
+candidate generation, $K$-shortest-path routing, and bounded backtracking procedure. The proposed
+method changes only the criterion used to evaluate a tentative embedding. Each tentative embedding
+$M$ generated by the underlying framework is evaluated according to both its immediate resource
+usage and the induced fragmentation of the residual substrate resources.
 
-The load-balancing component evaluates the resources directly consumed by
-$M$. For a mapped virtual node, the CPU demand is weighted by the residual
-CPU of its substrate node before the tentative embedding. Likewise, for a
-routed virtual link, its bandwidth demand is accumulated over the substrate
-path assigned by $M_L$. This corresponds to the load-balancing cost defined
-in Section~\ref{sec:problem_formulation}, expressed here directly in terms of
-the node and path mappings contained in $M$.
+The load-balancing component evaluates the resources directly consumed by $M$. For a mapped virtual
+node, the CPU demand is weighted by the residual CPU of its substrate node before the tentative
+embedding. Likewise, for a routed virtual link, its bandwidth demand is accumulated over the
+substrate path assigned by $M_L$. This corresponds to the load-balancing cost defined in
+Section~\ref{sec:problem_formulation}, expressed here directly in terms of the node and path
+mappings contained in $M$.
 
-The fragmentation component is evaluated from the residual substrate state
-before and after applying $M$. Importantly, evaluating the induced
-fragmentation does not require treating every substrate resource as affected
-by every tentative embedding. The node connectivity-deficiency factor of a
-substrate node changes only when the residual bandwidth of at least one of
-its incident substrate links changes. Therefore, node induced fragmentation
-needs to be reevaluated only for substrate nodes adjacent to links whose
-bandwidth is consumed by $M$.
+The fragmentation component is evaluated from the residual substrate state before and after applying
+$M$. Importantly, evaluating the induced fragmentation does not require treating every substrate
+resource as affected by every tentative embedding. The node connectivity-deficiency factor of a
+substrate node changes only when the residual bandwidth of at least one of its incident substrate
+links changes. Therefore, node induced fragmentation needs to be reevaluated only for substrate
+nodes adjacent to links whose bandwidth is consumed by $M$.
 
-A similar locality property applies to substrate links. The
-connectivity-deficiency factor of a substrate link depends on the residual
-bandwidth of the other links incident to its two endpoints. Consequently, a
-substrate link needs to be reevaluated only when $M$ changes the residual
-bandwidth of another link adjacent to either of its endpoints. The bandwidth
-consumption of a link does not by itself increase its own connectivity
-deficiency because the central link is excluded from the endpoint
-external-connectivity calculation. Instead, that consumption can reduce the
-external connectivity of neighboring substrate resources.
+A similar locality property applies to substrate links. The connectivity-deficiency factor of a
+substrate link depends on the residual bandwidth of the other links incident to its two endpoints.
+Consequently, a substrate link needs to be reevaluated only when $M$ changes the residual bandwidth
+of another link adjacent to either of its endpoints. The bandwidth consumption of a link does not by
+itself increase its own connectivity deficiency because the central link is excluded from the
+endpoint external-connectivity calculation. Instead, that consumption can reduce the external
+connectivity of neighboring substrate resources.
 
-After identifying these affected resources, \ecfvne{} evaluates their
-connectivity-deficiency factors before and after $M$. For each affected
-substrate node or link, only the increase in connectivity deficiency of the
-resource remaining after the tentative embedding contributes to induced
-fragmentation. Resources whose connectivity deficiency is unchanged make no
-contribution, even if part of their capacity is consumed. This preserves the
-distinction between direct resource consumption and fragmentation induced in
-the remaining substrate resources.
+After identifying these affected resources, \ecfvne{} evaluates their connectivity-deficiency
+factors before and after $M$. For each affected substrate node or link, only the increase in
+connectivity deficiency of the resource remaining after the tentative embedding contributes to
+induced fragmentation. Resources whose connectivity deficiency is unchanged make no contribution,
+even if part of their capacity is consumed. This preserves the distinction between direct resource
+consumption and fragmentation induced in the remaining substrate resources.
 
-The resulting node and link induced-fragmentation costs are normalized by
-the corresponding substrate-wide capacity budgets and combined according to
-the definition of $\Delta F_{\mathrm{frag}}(M)$. The final evaluation of $M$
-then combines this value with its load-balancing cost using the same weights
-as the objective function in Section~\ref{sec:problem_formulation}. The
-underlying VNE-RFD framework uses this evaluation value to rank its tentative
-node and path choices; candidate generation, commitment, rollback, and
-bounded backtracking remain unchanged.
+The resulting node and link induced-fragmentation costs are normalized by the corresponding
+substrate-wide capacity budgets and combined according to the definition of $\Delta
+F_{\mathrm{frag}}(M)$. The final evaluation of $M$ then combines this value with its load-balancing
+cost using the same weights as the objective function in Section~\ref{sec:problem_formulation}. The
+underlying VNE-RFD framework uses this evaluation value to rank its tentative node and path choices;
+candidate generation, commitment, rollback, and bounded backtracking remain unchanged.
 
-Algorithm~\ref{alg:ecf_eval} summarizes the evaluation of a tentative
-embedding $M$.
+Algorithm~\ref{alg:ecf_eval} summarizes the evaluation of a tentative embedding $M$.
 
 \begin{algorithm}[!t]
-\caption{ECF-Based Tentative Embedding Evaluation}
-\label{alg:ecf_eval}
-\footnotesize
-\begin{algorithmic}[1]
+    \caption{ECF-Based Tentative Embedding Evaluation}
+    \label{alg:ecf_eval}
+    \footnotesize
+    \begin{algorithmic}[1]
 
-\STATE \textbf{Input:} $G^S$, $G^V$, tentative embedding $M$,
-$\beta$, $\lambda$, $\gamma$, $\epsilon$
+        \STATE \textbf{Input:} $G^S$, $G^V$, tentative embedding $M$, $\beta$, $\lambda$, $\gamma$,
+        $\epsilon$
 
-\STATE \textbf{Output:} evaluation value of $M$
+        \STATE \textbf{Output:} evaluation value of $M$
 
-\STATE $C_{\mathrm{LB}}\leftarrow 0$
+        \STATE $C_{\mathrm{LB}}\leftarrow 0$
 
-\FOR{each $n\in N^V$ mapped by $M_N$}
-\STATE $v\leftarrow M_N(n)$
-\STATE
-$C_{\mathrm{LB}}
-\leftarrow
-C_{\mathrm{LB}}
-+
-\dfrac{d_n}{r_v+\epsilon}$
-\ENDFOR
+        \FOR{each $n\in N^V$ mapped by $M_N$} \STATE $v\leftarrow M_N(n)$ \STATE $C_{\mathrm{LB}}
+            \leftarrow
+            C_{\mathrm{LB}} + \dfrac{d_n}{r_v+\epsilon}$ \ENDFOR
 
-\FOR{each $l\in L^V$ routed by $M_L$}
-\FOR{each $e\in M_L(l)$}
-\STATE
-$C_{\mathrm{LB}}
-\leftarrow
-C_{\mathrm{LB}}
-+
-\dfrac{d_l}{r_e+\epsilon}$
-\ENDFOR
-\ENDFOR
+        \FOR{each $l\in L^V$ routed by $M_L$} \FOR{each $e\in M_L(l)$} \STATE $C_{\mathrm{LB}}
+            \leftarrow
+            C_{\mathrm{LB}} + \dfrac{d_l}{r_e+\epsilon}$ \ENDFOR \ENDFOR
 
-\STATE Obtain $r_v(M)$ and $r_e(M)$ after tentatively applying $M$
+        \STATE Obtain $r_v(M)$ and $r_e(M)$ after tentatively applying $M$
 
-\STATE $\Delta F_N(M)\leftarrow0$
+        \STATE $\Delta F_N(M)\leftarrow0$
 
-\FOR{each $v\in N^S$ incident to a link $e$ with $r_e(M)<r_e$}
-\STATE Evaluate $I_N(v)$ using the current residual bandwidths
-\STATE Evaluate $I_N(v;M)$ using the residual bandwidths after $M$
-\STATE
-$\Delta F_N(M)
-\leftarrow
-\Delta F_N(M)
-+
-r_v(M)
-\bigl(I_N(v;M)-I_N(v)\bigr)$
-\ENDFOR
+        \FOR{each $v\in N^S$ incident to a link $e$ with $r_e(M)<r_e$} \STATE Evaluate $I_N(v)$
+        using the current residual bandwidths \STATE Evaluate $I_N(v;M)$ using the residual
+        bandwidths after $M$ \STATE $\Delta F_N(M)
+            \leftarrow
+            \Delta F_N(M) + r_v(M) \bigl(I_N(v;M)-I_N(v)\bigr)$ \ENDFOR
 
-\STATE $\Delta F_L(M)\leftarrow0$
+        \STATE $\Delta F_L(M)\leftarrow0$
 
-\FOR{each $e={u,v}\in L^S$}
-\IF{there exists
-$q\in\delta(u\mid e)\cup\delta(v\mid e)$
-with $r_q(M)<r_q$}
+        \FOR{each $e={u,v}\in L^S$} \IF{there exists $q\in\delta(u\mid e)\cup\delta(v\mid e)$ with
+        $r_q(M)<r_q$}
 
 
-    \STATE Evaluate $I_L(e)$ using the current residual bandwidths
-    \STATE Evaluate $I_L(e;M)$ using the residual bandwidths after $M$
+        \STATE Evaluate $I_L(e)$ using the current residual bandwidths \STATE Evaluate $I_L(e;M)$
+        using the residual bandwidths after $M$
 
-    \STATE
-    $\Delta F_L(M)
-    \leftarrow
-    \Delta F_L(M)
-    +
-    r_e(M)
-    \bigl(I_L(e;M)-I_L(e)\bigr)$
-\ENDIF
+        \STATE $\Delta F_L(M)
+            \leftarrow
+            \Delta F_L(M) + r_e(M) \bigl(I_L(e;M)-I_L(e)\bigr)$ \ENDIF
 
 
-\ENDFOR
+        \ENDFOR
 
-\STATE
-$\Delta F_{\mathrm{frag}}(M)
-\leftarrow
-\dfrac{\Delta F_L(M)}{C_{L,\mathrm{tot}}}
-+
-\gamma
-\dfrac{\Delta F_N(M)}{C_{N,\mathrm{tot}}}$
+        \STATE $\Delta F_{\mathrm{frag}}(M)
+            \leftarrow
+            \dfrac{\Delta F_L(M)}{C_{L,\mathrm{tot}}} +
+            \gamma
+            \dfrac{\Delta F_N(M)}{C_{N,\mathrm{tot}}}$
 
-\STATE
-\textbf{return}
-$\beta C_{\mathrm{LB}}
-+
-\lambda\Delta F_{\mathrm{frag}}(M)$
+        \STATE
+        \textbf{return}
+        $\beta C_{\mathrm{LB}} + \lambda\Delta F_{\mathrm{frag}}(M)$
 
-\end{algorithmic}
+    \end{algorithmic}
 \end{algorithm}
 
-The evaluation in Algorithm~\ref{alg:ecf_eval} is invoked whenever the
-underlying VNE-RFD framework compares tentative embedding choices. Because
-the input is the tentative embedding $M$ itself, the ECF evaluation does not
-maintain separate intermediate substrate states for individual node or link
-decisions. The internal processing order of a request remains the
-responsibility of the underlying embedding framework, while the proposed
-algorithm evaluates the residual-resource consequence of the resulting
-tentative embedding.
+The evaluation in Algorithm~\ref{alg:ecf_eval} is invoked whenever the underlying VNE-RFD framework
+compares tentative embedding choices. Because the input is the tentative embedding $M$ itself, the
+ECF evaluation does not maintain separate intermediate substrate states for individual node or link
+decisions. The internal processing order of a request remains the responsibility of the underlying
+embedding framework, while the proposed algorithm evaluates the residual-resource consequence of the
+resulting tentative embedding.
 
-The load-balancing part of the evaluation is linear in the number of
-substrate resources used by $M$. For induced fragmentation, node
-connectivity needs to be reevaluated only around substrate links whose
-residual bandwidth changes. Link connectivity likewise needs to be
-reevaluated only for links whose endpoint neighborhoods contain such changed
-links. In the worst case, when the tentative embedding affects the substrate
-widely, evaluating all node connectivities requires $O(|L^S|)$ operations,
-while evaluating all link connectivities requires
-$O(\sum_{v\in N^S}(d_v^S)^2)$ operations. Thus, the worst-case complexity of
-one induced-fragmentation evaluation is
-$O(\sum_{v\in N^S}(d_v^S)^2)$, which is contained in
-$O(|N^S||L^S|)$. For localized tentative embeddings, only the affected
-neighborhoods need to be revisited, reducing the practical cost of each
-evaluation.
+The load-balancing part of the evaluation is linear in the number of substrate resources used by
+$M$. For induced fragmentation, node connectivity needs to be reevaluated only around substrate
+links whose residual bandwidth changes. Link connectivity likewise needs to be reevaluated only for
+links whose endpoint neighborhoods contain such changed links. In the worst case, when the tentative
+embedding affects the substrate widely, evaluating all node connectivities requires $O(|L^S|)$
+operations, while evaluating all link connectivities requires $O(\sum_{v\in N^S}(d_v^S)^2)$
+operations. Thus, the worst-case complexity of one induced-fragmentation evaluation is $O(\sum_{v\in
+N^S}(d_v^S)^2)$, which is contained in $O(|N^S||L^S|)$. For localized tentative embeddings, only the
+affected neighborhoods need to be revisited, reducing the practical cost of each evaluation.
 
 \section{Performance Evaluation}
 \label{sec:performance_evaluation}
 
 \subsection{Simulation Setup and Evaluation Metrics}
 
-We evaluate the online embedding performance of \ecfvne{} against
-VNE-ECF, VNE-RFD-B and VNE-RFD-D~\cite{lu2022resource}, and
-D-ViNE-LB and R-ViNE-LB~\cite{chowdhury2012vineyard}.
-Here, \ecfvne{} is the proposed method that jointly considers the
-external-connectivity-based fragmentation cost and the load-balancing
-cost. VNE-ECF is an ablation variant in which the load-balancing term
-is removed, and is included to isolate the contribution of load
-balancing when combined with the proposed ECF metric.
+We evaluate the online embedding performance of \ecfvne{} against VNE-ECF, VNE-RFD-B and
+VNE-RFD-D~\cite{lu2022resource}, and D-ViNE-LB and R-ViNE-LB~\cite{chowdhury2012vineyard}. Here,
+\ecfvne{} is the proposed method that jointly considers the external-connectivity-based
+fragmentation cost and the load-balancing cost. VNE-ECF is an ablation variant in which the
+load-balancing term is removed, and is included to isolate the contribution of load balancing when
+combined with the proposed ECF metric.
 
-The CPU capacity of each substrate node and the bandwidth capacity of
-each substrate link are independently generated from $U(50,100)$.
-Each VNR is generated as a connected Erd\H{o}s--R\'{e}nyi graph
-$G(n,0.4)$ containing 2--10 virtual nodes. The CPU demand of each
-virtual node is generated from $U(0,20)$, while the bandwidth demand
-of each virtual link is generated from $U(0,50)$.
+The CPU capacity of each substrate node and the bandwidth capacity of each substrate link are
+independently generated from $U(50,100)$. Each VNR is generated as a connected Erd\H{o}s--R\'{e}nyi
+graph $G(n,0.4)$ containing 2--10 virtual nodes. The CPU demand of each virtual node is generated
+from $U(0,20)$, while the bandwidth demand of each virtual link is generated from $U(0,50)$.
 
-VNRs arrive according to a Poisson process, and their holding times
-follow an exponential distribution with a mean of 1,000 time units.
-For each simulation, the initial transient period is discarded, and
-the performance metrics are collected over a steady-state interval of
-50,000 time units. All compared methods are evaluated under the same
-paired-sampling setting.
+VNRs arrive according to a Poisson process, and their holding times follow an exponential
+distribution with a mean of 1,000 time units. For each simulation, the initial transient period is
+discarded, and the performance metrics are collected over a steady-state interval of 50,000 time
+units. All compared methods are evaluated under the same paired-sampling setting.
 
-The primary performance metric is the VNR acceptance ratio, which
-measures the fraction of arriving VNRs that can be successfully
-embedded over time. We additionally measure the revenue-to-cost ratio,
-average CPU utilization, and average link utilization. These metrics
-are considered together to examine whether an improvement in
-acceptance ratio is accompanied by changes in embedding efficiency or
-substrate-resource utilization.
+The primary performance metric is the VNR acceptance ratio, which measures the fraction of arriving
+VNRs that can be successfully embedded over time. We additionally measure the revenue-to-cost ratio,
+average CPU utilization, and average link utilization. These metrics are considered together to
+examine whether an improvement in acceptance ratio is accompanied by changes in embedding efficiency
+or substrate-resource utilization.
 
 
 \begin{figure}[!t]
     \centering
     \includegraphics[width=\columnwidth]{fig2_er_acceptance.pdf}
-    \caption{VNR acceptance ratio under different edge probabilities
-    $p_s$ in the ER substrate $G(50,p_s)$.}
+    \caption{VNR acceptance ratio under different edge probabilities $p_s$ in the ER substrate
+        $G(50,p_s)$.}
     \label{fig:er_acceptance}
 \end{figure}
 
 \begin{figure}[!t]
     \centering
     \includegraphics[width=\columnwidth]{fig3_er_revenue-to-cost_ratio.pdf}
-    \caption{Revenue-to-cost ratio under different edge probabilities
-    $p_s$ in the ER substrate $G(50,p_s)$.}
+    \caption{Revenue-to-cost ratio under different edge probabilities $p_s$ in the ER substrate
+        $G(50,p_s)$.}
     \label{fig:er_revenue_cost}
 \end{figure}
 
 \begin{figure}[!t]
     \centering
     \includegraphics[width=\columnwidth]{fig4_er_avg_cpu_utilization.pdf}
-    \caption{Average CPU utilization under different edge probabilities
-    $p_s$ in the ER substrate $G(50,p_s)$.}
+    \caption{Average CPU utilization under different edge probabilities $p_s$ in the ER substrate
+        $G(50,p_s)$.}
     \label{fig:er_cpu_utilization}
 \end{figure}
 
 \begin{figure}[!t]
     \centering
     \includegraphics[width=\columnwidth]{fig5_er_avg_link_utilization.pdf}
-    \caption{Average link utilization under different edge probabilities
-    $p_s$ in the ER substrate $G(50,p_s)$.}
+    \caption{Average link utilization under different edge probabilities $p_s$ in the ER substrate
+        $G(50,p_s)$.}
     \label{fig:er_link_utilization}
 \end{figure}
 
 
 \subsection{Performance under Different ER Substrate Densities}
 
-For the synthetic-substrate experiments, we use a connected
-Erd\H{o}s--R\'{e}nyi graph $G(50,p_s)$ with 50 substrate nodes and
-vary the edge probability as
-$p_s\in\{0.05,0.10,0.15,0.20,0.25\}$.
-The VNR arrival rate is fixed at 50 requests per 1,000 time units.
-This experiment examines how changes in substrate connectivity affect
-the performance of the embedding algorithms.
+For the synthetic-substrate experiments, we use a connected Erd\H{o}s--R\'{e}nyi graph $G(50,p_s)$
+with 50 substrate nodes and vary the edge probability as $p_s\in\{0.05,0.10,0.15,0.20,0.25\}$. The
+VNR arrival rate is fixed at 50 requests per 1,000 time units. This experiment examines how changes
+in substrate connectivity affect the performance of the embedding algorithms.
 
-Figs.~\ref{fig:er_acceptance}--\ref{fig:er_link_utilization} show the
-four performance metrics as $p_s$ varies. As $p_s$ increases, the
-substrate contains more links and provides a larger number of feasible
-routing paths. Consequently, the acceptance ratio generally increases
-for all compared algorithms. Nevertheless, \ecfvne{} achieves the
-highest acceptance ratio over the entire range of $p_s$.
+Figs.~\ref{fig:er_acceptance}--\ref{fig:er_link_utilization} show the four performance metrics as
+$p_s$ varies. As $p_s$ increases, the substrate contains more links and provides a larger number of
+feasible routing paths. Consequently, the acceptance ratio generally increases for all compared
+algorithms. Nevertheless, \ecfvne{} achieves the highest acceptance ratio over the entire range of
+$p_s$.
 
-Compared with the best-performing external baseline at each substrate
-density, \ecfvne{} improves the VNR acceptance ratio by approximately
-11.9\%--63.2\%. The relative gain is particularly pronounced when the
-substrate is sparse, where preserving the combinability of the
-remaining resources is more important because fewer alternative
-routing paths are available. Even as the substrate becomes denser and
-path diversity increases, \ecfvne{} continues to maintain the highest
+Compared with the best-performing external baseline at each substrate density, \ecfvne{} improves
+the VNR acceptance ratio by approximately 11.9\%--63.2\%. The relative gain is particularly
+pronounced when the substrate is sparse, where preserving the combinability of the remaining
+resources is more important because fewer alternative routing paths are available. Even as the
+substrate becomes denser and path diversity increases, \ecfvne{} continues to maintain the highest
 acceptance ratio.
 
-The comparison with VNE-ECF further shows the effect of combining the
-proposed fragmentation metric with load balancing. Across the tested
-values of $p_s$, \ecfvne{} improves the acceptance ratio over VNE-ECF
-by approximately 2.7\%--8.7\%. This indicates that external
-connectivity and load balancing play complementary roles: the ECF term
-discourages embeddings that degrade the usability of residual
-resources, while the load-balancing term prevents excessive
-concentration of the current demand on individual substrate resources.
+The comparison with VNE-ECF further shows the effect of combining the proposed fragmentation metric
+with load balancing. Across the tested values of $p_s$, \ecfvne{} improves the acceptance ratio over
+VNE-ECF by approximately 2.7\%--8.7\%. This indicates that external connectivity and load balancing
+play complementary roles: the ECF term discourages embeddings that degrade the usability of residual
+resources, while the load-balancing term prevents excessive concentration of the current demand on
+individual substrate resources.
 
-Fig.~\ref{fig:er_revenue_cost} shows that the higher acceptance ratio
-does not necessarily imply a uniformly higher revenue-to-cost ratio
-under all substrate densities. At the two sparsest settings,
-\ecfvne{} has a revenue-to-cost ratio approximately 5.1\% lower than
-VNE-RFD-D. As the substrate becomes denser, however, this relation is
-reversed, and \ecfvne{} achieves an improvement of up to approximately
-24.5\% over VNE-RFD-D. Thus, the acceptance-ratio improvement cannot
-be attributed simply to accepting requests through increasingly
-expensive embeddings.
+Fig.~\ref{fig:er_revenue_cost} shows that the higher acceptance ratio does not necessarily imply a
+uniformly higher revenue-to-cost ratio under all substrate densities. At the two sparsest settings,
+\ecfvne{} has a revenue-to-cost ratio approximately 5.1\% lower than VNE-RFD-D. As the substrate
+becomes denser, however, this relation is reversed, and \ecfvne{} achieves an improvement of up to
+approximately 24.5\% over VNE-RFD-D. Thus, the acceptance-ratio improvement cannot be attributed
+simply to accepting requests through increasingly expensive embeddings.
 
-As shown in Fig.~\ref{fig:er_cpu_utilization}, \ecfvne{} generally
-exhibits higher average CPU utilization because it continuously
-accepts more VNRs and therefore places more virtual-node demand on the
-substrate. In contrast, the average link utilization in
-Fig.~\ref{fig:er_link_utilization} does not necessarily follow the
-same trend as the acceptance ratio. As $p_s$ increases, the number of
-available substrate links and alternative routing paths also
-increases, allowing accepted virtual-link traffic to be distributed
-over a larger set of substrate resources. These results indicate that
-the higher acceptance ratio of \ecfvne{} is associated with sustained
-use of the substrate resources rather than simple concentration of
-link usage.
+As shown in Fig.~\ref{fig:er_cpu_utilization}, \ecfvne{} generally exhibits higher average CPU
+utilization because it continuously accepts more VNRs and therefore places more virtual-node demand
+on the substrate. In contrast, the average link utilization in Fig.~\ref{fig:er_link_utilization}
+does not necessarily follow the same trend as the acceptance ratio. As $p_s$ increases, the number
+of available substrate links and alternative routing paths also increases, allowing accepted
+virtual-link traffic to be distributed over a larger set of substrate resources. These results
+indicate that the higher acceptance ratio of \ecfvne{} is associated with sustained use of the
+substrate resources rather than simple concentration of link usage.
 
 
 \begin{figure*}[!t]
     \centering
     \includegraphics[width=\textwidth]{fig_6_zoo.pdf}
-    \caption{Performance comparison under different VNR arrival rates
-    on the Palmetto, Bell Canada, and Surfnet topologies from the
-    Internet Topology Zoo.}
+    \caption{Performance comparison under different VNR arrival rates on the Palmetto(left), Bell Canada(center),
+        and Surfnet(right) topologies from the Internet Topology Zoo.}
     \label{fig:zoo}
 \end{figure*}
 
 
 \subsection{Performance on Real Topology Zoo Networks}
 
-To examine whether the observations from the synthetic ER substrates
-are specific to random graph structures, we further evaluate the
-algorithms using real network topologies obtained from the Internet
-Topology Zoo~\cite{knight2011internet}. Parallel edges in the original
-topologies are merged to construct simple graphs. We select Palmetto
-$(45,64)$, Bell Canada $(48,64)$, and Surfnet $(50,68)$, where each
-pair denotes the numbers of substrate nodes and links, respectively.
-The three networks have similar sizes, which reduces the effect of
-network scale and allows the robustness of \ecfvne{} to be evaluated
-across different real connectivity structures.
+To examine whether the observations from the synthetic ER substrates are specific to random graph
+structures, we further evaluate the algorithms using real network topologies obtained from the
+Internet Topology Zoo~\cite{knight2011internet}. Parallel edges in the original topologies are
+merged to construct simple graphs. We select Palmetto $(45,64)$, Bell Canada $(48,64)$, and Surfnet
+$(50,68)$, where each pair denotes the numbers of substrate nodes and links, respectively. The three
+networks have similar sizes, which reduces the effect of network scale and allows the robustness of
+\ecfvne{} to be evaluated across different real connectivity structures.
 
-The substrate-resource distributions, VNR generation procedure,
-holding-time distribution, simulation duration, and paired-sampling
-setting are identical to those used in the ER experiments. In this
-experiment, the VNR arrival rate is varied among 5, 10, 15, 20, and
-25 requests per 1,000 time units to evaluate performance as the
-offered workload increases.
+The substrate-resource distributions, VNR generation procedure, holding-time distribution,
+simulation duration, and paired-sampling setting are identical to those used in the ER experiments.
+In this experiment, the VNR arrival rate is varied among 5, 10, 15, 20, and 25 requests per 1,000
+time units to evaluate performance as the offered workload increases.
 
-Fig.~\ref{fig:zoo} shows the results for the three real topologies.
-For all topologies, the VNR acceptance ratio decreases as the arrival
-rate increases because of increasing contention for the available
-substrate resources. Despite this increased contention, \ecfvne{}
-consistently achieves the highest acceptance ratio under every tested
-topology and arrival-rate condition.
+Fig.~\ref{fig:zoo} shows the results for the three real topologies. For all topologies, the VNR
+acceptance ratio decreases as the arrival rate increases because of increasing contention for the
+available substrate resources. Despite this increased contention, \ecfvne{} consistently achieves
+the highest acceptance ratio under every tested topology and arrival-rate condition.
 
-Among the external baselines, VNE-RFD-B provides the highest
-acceptance ratio throughout these experiments. Relative to VNE-RFD-B,
-\ecfvne{} improves the acceptance ratio by approximately
-60.9\%--68.9\% on Palmetto, 66.5\%--70.6\% on Bell Canada, and
-68.4\%--71.3\% on Surfnet. The consistent gains across the three
-networks indicate that the benefit observed in the ER
-$p_s$-sweep is not restricted to a particular random-topology model.
-Instead, preserving external connectivity also improves the usability
-of residual resources under heterogeneous real network structures.
+Among the external baselines, VNE-RFD-B provides the highest acceptance ratio throughout these
+experiments. Relative to VNE-RFD-B, \ecfvne{} improves the acceptance ratio by approximately
+60.9\%--68.9\% on Palmetto, 66.5\%--70.6\% on Bell Canada, and 68.4\%--71.3\% on Surfnet. The
+consistent gains across the three networks indicate that the benefit observed in the ER $p_s$-sweep
+is not restricted to a particular random-topology model. Instead, preserving external connectivity
+also improves the usability of residual resources under heterogeneous real network structures.
 
-The ablation results further demonstrate the contribution of the
-load-balancing term. Compared with VNE-ECF, \ecfvne{} improves the
-acceptance ratio by approximately 21.2\%--25.1\% on Palmetto,
-28.3\%--34.9\% on Bell Canada, and 25.4\%--35.6\% on Surfnet.
-The substantially larger difference than that observed in the ER
-density experiment suggests that jointly controlling fragmentation
-and resource concentration becomes particularly important under the
-connectivity structures of these real networks.
+The ablation results further demonstrate the contribution of the load-balancing term. Compared with
+VNE-ECF, \ecfvne{} improves the acceptance ratio by approximately 21.2\%--25.1\% on Palmetto,
+28.3\%--34.9\% on Bell Canada, and 25.4\%--35.6\% on Surfnet. The substantially larger difference
+than that observed in the ER density experiment suggests that jointly controlling fragmentation and
+resource concentration becomes particularly important under the connectivity structures of these
+real networks.
 
-A trade-off is observed in the revenue-to-cost ratio. VNE-RFD-D
-achieves a higher ratio under the tested Topology Zoo conditions,
-while the revenue-to-cost ratio of \ecfvne{} is approximately
-3.6\%--9.3\% lower depending on the topology and workload.
-At the same time, \ecfvne{} accepts substantially more VNRs and
-therefore exhibits higher CPU utilization. This indicates that the
-proposed method favors sustained admission and utilization of
-substrate resources rather than maximizing the efficiency of each
-individual accepted embedding.
+A trade-off is observed in the revenue-to-cost ratio. VNE-RFD-D achieves a higher ratio under the
+tested Topology Zoo conditions, while the revenue-to-cost ratio of \ecfvne{} is approximately
+3.6\%--9.3\% lower depending on the topology and workload. At the same time, \ecfvne{} accepts
+substantially more VNRs and therefore exhibits higher CPU utilization. This indicates that the
+proposed method favors sustained admission and utilization of substrate resources rather than
+maximizing the efficiency of each individual accepted embedding.
 
-Average link utilization varies with both topology and workload and
-does not exhibit the same ordering as the acceptance ratio. This is
-expected because the amount and distribution of available routing
-capacity differ across the three real networks. More importantly,
-the relative acceptance-ratio advantage of \ecfvne{} is maintained
-across all three topologies and all tested workload levels. These
-results support the proposed residual-resource-usability perspective:
-embedding decisions that jointly account for external-connectivity-
-based fragmentation and load balancing preserve substrate resources
-in forms that remain more usable for subsequent VNRs.
+Average link utilization varies with both topology and workload and does not exhibit the same
+ordering as the acceptance ratio. This is expected because the amount and distribution of available
+routing capacity differ across the three real networks. More importantly, the relative
+acceptance-ratio advantage of \ecfvne{} is maintained across all three topologies and all tested
+workload levels. These results support the proposed residual-resource-usability perspective:
+embedding decisions that jointly account for external-connectivity- based fragmentation and load
+balancing preserve substrate resources in forms that remain more usable for subsequent VNRs.
 
 \section{Conclusion}
 \label{sec:conclusion}
 
-This paper addressed the resource-fragmentation problem in online VNE, where residual substrate resources may remain sufficient in aggregate but become difficult to use for future requests because they cannot be effectively combined with other residual resources. To characterize this loss of usability, we introduced the External-Connectivity-based Fragmentation (\ecf{}) metric, which jointly considers the residual resource amount and its external connectivity. The metric is specialized for substrate nodes and links to reflect the different resource relationships required by node embedding and virtual-link routing.
+This paper addressed the resource-fragmentation problem in online VNE, where residual substrate
+resources may remain sufficient in aggregate but become difficult to use for future requests because
+they cannot be effectively combined with other residual resources. To characterize this loss of
+usability, we introduced the External-Connectivity-based Fragmentation (\ecf{}) metric, which
+jointly considers the residual resource amount and its external connectivity. The metric is
+specialized for substrate nodes and links to reflect the different resource relationships required
+by node embedding and virtual-link routing.
 
-We further separated the change in fragmentation caused by direct resource consumption from the degradation in the connectivity of the resources that remain after an embedding. The latter was defined as the induced fragmentation cost. Based on this formulation, \ecfvne{} jointly considers the induced fragmentation cost and a load-balancing cost when evaluating embedding decisions. We also evaluated VNE-ECF, an ablation variant that removes the load-balancing term, to distinguish the contribution of external-connectivity-based fragmentation control from the additional effect of load balancing.
+We further separated the change in fragmentation caused by direct resource consumption from the
+degradation in the connectivity of the resources that remain after an embedding. The latter was
+defined as the induced fragmentation cost. Based on this formulation, \ecfvne{} jointly considers
+the induced fragmentation cost and a load-balancing cost when evaluating embedding decisions. We
+also evaluated VNE-ECF, an ablation variant that removes the load-balancing term, to distinguish the
+contribution of external-connectivity-based fragmentation control from the additional effect of load
+balancing.
 
-Experiments on synthetic Erd\H{o}s--R\'{e}nyi substrates with different connectivity densities and on real Internet Topology Zoo networks under varying VNR arrival rates showed that \ecfvne{} consistently achieved higher VNR acceptance ratios than the compared methods. The comparison with VNE-ECF also showed that combining ECF-based fragmentation control with load balancing further improves online embedding performance. Although a trade-off in revenue-to-cost ratio was observed under some conditions, \ecfvne{} was able to admit more VNRs while sustaining substrate-resource utilization, which is consistent with the objective of preserving residual resources for future requests.
+Experiments on synthetic Erd\H{o}s--R\'{e}nyi substrates with different connectivity densities and
+on real Internet Topology Zoo networks under varying VNR arrival rates showed that \ecfvne{}
+consistently achieved higher VNR acceptance ratios than the compared methods. The comparison with
+VNE-ECF also showed that combining ECF-based fragmentation control with load balancing further
+improves online embedding performance. Although a trade-off in revenue-to-cost ratio was observed
+under some conditions, \ecfvne{} was able to admit more VNRs while sustaining substrate-resource
+utilization, which is consistent with the objective of preserving residual resources for future
+requests.
 
-The proposed metric evaluates residual-resource usability through local external connectivity around each substrate node or link. Therefore, it does not directly capture resource-sharing relationships among multiple outward paths. In particular, different boundary links may later share the same substrate link or bottleneck region, in which case high local external connectivity does not necessarily imply high independent embedding capacity. Thus, while the proposed metric provides an efficient measure of local residual-resource usability, it does not fully represent dependencies caused by global path overlap or shared bottlenecks.
+The proposed metric evaluates residual-resource usability through local external connectivity around
+each substrate node or link. Therefore, it does not directly capture resource-sharing relationships
+among multiple outward paths. In particular, different boundary links may later share the same
+substrate link or bottleneck region, in which case high local external connectivity does not
+necessarily imply high independent embedding capacity. Thus, while the proposed metric provides an
+efficient measure of local residual-resource usability, it does not fully represent dependencies
+caused by global path overlap or shared bottlenecks.
 
-Future work may extend the external-connectivity formulation by incorporating path overlap, shared bottlenecks, or broader flow- and cut-based structures. An important direction is to capture both local resource connectivity and global resource-sharing relationships while retaining a computational cost suitable for repeated evaluation in online VNE.
+Future work may extend the external-connectivity formulation by incorporating path overlap, shared
+bottlenecks, or broader flow- and cut-based structures. An important direction is to capture both
+local resource connectivity and global resource-sharing relationships while retaining a
+computational cost suitable for repeated evaluation in online VNE.
 
 
 % \nocite{*}
