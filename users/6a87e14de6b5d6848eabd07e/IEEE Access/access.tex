@@ -526,7 +526,10 @@ C_{\mathrm{LB}}(x,f)
 \]
 where $\epsilon>0$ is a small constant that prevents division by zero. Assigning the same demand to a resource with smaller residual capacity incurs a larger cost, thereby discouraging load concentration on heavily utilized substrate resources.
 
-We define the overall objective by combining load balancing and normalized induced fragmentation as
+For the formulation below, we write $\Delta F_{\mathrm{frag}}(x,f)$ for the induced fragmentation cost resulting from the embedding specified by the decision variables $x$ and $f$.
+
+We define the overall objective by combining load balancing and normalized
+induced fragmentation as
 \[
 \min_{x,f}
 \quad
@@ -535,11 +538,16 @@ J(x,f)
 \beta\,C_{\mathrm{LB}}(x,f)
 +
 \lambda\,
-\Delta F_{\mathrm{frag}}(M),
+\Delta F_{\mathrm{frag}}(x,f),
 \qquad
 \beta,\lambda\ge0.
 \]
-Here $\beta$ and $\lambda$ control the relative contributions of load balancing and induced fragmentation, respectively, while $\gamma$ controls the relative contribution of node fragmentation within the fragmentation term. In this way, \vneecf{} jointly considers load concentration for the current request and the usability of residual substrate resources after embedding.
+Here $\beta$ and $\lambda$ control the relative contributions of load
+balancing and induced fragmentation, respectively, while $\gamma$ controls
+the relative contribution of node fragmentation within the fragmentation
+term. In this way, \vneecf{} jointly considers load concentration for the
+current request and the usability of residual substrate resources after
+embedding.
 
 \section{ECF-VNE Embedding Algorithm}
 \label{sec:embedding_algorithm}
