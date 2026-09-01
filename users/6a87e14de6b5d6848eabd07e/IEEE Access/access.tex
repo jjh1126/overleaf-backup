@@ -541,17 +541,18 @@ J(x,f)
 \]
 Here $\beta$ and $\lambda$ control the relative contributions of load balancing and induced fragmentation, respectively, while $\gamma$ controls the relative contribution of node fragmentation within the fragmentation term. In this way, \vneecf{} jointly considers load concentration for the current request and the usability of residual substrate resources after embedding.
 
-\section{VNE-ECF-LB Embedding Algorithm}
+\section{ECF-VNE Embedding Algorithm}
 \label{sec:embedding_algorithm}
 
 \begin{algorithm}[!htbp]
-\caption{VNE-ECF-LB: External-Connectivity-Based Fragmentation-Aware Online VNE}
+\caption{ECF-VNE: External-Connectivity-Based Fragmentation-Aware Online VNE}
 \label{alg:ecf_vne}
+\footnotesize
 \begin{algorithmic}[1]
 
 \STATE Input:
 substrate network $G^S$, arriving VNR $G^V$,
-$K$, $\Delta$, $\alpha$, $\beta$, $\lambda$, $\gamma$, $\epsilon$
+$K$, $\Delta$, $\beta$, $\lambda$, $\gamma$, $\epsilon$
 
 \STATE Output:
 embedding $M$ or \textsc{Reject}
@@ -589,11 +590,11 @@ following VNE-RFD~\cite{lu2022resource}
             \displaystyle
             \arg\min_{P\in\mathcal{P}_l}
             \left[
-                \beta
+                \beta\!
                 \sum_{e\in P}
                 \frac{d_l}{r_e+\epsilon}
                 +
-                \lambda
+                \lambda\,
                 \Delta F_{\mathrm{frag}}(S\rightarrow S_P)
             \right]$
 
@@ -618,11 +619,9 @@ following VNE-RFD~\cite{lu2022resource}
             $J_{\mathrm{cand}}(n,v)
             \leftarrow
             \displaystyle
-            \alpha\frac{d_n}{r_v+\epsilon}
+            \beta\!\left(\frac{d_n}{r_v+\epsilon}+C_L\right)
             +
-            \beta C_L
-            +
-            \lambda
+            \lambda\,
             \Delta F_{\mathrm{frag}}(S_0\rightarrow S_{n,v})$
 
             \STATE Store
@@ -636,9 +635,19 @@ following VNE-RFD~\cite{lu2022resource}
     \ENDFOR
 
     \STATE Sort $\mathcal{C}$ in ascending order of $J_{\mathrm{cand}}$
-    \STATE Apply candidates using the VNE-RFD bounded backtracking procedure
+    \STATE $b\leftarrow 0$
+    \WHILE{$\mathcal{C}\neq\emptyset$ and $b\le\Delta$}
+        \STATE Pop the lowest-cost candidate $(v^*,\{P_l^*\},J_{\mathrm{cand}})$ from $\mathcal{C}$
+        \STATE Commit $n\mapsto v^*$ and $\{l\mapsto P_l^*\}$ on the substrate state
+        \STATE Recursively attempt to embed the remaining virtual nodes in $Q$
+        \IF{recursion succeeds}
+            \STATE break
+        \ELSE
+            \STATE Roll back the commit and $b\leftarrow b+1$
+        \ENDIF
+    \ENDWHILE
 
-    \IF{no feasible candidate remains or backtracks exceed $\Delta$}
+    \IF{$\mathcal{C}=\emptyset$ and no candidate succeeded, or $b>\Delta$}
         \STATE return \textsc{Reject}
     \ENDIF
 
@@ -652,24 +661,23 @@ following VNE-RFD~\cite{lu2022resource}
 
 
 
-Algorithm~\ref{alg:ecf_vne}은 제안하는 \vneecf{}의 online embedding 절차를 나타낸다. \vneecf{}는 VNE-RFD~\cite{lu2022resource}의 online embedding framework를 기반으로 하며, virtual-node processing order, feasible substrate-node candidate generation, $K$-shortest-path search, bounded backtracking 절차를 유지한다. 제안 기법의 핵심 차이는 각 node candidate와 routing path를 평가할 때 load-balancing cost뿐 아니라 앞서 정의한 induced fragmentation cost를 함께 반영한다는 점이다.
+Algorithm~\ref{alg:ecf_vne} presents the online embedding procedure of the proposed \ecfvne{}. \ecfvne{} builds on the online embedding framework of VNE-RFD~\cite{lu2022resource} and retains its virtual-node processing order, feasible substrate-node candidate generation, $K$-shortest-path search, and bounded backtracking. The key difference is that when we evaluate each node candidate and routing path, we consider not only the load-balancing cost but also the induced fragmentation cost defined earlier.
 
-현재 처리 중인 virtual node $n$에 대해 알고리즘은 feasible substrate-node candidate $v\in D(n)$를 하나씩 가정한다. Candidate $v$에 $n$을 임시로 배치한 뒤, 이미 매핑된 neighboring virtual node와 연결되는 incident virtual link를 순차적으로 routing한다. 각 virtual link에 대해서는 양 끝점을 연결할 수 있는 feasible $K$-shortest paths를 생성하고, 각 path를 임시로 적용했을 때의 link load-balancing cost와 induced fragmentation cost를 함께 계산한다. 이 두 비용의 합이 가장 작은 path를 선택하여 tentative substrate state에 반영한다.
+For the virtual node $n$ under consideration, the algorithm tentatively examines feasible substrate-node candidates $v\in D(n)$ one by one. After tentatively placing $n$ on candidate $v$, we sequentially route each incident virtual link that connects $n$ to an already-mapped neighboring virtual node. For each such virtual link, we generate feasible $K$-shortest paths between its endpoints and, when we tentatively apply each path, we compute both the link load-balancing cost and the induced fragmentation cost. We then select the path with the smallest sum of these two costs and update the tentative substrate state accordingly.
 
-해당 candidate에 필요한 incident virtual link의 routing이 모두 성공하면 node load-balancing cost, 누적 link load-balancing cost, 그리고 candidate 적용 전후의 induced fragmentation cost를 합하여 $J_{\mathrm{cand}}(n,v)$를 계산한다. Feasible candidate들은 이 점수의 오름차순으로 정렬되며, 가장 낮은 비용의 candidate부터 실제 embedding 후보로 적용된다. 이 과정에서 단순히 현재 단계의 자원 요구를 만족하는 candidate가 아니라, 적용 이후의 residual substrate state까지 고려하여 candidate의 우선순위를 결정한다.
+Once all incident virtual links of that candidate have been routed successfully, we compute $J_{\mathrm{cand}}(n,v)$ as the sum of the node load-balancing cost, the accumulated link load-balancing cost, and the induced fragmentation cost before and after applying the candidate. We sort feasible candidates in ascending order of this score and apply them, starting from the lowest-cost candidate, as the actual embedding candidate. Through this process, we determine the priority of candidates not only from whether they satisfy the resource demand at the current step but also from the residual substrate state that follows their application.
 
-이후 virtual node의 embedding이 불가능해지면 VNE-RFD의 bounded backtracking 절차에 따라 이전 단계로 돌아가 다음 candidate를 선택한다. Backtracking 횟수가 $\Delta$를 초과하거나 더 이상 feasible candidate가 존재하지 않으면 해당 VNR을 reject한다. 반대로 모든 virtual node와 virtual link가 성공적으로 배치되면 전체 embedding $M$을 commit하고 residual substrate resource를 갱신한다.
+If a subsequent virtual node becomes non-embeddable, we return to the previous step and pick the next candidate according to the bounded backtracking procedure of VNE-RFD. Concretely, candidates for the current virtual node are drawn from $\mathcal{C}$ in ascending order of $J_{\mathrm{cand}}$; a rollback increments the per-VNR backtrack counter $b$, and the recursion terminates a branch as soon as $b$ exceeds the budget $\Delta$ or the candidate list is exhausted. When the backtracking count exceeds $\Delta$ or no further feasible candidate remains, we reject the current VNR. Conversely, when all virtual nodes and virtual links are placed successfully, we commit the complete embedding $M$ and update the residual substrate resources.
 
-하나의 induced fragmentation cost를 계산할 때 전체 node fragmentation에는 $O(|L^S|)$의 연산이 필요하다. Link fragmentation은 각 substrate link의 양 끝점에서 인접 link 집합을 평가하므로 전체적으로 $O(\sum_{v\in N^S}(d_v^S)^2)$의 연산이 필요하다. 따라서 한 번의 fragmentation 평가 복잡도는
+Computing one induced fragmentation cost requires $O(|L^S|)$ operations for the total node fragmentation. The link fragmentation evaluation examines the adjacent link set at each endpoint of every substrate link, so it requires $O(\sum_{v\in N^S}(d_v^S)^2)$ operations in total. Consequently, the complexity of a single fragmentation evaluation is
 \[
 T_F
 =
 O\!\left(\sum_{v\in N^S}(d_v^S)^2\right)
 \subseteq
-O(|N^S||L^S|)
+O(|N^S||L^S|),
 \]
-이며, candidate evaluation과 $K$-shortest-path selection 과정에서 이 비용이 반복적으로 추가된다.
-
+and this cost is added repeatedly during candidate evaluation and $K$-shortest-path selection.
 
 \section{Performance Evaluation}
 \label{sec:performance_evaluation}
