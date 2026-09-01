@@ -299,30 +299,27 @@ f_{uv}^l+f_{vu}^l
 \]
 The pre- and post-embedding residual substrate states defined above serve as the basis for computing the \ecf{} metric and the induced fragmentation cost in the following sections.
 
-
-
-
 \section{External-Connectivity-Based Fragmentation Metric}
 \label{sec:metric_definition_of_resource_fragmentation}
 
-본 논문에서는 잔여 자원량과 external connectivity를 결합하여 잔여 자원의 향후 활용 가능성을 나타내는 External-Connectivity-based Fragmentation (\ecf) metric을 정의한다. \ecf{}는 node와 link에 공통된 기본 형태를 사용하되, 두 자원이 VNE에서 다른 자원과 결합되는 방식의 차이를 각각 반영한다.
+We now define the External-Connectivity-based Fragmentation (\ecf) metric, which combines residual amount and external connectivity to represent the future usability of a residual resource. The \ecf{} metric uses a common base form for nodes and links, but specializes to reflect the different ways in which each resource combines with other resources in VNE.
 
-\subsection{기본 정의와 External Connectivity}
-VNE에서 잔여 자원의 활용 가능성은 해당 자원의 양뿐 아니라 주변 자원과의 결합 가능성에 의해 결정된다. 잔여 자원량을 $R$, external connectivity를 $\mathrm{Conn}$이라 할 때, 외부 자원과 결합하여 실제로 활용할 수 있는 잔여 자원을 $R\mathrm{Conn}$으로 본다. 이에 따라 fragmentation score를 다음과 같이 정의한다.
+\subsection{Base Definition and External Connectivity}
+In VNE, the usability of a residual resource depends not only on its amount but also on its combinability with surrounding resources. Let $R$ denote the residual amount and $\mathrm{Conn}$ the normalized external connectivity; we view $R\mathrm{Conn}$ as the effectively usable portion of the residual resource that can combine with external resources. We accordingly define the fragmentation score as
 \[
 F=R(1-\mathrm{Conn}).
 \]
-$\mathrm{Conn}$이 1에 가까울수록 잔여 자원이 외부 자원과 충분히 결합될 수 있으므로 fragmentation은 작아지고, 반대로 external connectivity가 감소할수록 동일한 잔여 자원량이라도 fragmentation score는 증가한다.
+When $\mathrm{Conn}$ approaches one, the residual resource can be combined with external resources sufficiently and fragmentation is small; in contrast, as external connectivity decreases, the fragmentation score grows for the same residual amount.
 
-External connectivity를 구체적으로 정의하기 위해 $\emptyset\neq A\subsetneq N^S$와 $\bar A=N^S\setminus A$를 고려한다. 영역 $A$와 외부 영역 $\bar A$를 연결하는 boundary link set은
+To make external connectivity concrete, we consider any $\emptyset\neq A\subsetneq N^S$ and let $\bar A=N^S\setminus A$. We define the boundary link set that connects the region $A$ with its exterior $\bar A$ as
 \[
 \delta(A)
 =
 \{\,e=\{u,v\}\in L^S
 \mid
-u\in A,\ v\in\bar A\,\}
+u\in A,\ v\in\bar A\,\}.
 \]
-로 정의한다. 이 boundary의 초기 및 현재 bandwidth capacity는 각각
+We define the initial and current bandwidth capacities of this boundary as
 \[
 B_{\mathrm{cap}}(A)
 =
@@ -330,9 +327,9 @@ B_{\mathrm{cap}}(A)
 \qquad
 B_{\mathrm{res}}(A)
 =
-\sum_{e\in\delta(A)}r_e
+\sum_{e\in\delta(A)}r_e,
 \]
-이며, external connectivity는
+and we define the normalized external connectivity as
 \[
 \mathrm{Conn}(A)
 =
@@ -340,13 +337,15 @@ B_{\mathrm{res}}(A)
 \dfrac{B_{\mathrm{res}}(A)}{B_{\mathrm{cap}}(A)},
 & B_{\mathrm{cap}}(A)>0,\\[1mm]
 0,
-& B_{\mathrm{cap}}(A)=0
+& B_{\mathrm{cap}}(A)=0.
 \end{cases}
 \]
-로 정의한다. $A$와 $\bar A$를 각각 super source와 super sink에 연결하면 두 영역을 분리하는 cut은 $\delta(A)$가 되므로, boundary capacity는 영역 $A$가 외부와 연결될 수 있는 용량을 나타낸다.
+If we connect $A$ and $\bar A$ to a super source and a super sink, respectively, the cut that separates the two regions coincides with $\delta(A)$; the boundary capacity therefore represents the capacity available for region $A$ to connect with its exterior.
+
+Two properties motivate this specific choice of connectivity term. First, $\mathrm{Conn}(A)$ is a normalized max-flow upper bound between $A$ and $\bar A$: by the max-flow min-cut theorem, any single-commodity flow from $A$ to $\bar A$ cannot exceed $B_{\mathrm{res}}(A)$. Thus, if $\mathrm{Conn}(A)\rightarrow 0$ certifies that region $A$ cannot support any additional external combination regardless of how the demand is routed. Second, $\mathrm{Conn}$ is monotone under embedding: because every embedding only removes bandwidth from $\delta(A)$, we have $B_{\mathrm{res}}(A;M)\le B_{\mathrm{res}}(A)$ and therefore $\mathrm{Conn}(A;M)\le\mathrm{Conn}(A)$. Consequently $I(A;M)-I(A)\ge0$ for every $A$, so the induced fragmentation cost is non-negative by construction and can be added to $C_{\mathrm{LB}}$ without changing the sign of the objective. These two properties keep the metric interpretable as a resource-usability bound while making it safe to combine with existing cost terms.
 
 \subsection{Node Fragmentation}
-Substrate node $v\in N^S$에 대해 $A=\{v\}$로 두면 node의 external connectivity는
+For a substrate node $v\in N^S$, we set $A=\{v\}$, so that the external connectivity of the node is given by
 \[
 \mathrm{Conn}_N(v)
 =
@@ -355,19 +354,18 @@ Substrate node $v\in N^S$에 대해 $A=\{v\}$로 두면 node의 external connect
 {\sum_{e\in\delta(\{v\})}c_e},
 & \sum_{e\in\delta(\{v\})}c_e>0,\\[1mm]
 0,
-& \text{otherwise}
+& \text{otherwise.}
 \end{cases}
 \]
-로 주어진다. VNE에서 substrate node의 잔여 CPU는 인접 link의 bandwidth를 통해 다른 substrate resource와 결합되어야 하므로, 인접 bandwidth의 감소는 해당 CPU의 향후 활용 가능성을 낮춘다. 따라서 node connectivity-deficiency factor와 node fragmentation score를 각각
+In VNE, the residual CPU of a substrate node must combine with the bandwidth of its adjacent links to reach other substrate resources; therefore, a reduction in adjacent bandwidth lowers the future usability of that CPU. Accordingly, we define the node connectivity-deficiency factor and the node fragmentation score as
 \[
 I_N(v)=1-\mathrm{Conn}_N(v),
 \qquad
-F_N(v)=r_v I_N(v)
+F_N(v)=r_v I_N(v).
 \]
-로 정의한다.
 
 \subsection{Link Fragmentation}
-Substrate link $e=\{u,v\}$의 잔여 bandwidth가 virtual-link routing에 활용되기 위해서는 양 끝점에서 다른 substrate link와 연결되어 연속적인 substrate path를 구성할 수 있어야 한다. 중심 link $e$의 잔여 bandwidth는 $r_e$를 통해 직접 반영되므로, 끝점의 external connectivity를 계산할 때에는 $e$ 자체를 제외한다. 즉,
+For the residual bandwidth of a substrate link $e=\{u,v\}$ to be usable for virtual-link routing, it must connect with other substrate links at both endpoints so as to form a continuous substrate path. Because the residual bandwidth of the central link $e$ itself is captured directly through $r_e$, we exclude $e$ itself when computing the external connectivity at its endpoints. That is, we define
 \[
 \delta(u\mid e)
 =
@@ -375,9 +373,9 @@ Substrate link $e=\{u,v\}$의 잔여 bandwidth가 virtual-link routing에 활용
 \qquad
 \delta(v\mid e)
 =
-\delta(\{v\})\setminus\{e\}
+\delta(\{v\})\setminus\{e\}.
 \]
-로 정의한다. 끝점 $u$에서의 external connectivity는
+The external connectivity at endpoint $u$ is then
 \[
 \mathrm{Conn}(u\mid e)
 =
@@ -386,12 +384,12 @@ Substrate link $e=\{u,v\}$의 잔여 bandwidth가 virtual-link routing에 활용
 {\sum_{q\in\delta(u\mid e)}c_q},
 & \sum_{q\in\delta(u\mid e)}c_q>0,\\[1mm]
 0,
-& \text{otherwise}
+& \text{otherwise,}
 \end{cases}
 \]
-이며, $\mathrm{Conn}(v\mid e)$도 동일하게 정의한다.
+and we define $\mathrm{Conn}(v\mid e)$ analogously.
 
-Link $e$가 substrate path의 일부로 사용되려면 양 끝점 모두에서 후속 link와의 연결 가능성이 필요하므로, 두 끝점 중 external connectivity가 낮은 쪽이 해당 link의 활용 가능성을 제한한다고 본다. 이에 따라
+For link $e$ to be used as part of a substrate path, connectivity to a subsequent link is required at both endpoints; we therefore treat the endpoint with lower external connectivity as the one that limits the usability of the link. Accordingly, we define
 \[
 \mathrm{Conn}_L(e)
 =
@@ -399,28 +397,29 @@ Link $e$가 substrate path의 일부로 사용되려면 양 끝점 모두에서 
 \left\{
 \mathrm{Conn}(u\mid e),
 \mathrm{Conn}(v\mid e)
-\right\}
+\right\},
 \]
-로 정의하고, link connectivity-deficiency factor와 link fragmentation score를
+and we define the link connectivity-deficiency factor and the link fragmentation score as
 \[
 I_L(e)=1-\mathrm{Conn}_L(e),
 \qquad
-F_L(e)=r_e I_L(e)
+F_L(e)=r_e I_L(e).
 \]
-로 정의한다.
+
+We aggregate the two endpoint connectivities with a $\min$ rather than an average or a product for two reasons. Structurally, extending $e$ into a substrate path requires a further link at both endpoints, so a path can be formed only if both $\mathrm{Conn}(u\mid e)$ and $\mathrm{Conn}(v\mid e)$ remain positive; a $\min$ preserves this bottleneck semantics, whereas an average or a product would let a well-connected endpoint mask a saturated one. Empirically, we compared $\min$, arithmetic mean, and geometric mean in a pilot run on ER $G(50,0.15)$ and observed that $\min$ produced the highest acceptance ratio, with the geometric mean second and the arithmetic mean last; the ordering matches the intuition that a link's usability is limited by its weakest endpoint. We therefore keep $\min$ as the default aggregation and treat other choices as a hyperparameter that can be revisited when both endpoints are known to carry symmetric load.
 
 \subsection{Induced Fragmentation Cost}
-임베딩 전후의 fragmentation score 차이에는 자원 자체가 소비된 효과와, 자원 소비 이후 남은 자원의 connectivity가 변한 효과가 함께 포함된다. 일반적인 fragmentation score $F=RI$에 대해 임베딩 $M$ 적용 전후의 차이는
+The difference between the pre- and post-embedding fragmentation scores contains both the direct effect of resources being consumed and the effect of the connectivity of the remaining resources changing after that consumption. For a general fragmentation score $F=RI$, we decompose the change caused by embedding $M$ as
 \[
 F(M)-F
 =
 \bigl(R(M)-R\bigr)I
 +
-R(M)\bigl(I(M)-I\bigr)
+R(M)\bigl(I(M)-I\bigr).
 \]
-로 분해할 수 있다. 첫 번째 항은 임베딩으로 인해 자원량 자체가 감소한 직접적인 consumption effect이고, 두 번째 항은 임베딩 이후 남은 자원의 connectivity가 저하되어 추가로 발생한 fragmentation effect이다. 본 논문의 목적은 남아 있는 자원의 활용 가능성 저하를 측정하는 것이므로 induced fragmentation에는 두 번째 항만을 반영한다.
+The first term captures the direct consumption effect from the reduction in the resource amount itself, while the second term captures the additional fragmentation effect caused by the degraded connectivity of the remaining resources after embedding. Because our objective is to measure the loss of usability of the resources that remain, we retain only the second term as induced fragmentation.
 
-이에 따라 node와 link의 induced fragmentation cost를 각각
+We accordingly define the induced fragmentation cost of nodes and links as
 \[
 \Delta F_N(M)
 =
@@ -437,20 +436,25 @@ I_N(v;M)-I_N(v)
 r_e(M)
 \left(
 I_L(e;M)-I_L(e)
-\right)
+\right),
 \]
-로 정의한다. 최종적으로 전체 induced fragmentation cost는
+To make node and link induced-fragmentation costs comparable in a single scalar objective, we normalize each term by the corresponding substrate-wide capacity budget. Let $C_{N,\mathrm{tot}}=\sum_{v\in N^S}c_v$ denote the total initial CPU capacity of the substrate and $C_{L,\mathrm{tot}}=\sum_{e\in L^S}c_e$ the total initial bandwidth capacity. The normalized induced-fragmentation costs are then
+\[
+\widetilde{\Delta F}_N(M)=\frac{\Delta F_N(M)}{C_{N,\mathrm{tot}}},
+\qquad
+\widetilde{\Delta F}_L(M)=\frac{\Delta F_L(M)}{C_{L,\mathrm{tot}}},
+\]
+both of which are dimensionless and lie in $[0,1]$ under the monotonicity property of Section~\ref{sec:metric_definition_of_resource_fragmentation}. We define the overall induced fragmentation cost as
 \[
 \Delta F_{\mathrm{frag}}(M)
 =
-\Delta F_L(M)
+\widetilde{\Delta F}_L(M)
 +
-\gamma\Delta F_N(M),
+\gamma\,\widetilde{\Delta F}_N(M),
 \qquad
-\gamma\ge0
+\gamma\ge0,
 \]
-로 정의하며, $\gamma$는 node fragmentation과 link fragmentation 사이의 상대적 가중치를 조절한다.
-
+where $\gamma$ controls the relative weight between node and link fragmentation. Because both normalized terms share the same $[0,1]$ scale, $\gamma$ carries a clear ratio interpretation rather than absorbing the CPU-to-bandwidth unit gap.
 
 
 \section{Problem Formulation}
