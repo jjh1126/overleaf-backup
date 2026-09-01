@@ -28,7 +28,7 @@
 
 % 제안 기법 명칭
 \newcommand{\ecf}{ECF}
-\newcommand{\ecfvne}{ECF-VNE}
+\newcommand{\ecfvne}{VNE-ECF-LB}
 
 \usepackage{verbatim}
  
@@ -79,9 +79,9 @@ Online VNE에서는 현재 도착한 VNR을 수용하는 것뿐만 아니라, �
 
 본 논문에서는 잔여 자원량과 external connectivity를 결합하여 잔여 자원의 활용 가능성을 정량화하는 External-Connectivity-based Fragmentation (ECF) metric을 제안한다. ECF는 node embedding과 link routing에서 요구되는 서로 다른 자원 결합 관계를 반영하여 node와 link에 대해 각각 정의된다.
 
-또한 임베딩 전후의 fragmentation 변화에서 자원 자체가 소비되는 효과와 자원 소비 이후 남은 자원의 connectivity가 저하되는 효과를 분리하고, 후자를 induced fragmentation cost로 정의한다. ECF를 기존 online embedding framework에 통합한 ECF-VNE는 이 비용을 load-balancing cost와 함께 node candidate 및 path selection에 반영하여, 현재 요청의 실행 가능성과 향후 잔여 substrate resource의 활용 가능성을 함께 고려한다.
+또한 임베딩 전후의 fragmentation 변화에서 자원 자체가 소비되는 효과와 자원 소비 이후 남은 자원의 connectivity가 저하되는 효과를 분리하고, 후자를 induced fragmentation cost로 정의한다. ECF를 기존 online embedding framework에 통합한 VNE-ECF-LB는 이 비용을 load-balancing cost와 함께 node candidate 및 path selection에 반영하여, 현재 요청의 실행 가능성과 향후 잔여 substrate resource의 활용 가능성을 함께 고려한다.
 
-실험 결과, ECF-VNE는 synthetic Erdős–Rényi substrate의 연결 밀도와 실제 Topology Zoo network의 workload가 변화하는 다양한 조건에서 비교 기법보다 일관되게 높은 VNR acceptance ratio를 보였다. 일부 조건에서는 revenue-to-cost ratio 측면의 trade-off가 관찰되었으나, 더 많은 VNR을 지속적으로 수용하면서 substrate resource를 활용함으로써 online VNE의 장기적인 수용 성능을 향상시켰다.
+실험 결과, VNE-ECF-LB는 synthetic Erdős–Rényi substrate의 연결 밀도와 실제 Topology Zoo network의 workload가 변화하는 다양한 조건에서 비교 기법보다 일관되게 높은 VNR acceptance ratio를 보였다. 일부 조건에서는 revenue-to-cost ratio 측면의 trade-off가 관찰되었으나, 더 많은 VNR을 지속적으로 수용하면서 substrate resource를 활용함으로써 online VNE의 장기적인 수용 성능을 향상시켰다.
 
 \end{abstract}
 
@@ -544,11 +544,11 @@ C_{\mathrm{LB}}(x,f)
 로 정의한다. $C_{\mathrm{LB}}$는 substrate resource의 부하 집중을 억제하고, $\Delta F_{\mathrm{frag}}$는 현재 VNR을 임베딩하는 과정에서 잔여 자원의 external connectivity가 저하되는 것을 억제한다. 따라서 \ecfvne{}는 현재 요청의 resource efficiency와 임베딩 이후의 residual-resource usability를 동시에 고려한다.
 
 
-\section{ECF-VNE Embedding Algorithm}
+\section{VNE-ECF-LB Embedding Algorithm}
 \label{sec:embedding_algorithm}
 
 \begin{algorithm}[!htbp]
-\caption{ECF-VNE: External-Connectivity-Based Fragmentation-Aware Online VNE}
+\caption{VNE-ECF-LB: External-Connectivity-Based Fragmentation-Aware Online VNE}
 \label{alg:ecf_vne}
 \begin{algorithmic}[1]
 
