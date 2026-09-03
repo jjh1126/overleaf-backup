@@ -16,21 +16,10 @@
 % 한글 컴파일 전용
 \usepackage{kotex}
 
-% 아이디어 정리 전용
-\usepackage{mdframed}
-\newcommand{\todobox}[2]{%
-  \begin{mdframed}[frametitle={#1}]%
-    \begin{itemize}
-      #2 \end{itemize}%
-  \end{mdframed}%
-}
-
 % 제안 기법 명칭
 \newcommand{\ecf}{ECF}
 \newcommand{\ecfvne}{VNE-ECF-LB}
 
-\usepackage{verbatim}
- 
 % ============================================================
 
 
@@ -852,6 +841,7 @@ affected neighborhoods need to be revisited, reducing the practical cost of each
 
 \subsection{Simulation Setup and Evaluation Metrics}
 
+% 
 We evaluate the online embedding performance of \ecfvne{} against VNE-ECF, VNE-RFD-B and
 VNE-RFD-D~\cite{lu2022resource}, and D-ViNE-LB and R-ViNE-LB~\cite{chowdhury2012vineyard}. Here,
 \ecfvne{} is the proposed method that jointly considers the external-connectivity-based
