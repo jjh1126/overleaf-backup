@@ -838,14 +838,21 @@ operations. Thus, the worst-case complexity of one induced-fragmentation evaluat
 N^S}(d_v^S)^2)$, which is contained in $O(|N^S||L^S|)$. For localized tentative embeddings, only the
 affected neighborhoods need to be revisited, reducing the practical cost of each evaluation.
 
-\section{Performance Evaluation}
-\label{sec:performance_evaluation}
+\section{Evaluation}
+\label{sec:evaluation}
+
+\subsection{Methodology}
 
 We evaluate the online embedding performance of \ecfvne{} against VNE-ECF, VNE-RFD-B and
 VNE-RFD-D~\cite{lu2022resource}, and D-ViNE-LB and R-ViNE-LB~\cite{chowdhury2012vineyard}. Here,
 \ecfvne{} is the proposed method that jointly considers the external-connectivity-based
 fragmentation cost and the load-balancing cost. VNE-ECF is an ablation variant in which the
 load-balancing term is removed.
+
+\begin{itemize}
+    \item 모든 시뮬레이션은 substrate network - virtual network 쌍에 대해 10회 이상 평가되었다.
+    \item 모든 시뮬레이션은 
+\end{itemize}
 
 
 \begin{figure}[!t]
