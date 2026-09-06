@@ -851,22 +851,6 @@ fragmentation cost and the load-balancing cost. VNE-ECF is an ablation variant i
 load-balancing term is removed, and is included to isolate the contribution of load balancing when
 combined with the proposed ECF metric.
 
-The substrate network is generated over a $25 \times 25$ area. The CPU capacity of each substrate node and the bandwidth capacity of each substrate link are
-independently generated from $U(50,100)$. Each VNR is generated over a $25 \times 25$ area as a connected Erd\H{o}s--R\'{e}nyi graph $G(n,0.4)$ containing 2--10 virtual nodes. The CPU demand of each virtual node is generated
-from $U(0,20)$, while the bandwidth demand of each virtual link is generated from $U(0,50)$. 
-The objective-function weights are fixed to $\beta=\lambda=\gamma=1$ throughout all experiments, and the maximum number of backtracking attempts is set to $\Delta=100$.
-
-VNRs arrive according to a Poisson process, and their holding times follow an exponential
-distribution with a mean of 1,000 time units. For each simulation, the initial transient period is
-discarded, and the performance metrics are collected over a steady-state interval of 50,000 time
-units. All compared methods are evaluated under the same paired-sampling setting.
-
-The primary performance metric is the VNR acceptance ratio, which measures the fraction of arriving
-VNRs that can be successfully embedded over time. We additionally measure the revenue-to-cost ratio,
-average CPU utilization, and average link utilization. These metrics are considered together to
-examine whether an improvement in acceptance ratio is accompanied by changes in embedding efficiency
-or substrate-resource utilization.
-
 
 \begin{figure}[!t]
     \centering
@@ -901,107 +885,7 @@ or substrate-resource utilization.
 \end{figure}
 
 
-\subsection{Performance under Different ER Substrate Densities}
 
-For the synthetic-substrate experiments, we use a connected Erd\H{o}s--R\'{e}nyi graph $G(50,p_s)$
-with 50 substrate nodes and vary the edge probability as $p_s\in\{0.05,0.10,0.15,0.20,0.25\}$. The
-VNR arrival rate is fixed at 50 requests per 1,000 time units. This experiment examines how changes
-in substrate connectivity affect the performance of the embedding algorithms.
-
-Figs.~\ref{fig:er_acceptance}--\ref{fig:er_link_utilization} show the four performance metrics as
-$p_s$ varies. As $p_s$ increases, the substrate contains more links and provides a larger number of
-feasible routing paths. Consequently, the acceptance ratio generally increases for all compared
-algorithms. Nevertheless, \ecfvne{} achieves the highest acceptance ratio over the entire range of
-$p_s$.
-
-Compared with the best-performing external baseline at each substrate density, \ecfvne{} improves
-the VNR acceptance ratio by approximately 11.9\%--63.2\%. The relative gain is particularly
-pronounced when the substrate is sparse, where preserving the combinability of the remaining
-resources is more important because fewer alternative routing paths are available. Even as the
-substrate becomes denser and path diversity increases, \ecfvne{} continues to maintain the highest
-acceptance ratio.
-
-The comparison with VNE-ECF further shows the effect of combining the proposed fragmentation metric
-with load balancing. Across the tested values of $p_s$, \ecfvne{} improves the acceptance ratio over
-VNE-ECF by approximately 2.7\%--8.7\%. This indicates that external connectivity and load balancing
-play complementary roles: the ECF term discourages embeddings that degrade the usability of residual
-resources, while the load-balancing term prevents excessive concentration of the current demand on
-individual substrate resources.
-
-Fig.~\ref{fig:er_revenue_cost} shows that the higher acceptance ratio does not necessarily imply a
-uniformly higher revenue-to-cost ratio under all substrate densities. At the two sparsest settings,
-\ecfvne{} has a revenue-to-cost ratio approximately 5.1\% lower than VNE-RFD-D. As the substrate
-becomes denser, however, this relation is reversed, and \ecfvne{} achieves an improvement of up to
-approximately 24.5\% over VNE-RFD-D. Thus, the acceptance-ratio improvement cannot be attributed
-simply to accepting requests through increasingly expensive embeddings.
-
-As shown in Fig.~\ref{fig:er_cpu_utilization}, \ecfvne{} generally exhibits higher average CPU
-utilization because it continuously accepts more VNRs and therefore places more virtual-node demand
-on the substrate. In contrast, the average link utilization in Fig.~\ref{fig:er_link_utilization}
-does not necessarily follow the same trend as the acceptance ratio. As $p_s$ increases, the number
-of available substrate links and alternative routing paths also increases, allowing accepted
-virtual-link traffic to be distributed over a larger set of substrate resources. These results
-indicate that the higher acceptance ratio of \ecfvne{} is associated with sustained use of the
-substrate resources rather than simple concentration of link usage.
-
-
-\begin{figure*}[!t]
-    \centering
-    \includegraphics[width=\textwidth]{fig_6_zoo.pdf}
-    \caption{Performance comparison under different VNR arrival rates on the Palmetto(left), Bell Canada(center),
-        and Surfnet(right) topologies from the Internet Topology Zoo.}
-    \label{fig:zoo}
-\end{figure*}
-
-
-\subsection{Performance on Real Topology Zoo Networks}
-
-To examine whether the observations from the synthetic ER substrates are specific to random graph
-structures, we further evaluate the algorithms using real network topologies obtained from the
-Internet Topology Zoo~\cite{knight2011internet}. Parallel edges in the original topologies are
-merged to construct simple graphs. We select Palmetto $(45,64)$, Bell Canada $(48,64)$, and Surfnet
-$(50,68)$, where each pair denotes the numbers of substrate nodes and links, respectively. The three
-networks have similar sizes, which reduces the effect of network scale and allows the robustness of
-\ecfvne{} to be evaluated across different real connectivity structures.
-
-The substrate-resource distributions, VNR generation procedure, holding-time distribution,
-simulation duration, and paired-sampling setting are identical to those used in the ER experiments.
-In this experiment, the VNR arrival rate is varied among 5, 10, 15, 20, and 25 requests per 1,000
-time units to evaluate performance as the offered workload increases.
-
-Fig.~\ref{fig:zoo} shows the results for the three real topologies. For all topologies, the VNR
-acceptance ratio decreases as the arrival rate increases because of increasing contention for the
-available substrate resources. Despite this increased contention, \ecfvne{} consistently achieves
-the highest acceptance ratio under every tested topology and arrival-rate condition.
-
-Among the external baselines, VNE-RFD-B provides the highest acceptance ratio throughout these
-experiments. Relative to VNE-RFD-B, \ecfvne{} improves the acceptance ratio by approximately
-60.9\%--68.9\% on Palmetto, 66.5\%--70.6\% on Bell Canada, and 68.4\%--71.3\% on Surfnet. The
-consistent gains across the three networks indicate that the benefit observed in the ER $p_s$-sweep
-is not restricted to a particular random-topology model. Instead, preserving external connectivity
-also improves the usability of residual resources under heterogeneous real network structures.
-
-The ablation results further demonstrate the contribution of the load-balancing term. Compared with
-VNE-ECF, \ecfvne{} improves the acceptance ratio by approximately 21.2\%--25.1\% on Palmetto,
-28.3\%--34.9\% on Bell Canada, and 25.4\%--35.6\% on Surfnet. The substantially larger difference
-than that observed in the ER density experiment suggests that jointly controlling fragmentation and
-resource concentration becomes particularly important under the connectivity structures of these
-real networks.
-
-A trade-off is observed in the revenue-to-cost ratio. VNE-RFD-D achieves a higher ratio under the
-tested Topology Zoo conditions, while the revenue-to-cost ratio of \ecfvne{} is approximately
-3.6\%--9.3\% lower depending on the topology and workload. At the same time, \ecfvne{} accepts
-substantially more VNRs and therefore exhibits higher CPU utilization. This indicates that the
-proposed method favors sustained admission and utilization of substrate resources rather than
-maximizing the efficiency of each individual accepted embedding.
-
-Average link utilization varies with both topology and workload and does not exhibit the same
-ordering as the acceptance ratio. This is expected because the amount and distribution of available
-routing capacity differ across the three real networks. More importantly, the relative
-acceptance-ratio advantage of \ecfvne{} is maintained across all three topologies and all tested
-workload levels. These results support the proposed residual-resource-usability perspective:
-embedding decisions that jointly account for external-connectivity- based fragmentation and load
-balancing preserve substrate resources in forms that remain more usable for subsequent VNRs.
 
 \section{Conclusion}
 \label{sec:conclusion}
