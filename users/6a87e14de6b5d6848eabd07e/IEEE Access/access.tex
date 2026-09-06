@@ -843,33 +843,31 @@ affected neighborhoods need to be revisited, reducing the practical cost of each
 
 \subsection{Simulation Setup and Evaluation Metrics}
 
-% 
 We evaluate the online embedding performance of \ecfvne{} against VNE-ECF, VNE-RFD-B and
 VNE-RFD-D~\cite{lu2022resource}, and D-ViNE-LB and R-ViNE-LB~\cite{chowdhury2012vineyard}. Here,
 \ecfvne{} is the proposed method that jointly considers the external-connectivity-based
 fragmentation cost and the load-balancing cost. VNE-ECF is an ablation variant in which the
-load-balancing term is removed, and is included to isolate the contribution of load balancing when
-combined with the proposed ECF metric.
+load-balancing term is removed.
 
 
 \begin{figure}[!t]
     \centering
     \includegraphics[width=\columnwidth]{figures/fig2_fix_rate_acceptance_ratio.pdf}
-    \caption{VNR acceptance ratio at an arrival rate of 60 requests per 1000 time units.}
+    \caption{VNR acceptance ratio.}
     \label{fig:acceptance}
 \end{figure}
 
 \begin{figure}[!t]
     \centering
     \includegraphics[width=\columnwidth]{figures/fig3_fix_rate_average_revenue.pdf}
-    \caption{Average generated revenue at an arrival rate of 60 requests per 1000 time units.}
+    \caption{Time average of generated revenue.}
     \label{fig:revenue}
 \end{figure}
 
 \begin{figure}[!t]
     \centering
     \includegraphics[width=\columnwidth]{figures/fig4_fix_rate_average_cost.pdf}
-    \caption{Average embedding cost per accepted VNR at an arrival rate of 60 requests per 1000 time units.}
+    \caption{Average embedding cost per accepted VNR.}
     \label{fig:cost}
 \end{figure}
 
@@ -888,14 +886,14 @@ combined with the proposed ECF metric.
         \caption{Average link utilization.}
         \label{fig:link_util}
     \end{subfigure}
-    \caption{Average substrate resource utilization at an arrival rate of 60 requests per 1000 time units.}
+    \caption{Average substrate resource utilization.}
     \label{fig:util}
 \end{figure*}
 
 \begin{figure}[!t]
     \centering
     \includegraphics[width=\columnwidth]{figures/fig6_fix_rate_runtime_ms_per_vnr.pdf}
-    \caption{Average runtime per VNR at an arrival rate of 60 requests per 1000 time units.}
+    \caption{Average runtime per VNR.}
     \label{fig:runtime}
 \end{figure}
 
