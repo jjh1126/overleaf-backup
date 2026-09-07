@@ -863,8 +863,6 @@ overall worst-case complexity of VNE-ECF-LB is $O\Big(|N^S||N^V|+|N^S||L^V|\big(
 \section{Evaluation}
 \label{sec:evaluation}
 
-\subsection{Methodology}
-
 기본적인 설명
 \begin{itemize}
     \item 이 섹션은 VNE 알고리즘을 포함한 Poisson arrival process와 Exponential distribution 을 따르는 동적 VNE 시뮬레이션 설정을 요약한다.
@@ -873,7 +871,7 @@ overall worst-case complexity of VNE-ECF-LB is $O\Big(|N^S||N^V|+|N^S||L^V|\big(
 \end{itemize}
 
 
-알고리즘 설명
+\subsection{Compared Algorithms}
 \begin{itemize}
     \item 자원 파편화를 설명했던 RFD 와 부하 분산을 이야기하는 ViNE Yard 를 기본으로한다.
     \item 모든 알고리즘은 배치 위치 제약을 제거한다.
@@ -901,7 +899,7 @@ overall worst-case complexity of VNE-ECF-LB is $O\Big(|N^S||N^V|+|N^S||L^V|\big(
     \item 이 VNR 요청은 세 기저 그래프 타입에 대해 공통으로 사용된다.
 \end{itemize}
 
-지표
+\subsection{Performance Metrics}
 \begin{itemize}
     \item Acceptance ratio: $\frac{\text{측정 구간에서 수락된 VNR 수}}{\text{측정 구간에 도착한 전체 VNR 수}}$
     \item Time average of generated revenue: $\frac{\text{측정 구간에서 얻은 총 revenue}}{\text{실행 횟수}\times\text{측정 구간 길이}}$
