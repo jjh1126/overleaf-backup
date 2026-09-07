@@ -775,9 +775,9 @@ Algorithm~\ref{alg:ecf_eval} summarizes the evaluation of a tentative embedding 
 
         \FOR{each virtual node $n\in\pi$, in order}
 
-            \IF{$n=r$ \textbf{and} $G^S$ is unused}
-                \STATE $v^*\leftarrow
-                \textsc{FirstNodeMapping}$(G^S,G^V)$~\cite{lu2022resource}
+            \IF{$n=r$ \textbf{ and } $G^S$ is unused}
+                \STATE $v^*\leftarrow$ \textsc{FirstNodeMapping}$(G^S,G^V)$%
+                ~\cite{lu2022resource}
                 \STATE $M\leftarrow M\cup\{n\mapsto v^*\}$
                 \STATE \textbf{continue}
             \ENDIF
@@ -787,29 +787,29 @@ Algorithm~\ref{alg:ecf_eval} summarizes the evaluation of a tentative embedding 
             \FOR{each $v\in N^S$ with $r_v(M)\ge d_n$
             and $v\notin M_N(N^V)$}
 
-                \STATE $\widehat M\leftarrow M\cup\{n\mapsto v\}$
+                \STATE $\widehat{M}\leftarrow M\cup\{n\mapsto v\}$
                 \STATE $\mathit{feasible}\leftarrow\textbf{true}$
 
                 \FOR{each $l=\{n,m\}\in L^V$ with $m$ already mapped}
                     \STATE $\mathcal{P}_l\leftarrow$ up to $K$ shortest feasible
-                    substrate paths from $v$ to $M_N(m)$ under $\widehat M$
+                    substrate paths from $v$ to $M_N(m)$ under $\widehat{M}$
 
                     \IF{$\mathcal{P}_l=\emptyset$}
-                        \STATE $\mathit{feasible}\leftarrow\textbf{false}$;
-                        \textbf{break}
+                        \STATE $\mathit{feasible}\leftarrow\textbf{false}$
+                        \STATE \textbf{break}
                     \ENDIF
 
                     \STATE $p^*\leftarrow
                     \arg\min_{p\in\mathcal{P}_l}
-                    J\!\left(\widehat M\cup\{l\mapsto p\}\right)$
+                    J\!\left(\widehat{M}\cup\{l\mapsto p\}\right)$
 
-                    \STATE $\widehat M\leftarrow
-                    \widehat M\cup\{l\mapsto p^*\}$
+                    \STATE $\widehat{M}\leftarrow
+                    \widehat{M}\cup\{l\mapsto p^*\}$
                 \ENDFOR
 
                 \IF{$\mathit{feasible}$}
                     \STATE $\mathcal{C}\leftarrow
-                    \mathcal{C}\cup\{(v,\widehat M)\}$
+                    \mathcal{C}\cup\{(v,\widehat{M})\}$
                 \ENDIF
             \ENDFOR
 
@@ -818,8 +818,8 @@ Algorithm~\ref{alg:ecf_eval} summarizes the evaluation of a tentative embedding 
             \ENDIF
 
             \STATE $(v^*,M^*)\leftarrow
-            \arg\min_{(v,\widehat M)\in\mathcal{C}} J(\widehat M)$
-            \COMMENT{ties broken by smaller substrate index}
+            \arg\min_{(v,\widehat{M})\in\mathcal{C}}
+            J(\widehat{M})$
 
             \STATE $M\leftarrow M^*$
         \ENDFOR
