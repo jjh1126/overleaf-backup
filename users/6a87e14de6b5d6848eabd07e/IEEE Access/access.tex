@@ -341,8 +341,8 @@ $\beta,\;\lambda,\;\gamma$
 & Objective-function weights \\
 \hline
 
-$K,\;\Delta,\;\epsilon$
-& Candidate-path, backtracking, and numerical parameters \\
+$K,\;\epsilon$
+& Candidate-path and numerical parameters \\
 \hline
 
 \end{tabular}
@@ -748,7 +748,7 @@ considers every virtual link $l=\{n,m\}$ whose other endpoint $m$ has
 already been mapped.
 
 For each such virtual link, up to $K$ shortest feasible substrate paths
-are generated between $v$ and $M_N(m)$. Path feasibility is determined
+are generated between $v$ and $M_N(m)$ ~\cite{yen1971finding}. Path feasibility is determined
 with respect to the residual bandwidth under the current tentative
 embedding $\widehat{M}$, including any virtual links already routed while
 evaluating the same substrate-node candidate. Among the feasible paths,
@@ -800,8 +800,6 @@ For an initially unused substrate network, the root node is placed using
 are processed by the ECF-based candidate evaluation described above.
 After every virtual node has been successfully processed, the resulting
 mapping $M$ is returned as the embedding of the VNR.
-
-Algorithm~\ref{alg:ecf_algo} summarizes the complete procedure.
 
 \begin{algorithm}[!t]
     \caption{VNE-ECF-LB Algorithm}
@@ -870,7 +868,7 @@ Algorithm~\ref{alg:ecf_algo} summarizes the complete procedure.
     \end{algorithmic}
 \end{algorithm}
 
-The algorithm performs a coordinated greedy search over substrate-node
+The algorithm~\ref{alg:ecf_algo} performs a coordinated greedy search over substrate-node
 and substrate-path candidates. Let $T_{\mathrm{KSP}}(K)$ denote the cost
 of generating up to $K$ feasible substrate paths for a virtual link, and
 let $T_J$ denote the cost of evaluating the objective for one tentative
