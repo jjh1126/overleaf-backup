@@ -486,10 +486,16 @@ fragmentation score as
 \]
 
 \subsection{Link Fragmentation}
-For the residual bandwidth of a substrate link $e=\{u,v\}$ to be usable for virtual-link routing, it
-must connect with other substrate links at both endpoints so as to form a continuous substrate path.
-Because the residual bandwidth of the central link $e$ itself is captured directly through $r_e$, we
-exclude $e$ itself when computing the external connectivity at its endpoints. That is, we define
+For a substrate link $e=\{u,v\}$ to remain useful for future
+virtual-link routing, its residual bandwidth should be combinable with
+the surrounding bandwidth resources at its endpoints. Because a path
+may start or terminate at either endpoint, the absence of another
+incident link at an endpoint is not itself treated as a connectivity
+deficiency. We therefore assign unit external connectivity to an
+endpoint for which $\delta(u\mid e)$ is empty. When external links do
+exist, their residual-to-initial bandwidth ratio represents the extent
+to which the residual bandwidth of $e$ can be extended through that
+endpoint. That is, we define
 \[
     \delta(u\mid e)
     =
@@ -499,7 +505,7 @@ exclude $e$ itself when computing the external connectivity at its endpoints. Th
     =
     \delta(\{v\})\setminus\{e\}.
 \]
-The external connectivity at endpoint $u$ is then
+The external connectivity at endpoint $u$ is defined as
 \[
     \mathrm{Conn}(u\mid e)
     =
@@ -507,11 +513,11 @@ The external connectivity at endpoint $u$ is then
         \dfrac{\sum_{q\in\delta(u\mid e)}r_q}
         {\sum_{q\in\delta(u\mid e)}c_q},
          & \sum_{q\in\delta(u\mid e)}c_q>0, \\[1mm]
-        0,
+        1,
          & \text{otherwise,}
     \end{cases}
 \]
-and we define $\mathrm{Conn}(v\mid e)$ analogously.
+and $\mathrm{Conn}(v\mid e)$ is defined analogously.
 
 For link $e$ to be used as part of a substrate path, connectivity to a subsequent link is required
 at both endpoints; we therefore treat the endpoint with lower external connectivity as the one that
