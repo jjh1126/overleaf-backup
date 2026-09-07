@@ -847,24 +847,30 @@ revisiting previous mapping decisions; hence, no search backtracking is used.
     \end{algorithmic}
 \end{algorithm}
 
-\subsection{Computational Complexity}
+For each virtual node, VNE-ECF-LB examines at most $|N^S|$ feasible
+substrate-node candidates. Each virtual link is processed once when its
+second endpoint is mapped, and for each substrate-node candidate the algorithm
+generates up to $K$ feasible substrate paths. The adopted $K$-shortest-path
+algorithm has complexity
+$O(|L^S|+|N^S|\log_2|N^S|+K)$.
+Therefore, excluding objective evaluation, node-candidate search and path
+generation require
+$O(|N^S||N^V|+
+|N^S||L^V|(|L^S|+|N^S|\log_2|N^S|+K))$ time.
 
-Let $T_{\mathrm{KSP}}$ denote the cost of generating up to $K$ shortest
-feasible substrate paths and $T_J$ the cost of evaluating the objective for
-one tentative embedding. Since each virtual node examines at most $|N^S|$
-substrate-node candidates and each virtual link is routed when its second
-endpoint is processed, the greedy embedding requires
-$O(|N^S||N^V|+|N^S||L^V|(T_{\mathrm{KSP}}+KT_J))$ time, excluding
-backtracking.
-
-With the direct ECF implementation, one objective evaluation requires
-$T_J=O(|N^V|+|L^V|H+\sum_{v\in N^S}(d_v^S)^2)$, where $H\le |N^S|-1$
-is the maximum considered path length and $d_v^S$ is the substrate-node
-degree. The $\sum_v(d_v^S)^2$ term results from evaluating the external
-connectivity of substrate links through their endpoint neighborhoods. In
-practice, CPU-infeasible substrate nodes and failed path candidates terminate
-early, so the actual running time is typically lower than this worst-case
-bound.
+For each generated path, the algorithm evaluates the complete tentative
+embedding. With the direct ECF implementation, one objective evaluation
+requires
+$T_J=O(|N^V|+|L^V||N^S|+|N^S|+|L^S|
++\sum_{v\in N^S}(d_v^S)^2)$,
+where the last term results from evaluating link external connectivity over
+the endpoint neighborhoods. Since at most $K$ path candidates are evaluated
+for each substrate-node/virtual-link combination, the overall worst-case
+complexity is
+$O(|N^S||N^V|+
+|N^S||L^V|(|L^S|+|N^S|\log_2|N^S|+K+KT_J))$.
+No additional backtracking factor is required because VNE-ECF-LB commits the
+best candidate greedily and does not revisit previously mapped virtual nodes.
 
 
 \section{Evaluation}
