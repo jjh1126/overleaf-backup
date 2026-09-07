@@ -842,12 +842,12 @@ For each virtual node, VNE-ECF-LB examines at most $|N^S|$ feasible
 substrate-node candidates. Each virtual link is processed once when its
 second endpoint is mapped, and for each substrate-node candidate the
 algorithm generates up to $K$ feasible substrate paths using Yen's
-algorithm for loopless $K$-shortest paths~\cite{yen1971finding}, whose
-complexity is $O\big(K|N^S|(|L^S|+|N^S|\log_2|N^S|)\big)$. Therefore,
-excluding objective evaluation, node-candidate search and path generation
-require
-$O\big(|N^S||N^V|+
-K|N^S|^2|L^V|(|L^S|+|N^S|\log_2|N^S|)\big)$ time.
+algorithm for loopless $K$-shortest paths~\cite{yen1971finding}. One such
+call requires
+$T_{\mathrm{KSP}}=O\big(K|N^S|(|L^S|+|N^S|\log_2|N^S|)\big)$.
+Therefore, excluding objective evaluation, node-candidate search and path
+generation require
+$O\big(|N^S||N^V|+|N^S||L^V|\,T_{\mathrm{KSP}}\big)$ time.
 
 For each generated path, the algorithm evaluates the complete tentative
 embedding. Since evaluating link external connectivity requires summing
@@ -855,17 +855,8 @@ over the endpoint neighborhoods and every substrate node has degree at
 most $|N^S|-1$, one objective evaluation requires
 $T_J=O(|N^V|+|L^V||N^S|+|N^S||L^S|)$. Since at most $K$ path candidates
 are evaluated for each substrate-node/virtual-link combination, the
-overall worst-case complexity of VNE-ECF-LB is
-$
-    O\Big(
-    |N^S||N^V|
-    +
-    |N^S||L^V|
-    \big(
-    K|N^S|(|L^S|+|N^S|\log_2|N^S|)+KT_J
-    \big)
-    \Big).
-$
+overall worst-case complexity of VNE-ECF-LB is $O\Big(|N^S||N^V|+|N^S||L^V|\big(T_{\mathrm{KSP}}+KT_J\big)\Big).$
+
 
 
 
