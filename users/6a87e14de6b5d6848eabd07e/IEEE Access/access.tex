@@ -867,7 +867,7 @@ overall worst-case complexity of VNE-ECF-LB is $O\Big(|N^S||N^V|+|N^S||L^V|\big(
 
 기본적인 설명
 \begin{itemize}
-    \item 이 섹션은 VNE 알고리즘을 포함한 시뮬레이션 설정을 요약한다.
+    \item 이 섹션은 VNE 알고리즘을 포함한 Poisson arrival process와 Exponential distribution 을 따르는 동적 VNE 시뮬레이션 설정을 요약한다.
     \item 모든 시뮬레이션은 substrate network - virtual network 쌍에 대해 10회 이상 평가되었다.
     \item 모든 시뮬레이션은 steady-state 만을 평가하기 위해 초기 과도기 제거를 위한 절단(truncation for initial transient removal)이 이루어지고 50,000 time unit 동안 측정되었다.
 \end{itemize}
@@ -889,11 +889,22 @@ overall worst-case complexity of VNE-ECF-LB is $O\Big(|N^S||N^V|+|N^S||L^V|\big(
     \item We evaluate the performance of the algorithms with three substrate graph types:
     \item realistic network graph from Topology Zoo (TPZ) ~\cite{knight2011internet}, 
     \item the two data center topologies FatTree (FT) and BCube (BC).
-    \item Realistic Network Graphs. realistic network graph 에서 성능을 평가하기 위해 Columbus(노드 70개, 링크 85개) 네트워크를 사용한다. 노드의 자원용량은 Uniform [50,100], 링크의 자원용량은 Uniform [250,500] 이다.
+    \item Realistic Network Graphs. realistic network graph 에서 성능을 평가하기 위해 Columbus(노드 70개, 링크 85개) 네트워크를 사용한다. 노드의 자원용량은 실수 Uniform [50,100], 링크의 자원용량은 실수 Uniform [250,500] 이다.
     \item Data Center Networks. k=6인 FT6(host 64개, switch 45개)와 level 2 radix 4 인 BCube(2,4)(host 64개, switch 48개) 에서 노드 자원 용량은 host=100, switch=0 으로 하고 링크 자원 용량은 100 으로 한다. 이때 switch 의 자원용량이 0이므로 virtual node는 host에만 배치되며 switch 는 virtual-link forwarding 에만 사용된다.
 \end{itemize}
 
+가상 네트워크 그래프
+\begin{itemize}
+    \item VNR 의 토폴로지는 Connected Erdős–Rényi(p=0.4) 이다. 
+    \item VNR 의 수명은 exponential 평균 1000, 가상 노드 수는 Uniform [2,10]
+    \item 노드 요구 자원 실수 uniform [1,20] 링크 요구 자원 실수 uniform [1,50], 도착률은 40 arrivals per 1000 time units 고정
+    \item 이 VNR 요청은 세 기저 그래프 타입에 대해 공통으로 사용된다.
+\end{itemize}
 
+지표
+\begin{itemize}
+    \item 
+\end{itemize}
 
 
 
