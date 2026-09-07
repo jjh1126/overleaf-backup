@@ -68,7 +68,7 @@
     embeddings. This paper proposes an External-Connectivity-based Fragmentation (\ecf{}) metric
     that quantifies residual-resource usability by combining the residual resource amount with
     external connectivity. The metric is separately defined for substrate nodes and links to reflect
-    the different resource relationships required by node embedding and virtual-link routing. We
+    the different connectivity structures involved in node embedding and virtual-link routing. We
     further decompose the change in fragmentation before and after an embedding into the effect of
     direct resource consumption and the degradation in the connectivity of the resources that remain
     after the embedding. The latter is defined as the induced fragmentation cost. Based on this
@@ -722,126 +722,54 @@ current request and the usability of residual substrate resources after embeddin
 \section{ECF-VNE Embedding Algorithm}
 \label{sec:embedding_algorithm}
 
-We now present the VNE-ECF-LB algorithm, which uses the objective
-defined in Section~\ref{sec:problem_formulation} to guide sequential
-node and link mapping decisions. The algorithm follows a greedy
-coordinated embedding procedure: for each virtual node, feasible
-substrate-node candidates are examined together with the routes of the
-virtual links connecting it to already mapped virtual nodes.
-
-For each arriving VNR, we fix the residual substrate state immediately
-before its embedding as the reference state $S^0$. Let $S(M)$ denote
-the residual substrate state obtained after applying a partial or
-tentative embedding $M$ to $S^0$. Throughout the embedding of the same
-VNR, all tentative embeddings are evaluated with respect to this fixed
-reference state. Thus, the objective used by the algorithm can be
-written as
+We now present the VNE-ECF-LB algorithm, which uses the objective defined in
+Section~\ref{sec:problem_formulation} to guide sequential node and link mapping
+decisions. For each arriving VNR, the residual substrate state at its arrival is
+kept as the reference state throughout the embedding procedure. Hence, for any
+partial or tentative embedding $M$, $C_{\mathrm{LB}}(M)$ accounts for the
+virtual nodes and links currently contained in $M$, while
+$\Delta F_{\mathrm{frag}}(M)$ measures the induced fragmentation between the
+reference residual state and the residual state obtained after applying $M$.
+Accordingly, all node and path candidates of the same VNR are evaluated using
+the objective
 \[
     J(M)
     =
     \beta C_{\mathrm{LB}}(M)
     +
-    \lambda \Delta F_{\mathrm{frag}}(M),
+    \lambda\Delta F_{\mathrm{frag}}(M).
 \]
-where $C_{\mathrm{LB}}(M)$ accounts for the virtual nodes and links
-currently contained in $M$, and $\Delta F_{\mathrm{frag}}(M)$ measures
-the induced fragmentation between $S^0$ and $S(M)$.
 
-In particular, the residual CPU and bandwidth values appearing in
-$C_{\mathrm{LB}}(M)$ are those available at the arrival of the current
-VNR. They therefore remain fixed while different tentative embeddings
-of that VNR are compared. In contrast, the post-embedding residual
-resources and the corresponding connectivity-deficiency factors depend
-on $M$. Consequently, the induced-fragmentation term evaluates the
-cumulative effect of the current VNR up to the tentative decision being
-considered, rather than only the marginal change caused by the most
-recent node or path allocation.
+The algorithm first selects a root virtual node by lexicographically maximizing
+its degree, CPU demand, and the total bandwidth demand of its incident virtual
+links, with ties broken by the smaller virtual-node index. The remaining
+virtual nodes are processed in breadth-first order from the root. When the
+substrate network is unused, the root of the first VNR is placed using
+\textsc{FirstNodeMapping}~\cite{lu2022resource}.
 
-The algorithm first selects a root virtual node. The root is chosen by
-lexicographically maximizing the virtual-node degree, CPU demand, and
-the total bandwidth demand of its incident virtual links, in that
-order. Ties in all three quantities are broken by the smaller
-virtual-node index. Starting from the selected root, the virtual nodes
-are processed in breadth-first order. For a disconnected VNR, the same
-breadth-first procedure is restarted from the smallest-index unvisited
-virtual node until all virtual nodes are included in the processing
-order.
+For each subsequent virtual node $n$, the algorithm examines every substrate
+node $v$ with sufficient residual CPU that has not already been assigned to
+another virtual node of the same VNR. For each such $v$, a tentative embedding
+$\widehat{M}=M\cup\{n\mapsto v\}$ is constructed. The virtual links between
+$n$ and its already mapped neighbors are then routed sequentially.
 
-When the substrate network is still unused, the root of the first VNR
-is mapped using \textsc{FirstNodeMapping}~\cite{lu2022resource}.
-Otherwise, each virtual node is processed using the candidate evaluation
-described below.
+For each such virtual link $l=\{n,m\}$, up to $K$ shortest feasible substrate
+paths are generated between $v$ and $M_N(m)$. Each candidate path
+$p\in\mathcal{P}_l$ is evaluated using the complete tentative embedding
+$\widehat{M}\cup\{l\mapsto p\}$, and the path minimizing
+$J(\widehat{M}\cup\{l\mapsto p\})$ is selected. Thus, path selection considers
+the resource consumption and induced fragmentation accumulated by the current
+VNR rather than only the marginal effect of the newly added path. The selected
+path is incorporated into $\widehat{M}$ before the next virtual link is
+processed.
 
-For a virtual node $n$, the algorithm considers every substrate node
-$v$ that has sufficient residual CPU and has not already been assigned
-to another virtual node of the same VNR. For each such substrate node,
-a tentative embedding
-\[
-    \widehat{M}
-    =
-    M\cup\{n\mapsto v\}
-\]
-is constructed from the current partial embedding $M$.
-
-The algorithm then identifies the virtual links
-$l=\{n,m\}\in L^V$ whose other endpoint $m$ has already been mapped.
-These links are processed in a fixed deterministic order. For each such
-virtual link $l$, up to $K$ shortest feasible loopless substrate paths
-are generated between $v$ and $M_N(m)$. Path feasibility is evaluated
-under the current tentative embedding $\widehat{M}$, so bandwidth
-already allocated to previously selected paths of the same candidate
-is taken into account.
-
-Let $\mathcal{P}_l$ denote the resulting feasible-path set. Each
-candidate path $p\in\mathcal{P}_l$ is evaluated by temporarily extending
-the complete tentative embedding:
-\[
-    \widehat{M}_p
-    =
-    \widehat{M}\cup\{l\mapsto p\}.
-\]
-The selected path is
-\[
-    p^*
-    =
-    \arg\min_{p\in\mathcal{P}_l}
-    J(\widehat{M}_p).
-\]
-Importantly, this is not a marginal path score computed only from the
-substrate state immediately before and after adding $p$. Instead,
-$J(\widehat{M}_p)$ includes all node and link mappings accumulated for
-the current VNR up to that point, while retaining $S^0$ as the fixed
-reference state. After selecting $p^*$, the tentative embedding is
-updated as
-\[
-    \widehat{M}
-    \leftarrow
-    \widehat{M}\cup\{l\mapsto p^*\},
-\]
-and the next virtual link is processed using this updated state.
-
-If no feasible substrate path exists for any required virtual link,
-the current substrate-node candidate $v$ is discarded. This does not
-immediately reject the VNR, because another substrate-node candidate may
-still permit all required virtual links to be routed.
-
-If all required virtual links of $n$ are successfully routed, the
-resulting $\widehat{M}$ is stored as a feasible candidate together with
-its already computed objective value. When $n$ has no already mapped
-neighbor, the objective is evaluated once for the node-only tentative
-embedding $M\cup\{n\mapsto v\}$.
-
-After all feasible substrate-node candidates have been examined, let
-$\mathcal{C}$ denote the set of successful candidate embeddings and
-their objective values. If $\mathcal{C}$ is empty, the current virtual
-node cannot be embedded consistently with the partial embedding, and
-the entire VNR is rejected. Otherwise, the minimum-score candidate is
-selected and permanently becomes the new partial embedding. Once this
-selection is made, the algorithm proceeds to the next virtual node and
-does not revisit earlier node-mapping decisions. Hence, the proposed
-procedure is greedy and does not employ search backtracking.
-
-Algorithm~\ref{alg:ecf_algo} summarizes the complete procedure.
+If no feasible path exists for any required virtual link, the corresponding
+substrate-node candidate is discarded. After all substrate-node candidates have
+been examined, the feasible tentative embeddings are collected in
+$\mathcal{C}$. If $\mathcal{C}$ is empty, the VNR is rejected. Otherwise, the
+candidate with the minimum objective value is committed as the new partial
+embedding. The algorithm then proceeds to the next virtual node without
+revisiting previous mapping decisions; hence, no search backtracking is used.
 
 \begin{algorithm}[!t]
     \caption{VNE-ECF-LB Algorithm}
@@ -851,7 +779,6 @@ Algorithm~\ref{alg:ecf_algo} summarizes the complete procedure.
         \STATE \textbf{Input:} $G^S$, $G^V$, $K$, $\beta$, $\lambda$, $\gamma$, $\epsilon$
         \STATE \textbf{Output:} embedding $M$
 
-        \STATE Fix the current residual substrate state as $S^0$
         \STATE Select root $r\in N^V$ by lexicographically maximizing
         $\left(\deg(n),\,d_n,\,\sum_{l\in L^V:n\in l} d_l\right)$
         \STATE Obtain the BFS processing order $\pi$ from $r$
@@ -911,9 +838,8 @@ Algorithm~\ref{alg:ecf_algo} summarizes the complete procedure.
                 \STATE \textbf{reject} $G^V$ and \textbf{return} $\emptyset$
             \ENDIF
 
-            \STATE $\widehat{M}^*\leftarrow
+            \STATE $(M,\cdot)\leftarrow
             \arg\min_{(\widehat{M},s)\in\mathcal{C}} s$
-            \STATE $M\leftarrow\widehat{M}^*$
 
         \ENDFOR
 
@@ -923,137 +849,22 @@ Algorithm~\ref{alg:ecf_algo} summarizes the complete procedure.
 
 \subsection{Computational Complexity}
 
-We next analyze the complexity of the greedy embedding procedure without
-backtracking. Let
-\[
-    n_s=|N^S|,\qquad
-    m_s=|L^S|,\qquad
-    n_v=|N^V|,\qquad
-    m_v=|L^V|.
-\]
-Let $d_v^S$ denote the degree of substrate node $v$, and let $H_s$ denote
-the maximum hop count of a substrate path considered by the algorithm.
-Because only loopless paths are generated,
-\[
-    H_s\le n_s-1.
-\]
-
-The root selection and BFS ordering require
-\[
-    O(n_v+m_v)
-\]
-operations. For every virtual node, at most $n_s$ substrate nodes are
-examined for CPU feasibility and node exclusivity, giving a total
-candidate-filtering cost of
-\[
-    O(n_sn_v).
-\]
-
-The dominant cost arises from routing and objective evaluation. When a
-virtual node is processed, only the virtual links to already mapped
-neighbors are routed. Each virtual link is therefore processed exactly
-once, namely when the later of its two endpoints is visited. Hence, over
-the entire VNR, the total number of such virtual-link processing steps is
-$m_v$. Since up to $n_s$ substrate-node candidates may be examined for
-each corresponding virtual node, at most
-\[
-    O(n_sm_v)
-\]
-substrate-node/virtual-link combinations are evaluated.
-
 Let $T_{\mathrm{KSP}}$ denote the cost of generating up to $K$ shortest
-feasible loopless substrate paths for one virtual link. For each such
-path set, at most $K$ objective evaluations are performed.
+feasible substrate paths and $T_J$ the cost of evaluating the objective for
+one tentative embedding. Since each virtual node examines at most $|N^S|$
+substrate-node candidates and each virtual link is routed when its second
+endpoint is processed, the greedy embedding requires
+$O(|N^S||N^V|+|N^S||L^V|(T_{\mathrm{KSP}}+KT_J))$ time, excluding
+backtracking.
 
-We therefore first derive the cost $T_J$ of one evaluation of
-$J(M)$. The load-balancing term scans the virtual nodes and routed
-virtual links currently represented by $M$. In the worst case, this
-requires
-\[
-    O(n_v+m_vH_s)
-\]
-operations.
-
-For the node induced-fragmentation term, evaluating the connectivity
-deficiency of every substrate node requires scanning its incident
-substrate links. Summed over all substrate nodes, this requires
-$O(m_s)$ operations. For the link induced-fragmentation term, evaluating
-a substrate link $e=\{u,v\}$ scans the other links incident to its two
-endpoints. Summed over all substrate links, the resulting cost is
-\[
-    O\!\left(
-        \sum_{v\in N^S}(d_v^S)^2
-    \right).
-\]
-The additional scans over substrate nodes and links, including the
-normalization terms, require $O(n_s+m_s)$ operations. Consequently, one
-full objective evaluation has worst-case complexity
-\[
-    T_J
-    =
-    O\!\left(
-        n_s+m_s
-        +\sum_{v\in N^S}(d_v^S)^2
-        +n_v+m_vH_s
-    \right).
-\]
-
-For each of the at most $O(n_sm_v)$ substrate-node/virtual-link
-combinations, the algorithm performs one $K$-shortest-path generation
-and at most $K$ full objective evaluations. In addition, a virtual node
-with no already mapped neighbor requires one node-only objective
-evaluation for each substrate-node candidate. There can be at most
-$n_v$ such cases in the worst case, e.g., for a disconnected VNR.
-Therefore, the overall worst-case complexity is
-\[
-\boxed{
-    O\!\left(
-        n_sn_v
-        +
-        n_sm_v T_{\mathrm{KSP}}
-        +
-        n_s(Km_v+n_v)T_J
-    \right).
-}
-\]
-
-Substituting the expression for $T_J$ gives
-\[
-\boxed{
-\begin{aligned}
-    O\Bigg(
-        &n_sn_v
-        +n_sm_vT_{\mathrm{KSP}} \\
-        &+n_s(Km_v+n_v)
-        \left[
-            n_s+m_s
-            +\sum_{v\in N^S}(d_v^S)^2
-            +n_v+m_vH_s
-        \right]
-    \Bigg).
-\end{aligned}
-}
-\]
-
-For a connected VNR, only the root has no already mapped neighbor when
-it is processed. In that common case, the $n_v$ term multiplying $T_J$
-above can be replaced by a constant, yielding
-\[
-    O\!\left(
-        n_sn_v
-        +
-        n_sm_vT_{\mathrm{KSP}}
-        +
-        n_s(Km_v+1)T_J
-    \right).
-\]
-
-The algorithm does not perform search backtracking, so no multiplicative
-factor associated with revisiting previously committed virtual-node
-placements appears in the above complexity. Tentative allocation and
-restoration are used only to evaluate individual node and path
-candidates and do not alter the greedy forward progression of the
-embedding procedure.
+With the direct ECF implementation, one objective evaluation requires
+$T_J=O(|N^V|+|L^V|H+\sum_{v\in N^S}(d_v^S)^2)$, where $H\le |N^S|-1$
+is the maximum considered path length and $d_v^S$ is the substrate-node
+degree. The $\sum_v(d_v^S)^2$ term results from evaluating the external
+connectivity of substrate links through their endpoint neighborhoods. In
+practice, CPU-infeasible substrate nodes and failed path candidates terminate
+early, so the actual running time is typically lower than this worst-case
+bound.
 
 
 \section{Evaluation}
