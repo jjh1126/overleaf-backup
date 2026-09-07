@@ -874,10 +874,20 @@ overall worst-case complexity of VNE-ECF-LB is $O\Big(|N^S||N^V|+|N^S||L^V|\big(
 
 알고리즘 설명
 \begin{itemize}
-    \item 
-    \item VNE-RFD-B, VNE-RFD-D, $\tau$=3(Computational Tractable) $\Delta$=100
-    \item D-ViNE-LB 
+    \item 자원 파편화를 설명했던 RFD 와 부하 분산을 이야기하는 ViNE Yard 를 기본으로한다.
+    \item VNE-RFD-B, VNE-RFD-D, $\tau$=3(Computational Tractable), backtracking times $\Delta$=100, weighted factor all set to 1.
+    \item D-ViNE-LB, R-ViNE-LB (used the open source linear programming toolkit glpk)
+    \item 파라미터 값은 논문들의 명시된 값들을 사용하였다. (backtracking times, weighted factor 등)
+    \item 여기에 추가로 제안하는 VNE-ECF-LB 알고리즘에서 LB 항을 제거한 VNE-ECF 를 비교에 사용한다.
 \end{itemize}
+
+기저 네트워크 그래프
+\begin{itemize}
+    \item We evaluate the performance of the algorithms with three substrate graph types:
+    \item Topology Zoo (TPZ) ~\챳ㄷ
+\end{itemize}
+
+
 
 
 We evaluate the online embedding performance of \ecfvne{} against VNE-ECF, VNE-RFD-B and
