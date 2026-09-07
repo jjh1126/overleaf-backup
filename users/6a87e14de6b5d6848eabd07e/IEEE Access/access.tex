@@ -538,15 +538,9 @@ and we define the link connectivity-deficiency factor and the link fragmentation
     F_L(e)=r_e I_L(e).
 \]
 
-We aggregate the two endpoint connectivities with a $\min$ rather than an average or a product for
-two reasons. Structurally, extending $e$ into a substrate path requires a further link at both
-endpoints, so a path can be formed only if both $\mathrm{Conn}(u\mid e)$ and $\mathrm{Conn}(v\mid
-e)$ remain positive; a $\min$ preserves this bottleneck semantics. Empirically, we compared $\min$,
-arithmetic mean, and geometric mean in a pilot run on ER $G(50,0.15)$ and observed that $\min$
-produced the highest acceptance ratio, with the geometric mean second and the arithmetic mean last;
-the ordering matches the intuition that a link's usability is limited by its weakest endpoint. We
-therefore keep $\min$ as the default aggregation and treat other choices as a hyperparameter that
-can be revisited when both endpoints are known to carry symmetric load.
+We aggregate the two endpoint connectivities using a $\min$ operator. Structurally, extending $e$ into a substrate path requires a further link at both endpoints, so a path can be formed only if both $\mathrm{Conn}(u\mid e)$ and $\mathrm{Conn}(v\mid e)$ remain positive. Accordingly, the connectivity of $e$ is governed by the less-connected endpoint, which naturally leads to the use of the $\min$ operator.
+
+
 
 \subsection{Induced Fragmentation Cost}
 The difference between the pre- and post-embedding fragmentation scores contains both the direct
