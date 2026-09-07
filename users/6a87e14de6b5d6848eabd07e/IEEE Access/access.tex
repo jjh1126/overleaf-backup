@@ -860,55 +860,135 @@ overall worst-case complexity of VNE-ECF-LB is $O\Big(|N^S||N^V|+|N^S||L^V|\big(
 
 
 
-\section{Evaluation}
-\label{sec:evaluation}
+```latex
+\section{Performance Evaluation}
 
-기본적인 설명
+\subsection{Evaluation Setup}
 \begin{itemize}
-    \item 이 섹션은 VNE 알고리즘을 포함한 Poisson arrival process와 Exponential distribution 을 따르는 동적 VNE 시뮬레이션 설정을 요약한다.
-    \item 모든 시뮬레이션은 substrate network - virtual network 쌍에 대해 10회 이상 평가되었다.
-    \item 모든 시뮬레이션은 steady-state 만을 평가하기 위해 초기 과도기 제거를 위한 절단(truncation for initial transient removal)이 이루어지고 50,000 time unit 동안 측정되었다.
+    \item Dynamic VNE simulation with Poisson VNR arrivals and exponentially distributed VNR lifetimes.
+    \item Each substrate network--VNE algorithm pair is evaluated over at least 10 independent simulation runs.
+    \item Initial transient periods are truncated to evaluate steady-state performance only.
+    \item Measurement period: 50,000 time units per simulation run.
 \end{itemize}
 
 
 \subsection{Compared Algorithms}
 \begin{itemize}
-    \item 자원 파편화를 설명했던 RFD 와 부하 분산을 이야기하는 ViNE Yard 를 기본으로한다.
-    \item 모든 알고리즘은 배치 위치 제약을 제거한다.
-    \item VNE-RFD-B, VNE-RFD-D, $\tau$=3(For Computational Tractable), K=10.
-    \item D-ViNE-LB, R-ViNE-LB 
-    \item 언급되지 않은 설정은 논문들의 명시된 것들을 사용하였다. (backtracking times, weighted factor 등)
-    \item 제안하는 VNE-ECF-LB 알고리즘에서 weighted factor 는 전부 1이다. 여기에 추가로 $\beta=0$ 으로써 LB 항을 제거한 VNE-ECF 도 함께 비교한다.
+    \item Resource-fragmentation-based baselines:
+    VNE-RFD-B and VNE-RFD-D.
+    
+    \item Load-balancing-based baselines:
+    D-ViNE-LB and R-ViNE-LB.
+    
+    \item VNE-RFD-B/D parameters:
+    $\tau=3$ for computational tractability and $K=10$.
+    
+    \item Placement-location constraints are disabled for all algorithms.
+    
+    \item Unless otherwise specified, algorithm-specific parameters
+    (e.g., backtracking limits and weighting factors) follow the settings
+    reported in the original papers.
+    
+    \item Proposed algorithm:
+    VNE-ECF-LB with all weighting factors set to 1.
+    
+    \item Ablation variant:
+    VNE-ECF with $\beta=0$, i.e., without the load-balancing term.
 \end{itemize}
 
 
-기저 네트워크 그래프
+\subsection{Network Settings}
+
+\subsubsection{Substrate Networks}
+
+\paragraph{ISP Network.}
 \begin{itemize}
-    \item We evaluate the performance of the algorithms with three substrate graph types:
-    \item realistic network graph from Topology Zoo (TPZ) ~\cite{knight2011internet}, 
-    \item the two data center topologies FatTree (FT) and BCube (BC).
-    \item Realistic Network Graphs. realistic network graph 에서 성능을 평가하기 위해 Columbus(노드 70개, 링크 85개) 네트워크를 사용한다. 노드의 자원용량은 실수 Uniform [50,100], 링크의 자원용량은 실수 Uniform [250,500] 이다.
-    \item Data Center Networks. k=6인 FT6(host 64개, switch 45개)와 level 2 radix 4 인 BCube(2,4)(host 64개, switch 48개) 에서 노드 자원 용량은 host=100, switch=0 으로 하고 링크 자원 용량은 100 으로 한다. 이때 switch 의 자원용량이 0이므로 virtual node는 host에만 배치되며 switch 는 virtual-link forwarding 에만 사용된다.
+    \item Topology: Columbus network from the Internet Topology Zoo (TPZ)
+    ~\cite{knight2011internet}.
+    \item Number of substrate nodes: 70.
+    \item Number of substrate links: 85.
+    \item Node capacity: $U[50,100]$.
+    \item Link capacity: $U[250,500]$.
 \end{itemize}
 
-가상 네트워크 그래프
+\paragraph{Data Center Networks.}
 \begin{itemize}
-    \item VNR 의 토폴로지는 Connected Erdős–Rényi(p=0.4) 이다. 
-    \item VNR 의 수명은 exponential 평균 1000, 가상 노드 수는 Uniform [2,10]
-    \item 노드 요구 자원 실수 uniform [1,20] 링크 요구 자원 실수 uniform [1,50], 도착률은 40 arrivals per 1000 time units 고정
-    \item 이 VNR 요청은 세 기저 그래프 타입에 대해 공통으로 사용된다.
+    \item FatTree: FT6 with 64 hosts and 45 switches.
+    \item BCube: BCube$(2,4)$ with 64 hosts and 48 switches.
+    \item Host node capacity: 100.
+    \item Switch node capacity: 0.
+    \item Link capacity: 100.
+    \item Virtual nodes can be mapped only onto hosts.
+    \item Switches are used only for virtual-link forwarding.
 \end{itemize}
+
+
+\subsubsection{Virtual Network Requests}
+\begin{itemize}
+    \item Number of virtual nodes: discrete uniform distribution over $[2,10]$.
+    \item Topology: connected Erd\H{o}s--R\'enyi graph with $p=0.4$.
+    \item Virtual node demand: $U[1,20]$.
+    \item Virtual link demand: $U[1,50]$.
+    \item Arrival process: Poisson process with 40 arrivals per 1,000 time units.
+    \item Lifetime: exponential distribution with mean 1,000 time units.
+    \item The same VNR generation settings are used for all substrate network types.
+\end{itemize}
+
 
 \subsection{Performance Metrics}
 \begin{itemize}
-    \item Acceptance ratio: $\frac{\text{측정 구간에서 수락된 VNR 수}}{\text{측정 구간에 도착한 전체 VNR 수}}$
-    \item Time average of generated revenue: $\frac{\text{측정 구간에서 얻은 총 revenue}}{\text{실행 횟수}\times\text{측정 구간 길이}}$
-    \item Average embedding cost per accepted VNR :$\frac{\text{측정 구간에서 발생한 총 embedding cost}}{\text{측정 구간에서 수락된 VNR 수}}$
-    \item Average Node Util: $\frac{1}{T}\int_{t_0}^{t_1}\frac{\sum_{v\in N^S}\left(c_v-r_v(t)\right)}{\sum_{v\in N^S}c_v},dt$
-    \item Average Link Util: $\frac{1}{T}\int_{t_0}^{t_1}\frac{\sum_{e\in L^S}\left(c_e-r_e(t)\right)}{\sum_{e\in L^S}c_e},dt$
+    \item \textbf{VNR Acceptance Ratio}
+    \[
+    \frac{
+        \text{\# accepted VNRs during the measurement period}
+    }{
+        \text{\# arrived VNRs during the measurement period}
+    }.
+    \]
+
+    \item \textbf{Average Revenue Rate}
+    \[
+    \frac{
+        \text{total generated revenue during the measurement period}
+    }{
+        \text{\# simulation runs} \times \text{measurement period}
+    }.
+    \]
+
+    \item \textbf{Average Embedding Cost}
+    \[
+    \frac{
+        \text{total embedding cost during the measurement period}
+    }{
+        \text{\# accepted VNRs during the measurement period}
+    }.
+    \]
+
+    \item \textbf{Average Node Utilization}
+    \[
+    \frac{1}{T}
+    \int_{t_0}^{t_1}
+    \frac{
+        \sum_{v\in N^S}\left(c_v-r_v(t)\right)
+    }{
+        \sum_{v\in N^S}c_v
+    }\,dt.
+    \]
+
+    \item \textbf{Average Link Utilization}
+    \[
+    \frac{1}{T}
+    \int_{t_0}^{t_1}
+    \frac{
+        \sum_{e\in L^S}\left(c_e-r_e(t)\right)
+    }{
+        \sum_{e\in L^S}c_e
+    }\,dt.
+    \]
 \end{itemize}
 
 
+\subsection{Evaluation Results}
 
 \begin{figure}[!t]
     \centering
@@ -964,6 +1044,13 @@ overall worst-case complexity of VNE-ECF-LB is $O\Big(|N^S||N^V|+|N^S||L^V|\big(
 %     \caption{VNR acceptance ratio under increasing arrival rates for the Columbus, FT6, and BCube(2,4) substrate networks.}
 %     \label{fig:acceptance_arrival_rate}
 % \end{figure*}
+
+\begin{itemize}
+    \item Fig \ref{fig:acceptance}
+\end{itemize}
+
+
+
 
 
 
