@@ -903,7 +903,11 @@ overall worst-case complexity of VNE-ECF-LB is $O\Big(|N^S||N^V|+|N^S||L^V|\big(
 
 지표
 \begin{itemize}
-    \item 
+    \item Acceptance ratio: $\frac{\text{측정 구간에서 수락된 VNR 수}}{\text{측정 구간에 도착한 전체 VNR 수}}$
+    \item Time average of generated revenue: $\frac{\text{측정 구간에서 얻은 총 revenue}}{\text{실행 횟수}\times\text{측정 구간 길이}}$
+    \item Average embedding cost per accepted VNR :$\frac{\text{측정 구간에서 발생한 총 embedding cost}}{\text{측정 구간에서 수락된 VNR 수}}$
+    \item Average Node Util: $\frac{1}{T}\int_{t_0}^{t_1}\frac{\sum_{v\in N^S}\left(c_v-r_v(t)\right)}{\sum_{v\in N^S}c_v},dt$
+    \item Average Link Util: $\frac{1}{T}\int_{t_0}^{t_1}\frac{\sum_{e\in L^S}\left(c_e-r_e(t)\right)}{\sum_{e\in L^S}c_e},dt$
 \end{itemize}
 
 
@@ -955,12 +959,13 @@ overall worst-case complexity of VNE-ECF-LB is $O\Big(|N^S||N^V|+|N^S||L^V|\big(
     \label{fig:runtime}
 \end{figure}
 
-\begin{figure*}[!t]
-    \centering
-    \includegraphics[width=\textwidth]{figures/fig7_acceptance_arrival_rate.pdf}
-    \caption{VNR acceptance ratio under increasing arrival rates for the Columbus, FT6, and BCube(2,4) substrate networks.}
-    \label{fig:acceptance_arrival_rate}
-\end{figure*}
+% 일단 빼자!
+% \begin{figure*}[!t]
+%     \centering
+%     \includegraphics[width=\textwidth]{figures/fig7_acceptance_arrival_rate.pdf}
+%     \caption{VNR acceptance ratio under increasing arrival rates for the Columbus, FT6, and BCube(2,4) substrate networks.}
+%     \label{fig:acceptance_arrival_rate}
+% \end{figure*}
 
 
 
