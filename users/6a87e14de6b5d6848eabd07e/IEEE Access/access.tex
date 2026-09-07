@@ -872,29 +872,25 @@ overall worst-case complexity of VNE-ECF-LB is $O\Big(|N^S||N^V|+|N^S||L^V|\big(
     \item 모든 시뮬레이션은 steady-state 만을 평가하기 위해 초기 과도기 제거를 위한 절단(truncation for initial transient removal)이 이루어지고 50,000 time unit 동안 측정되었다.
 \end{itemize}
 
+
 알고리즘 설명
 \begin{itemize}
     \item 자원 파편화를 설명했던 RFD 와 부하 분산을 이야기하는 ViNE Yard 를 기본으로한다.
-    \item VNE-RFD-B, VNE-RFD-D, $\tau$=3(Computational Tractable), backtracking times $\Delta$=100, weighted factor all set to 1.
-    \item D-ViNE-LB, R-ViNE-LB (used the open source linear programming toolkit glpk)
-    \item 파라미터 값은 논문들의 명시된 값들을 사용하였다. (backtracking times, weighted factor 등)
+    \item VNE-RFD-B, VNE-RFD-D, $\tau$=3(For Computational Tractable), K=10.
+    \item D-ViNE-LB, R-ViNE-LB 
+    \item 언급되지 않은 설정은 논문들의 명시된 것들을 사용하였다. (backtracking times, weighted factor 등)
     \item 여기에 추가로 제안하는 VNE-ECF-LB 알고리즘에서 LB 항을 제거한 VNE-ECF 를 비교에 사용한다.
 \end{itemize}
+
 
 기저 네트워크 그래프
 \begin{itemize}
     \item We evaluate the performance of the algorithms with three substrate graph types:
-    \item Topology Zoo (TPZ) ~\챳ㄷ
+    \item realistic network graph from Topology Zoo (TPZ) ~\cite{knight2011internet}, 
+    \item the two data center topologies FatTree (FT) and BCube (BC).
+    \item Realistic Network Graphs. realistic network graph 에서 성능을 평가하기 위해 노드  Columbus 네트워크를 사용한다. 
 \end{itemize}
 
-
-
-
-We evaluate the online embedding performance of \ecfvne{} against VNE-ECF, VNE-RFD-B and
-VNE-RFD-D~\cite{lu2022resource}, and D-ViNE-LB and R-ViNE-LB~\cite{chowdhury2012vineyard}. Here,
-\ecfvne{} is the proposed method that jointly considers the external-connectivity-based
-fragmentation cost and the load-balancing cost. VNE-ECF is an ablation variant in which the
-load-balancing term is removed.
 
 
 
