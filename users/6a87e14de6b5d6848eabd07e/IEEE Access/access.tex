@@ -762,13 +762,52 @@ candidate generation, commitment, rollback, and bounded backtracking remain unch
 Algorithm~\ref{alg:ecf_eval} summarizes the evaluation of a tentative embedding $M$.
 
 
-\begin{algorithm}
+\begin{algorithm}[!t]
     \caption{VNE-ECF-LB Algorithm}
     \label{alg:ecf_algo}
     \footnotesize
-    \begin{algorithmic}
+    \begin{algorithmic}[1]
         \STATE \textbf{Input:} $G^S$, $G^V$, $K$, $\beta$, $\lambda$, $\gamma$, $\epsilon$
         \STATE \textbf{Output:} mapping result $M^*$ of $G^V$
+        \STATE Determine the virtual-node processing order $\pi$ using VNE-RFD's
+        processing-order procedure~\cite{lu2022resource}; if this is the first request
+        processed, also fix the root's substrate mapping via the first node mapping
+        procedure~\cite{lu2022resource}
+        \STATE $M\leftarrow\emptyset$
+        \FOR{each virtual node $n\in\pi$, in order}
+            \IF{$n$ is the root fixed in Line~3}
+                \STATE $v^*\leftarrow$ the substrate node fixed by the first node mapping procedure
+            \ELSE
+                \STATE $C\leftarrow\emptyset$
+                \FOR{each $v\in N^S$ with residual CPU $\ge d_n$ and $v$ not already used by $M$}
+                    \STATE $M_v\leftarrow M$ with $n$ tentatively mapped to $v$
+                    \STATE $\mathit{feasible}\leftarrow\text{true}$
+                    \FOR{each virtual link $l$ incident to $n$ whose other endpoint is already
+                    mapped in $M$}
+                        \STATE Generate up to $K$ shortest feasible substrate paths for $l$
+                        \IF{no feasible path exists}
+                            \STATE $\mathit{feasible}\leftarrow\text{false}$; \textbf{break}
+                        \ENDIF
+                        \STATE Select the path $p$ minimizing the evaluation (Algorithm~\ref{alg:ecf_eval})
+                        of $M_v$ with $l$ tentatively routed via $p$
+                        \STATE $M_v\leftarrow M_v$ with $l$ routed via $p$
+                    \ENDFOR
+                    \IF{$\mathit{feasible}$}
+                        \STATE $C\leftarrow C\cup\{(v,\ \textsc{Evaluate}(M_v))\}$
+                        \COMMENT{Algorithm~\ref{alg:ecf_eval}}
+                    \ENDIF
+                    \STATE Undo the tentative allocations made for $v$
+                \ENDFOR
+                \IF{$C=\emptyset$}
+                    \STATE \textbf{reject} the request and \textbf{return} $\emptyset$
+                \ENDIF
+                \STATE $v^*\leftarrow\arg\min_{(v,\mathrm{score})\in C}\mathrm{score}$
+                \COMMENT{ties broken by smaller substrate index}
+            \ENDIF
+            \STATE Commit $n\mapsto v^*$ and the link routes selected above, permanently
+            allocating the corresponding CPU and bandwidth in $M$
+        \ENDFOR
+        \STATE \textbf{return} $M^*\leftarrow M$
     \end{algorithmic}
 \end{algorithm}
 
