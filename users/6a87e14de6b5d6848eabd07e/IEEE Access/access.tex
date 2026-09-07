@@ -774,7 +774,8 @@ revisiting previous mapping decisions.
         \STATE \textbf{Output:} embedding $M$
 
         \STATE Select root $r\in N^V$ by lexicographically maximizing
-        $\left(\deg(n),\,d_n,\,\sum_{l\in L^V:n\in l} d_l\right)$
+        $\left(\deg(n),\,d_n,\,\sum_{l\in L^V:n\in l} d_l\right)$,
+        with ties broken by the smaller virtual-node index
         \STATE Obtain the BFS processing order $\pi$ from $r$
         \STATE $M\leftarrow\emptyset$
 
@@ -794,14 +795,11 @@ revisiting previous mapping decisions.
 
                 \STATE $\widehat{M}\leftarrow M\cup\{n\mapsto v\}$
                 \STATE $\mathit{feasible}\leftarrow\textbf{true}$
-                \STATE $s\leftarrow+\infty$
 
                 \STATE $\mathcal{L}_n\leftarrow
                 \{\,l=\{n,m\}\in L^V : m \text{ already mapped}\,\}$
 
-                \IF{$\mathcal{L}_n=\emptyset$}
-                    \STATE $s\leftarrow J(\widehat{M})$
-                \ELSE
+                \IF{$\mathcal{L}_n\neq\emptyset$}
                     \FOR{each $l=\{n,m\}\in\mathcal{L}_n$, in a fixed order}
 
                         \STATE $\mathcal{P}_l\leftarrow$ up to $K$ shortest
@@ -814,8 +812,7 @@ revisiting previous mapping decisions.
                         \ENDIF
 
                         \STATE Select $p^*\in\mathcal{P}_l$ minimizing
-                        $J\!\left(\widehat{M}\cup\{l\mapsto p\}\right)$,
-                        and retain the minimum value as $s$
+                        $J\!\left(\widehat{M}\cup\{l\mapsto p\}\right)$
 
                         \STATE $\widehat{M}\leftarrow
                         \widehat{M}\cup\{l\mapsto p^*\}$
@@ -824,7 +821,7 @@ revisiting previous mapping decisions.
 
                 \IF{$\mathit{feasible}$}
                     \STATE $\mathcal{C}\leftarrow
-                    \mathcal{C}\cup\{(\widehat{M},s)\}$
+                    \mathcal{C}\cup\{(\widehat{M},J(\widehat{M}))\}$
                 \ENDIF
             \ENDFOR
 
@@ -833,7 +830,7 @@ revisiting previous mapping decisions.
             \ENDIF
 
             \STATE $(M,\cdot)\leftarrow
-            \arg\min_{(\widehat{M},s)\in\mathcal{C}} s$
+            \arg\min_{(\widehat{M},J(\widehat{M}))\in\mathcal{C}} J(\widehat{M})$
 
         \ENDFOR
 
@@ -843,28 +840,29 @@ revisiting previous mapping decisions.
 
 For each virtual node, VNE-ECF-LB examines at most $|N^S|$ feasible
 substrate-node candidates. Each virtual link is processed once when its
-second endpoint is mapped, and for each substrate-node candidate the algorithm
-generates up to $K$ feasible substrate paths. The adopted $K$-shortest-path
-algorithm has complexity
-$O(|L^S|+|N^S|\log_2|N^S|+K)$.
-Therefore, excluding objective evaluation, node-candidate search and path
-generation require
-$O(|N^S||N^V|+
-|N^S||L^V|(|L^S|+|N^S|\log_2|N^S|+K))$ time.
+second endpoint is mapped, and for each substrate-node candidate the
+algorithm generates up to $K$ feasible substrate paths using Yen's
+algorithm for loopless $K$-shortest paths~\cite{yen1971finding}, whose
+complexity is $O\big(K|N^S|(|L^S|+|N^S|\log_2|N^S|)\big)$. Therefore,
+excluding objective evaluation, node-candidate search and path generation
+require
+$O\big(|N^S||N^V|+
+K|N^S|^2|L^V|(|L^S|+|N^S|\log_2|N^S|)\big)$ time.
 
 For each generated path, the algorithm evaluates the complete tentative
-embedding. Since evaluating link external connectivity requires summing over
-the endpoint neighborhoods and every substrate node has degree at most
-$|N^S|-1$, one objective evaluation requires
-$T_J=O(|N^V|+|L^V||N^S|+|N^S||L^S|)$. Substituting $T_J$ into the per-path
-cost, the overall worst-case complexity of VNE-ECF-LB is
+embedding. Since evaluating link external connectivity requires summing
+over the endpoint neighborhoods and every substrate node has degree at
+most $|N^S|-1$, one objective evaluation requires
+$T_J=O(|N^V|+|L^V||N^S|+|N^S||L^S|)$. Since at most $K$ path candidates
+are evaluated for each substrate-node/virtual-link combination, the
+overall worst-case complexity of VNE-ECF-LB is
 $
     O\Big(
     |N^S||N^V|
     +
     |N^S||L^V|
     \big(
-    K|L^S|+|N^S|\log_2|N^S|+K
+    K|N^S|(|L^S|+|N^S|\log_2|N^S|)+KT_J
     \big)
     \Big).
 $
