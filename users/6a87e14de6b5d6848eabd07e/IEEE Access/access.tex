@@ -890,7 +890,7 @@ overall worst-case complexity of VNE-ECF-LB is $O\Big(|N^S||N^V|+|N^S||L^V|\big(
     \item realistic network graph from Topology Zoo (TPZ) ~\cite{knight2011internet}, 
     \item the two data center topologies FatTree (FT) and BCube (BC).
     \item Realistic Network Graphs. realistic network graph 에서 성능을 평가하기 위해 Columbus(노드 70개, 링크 85개) 네트워크를 사용한다. 노드의 자원용량은 Uniform [50,100], 링크의 자원용량은 Uniform [250,500] 이다.
-    \item Data Center Networks. k=6인 FT6(host 64개, switch 45개)와 level 2 radix 4 인 BCube(2,4)(host 64개, switch 48개) 에서 노드 자원 용량은 host=100, switch=0 으로 하고 링크 자원 용량은 100 으로 한다. 이때 switch 의 자원용량이 0이므로 
+    \item Data Center Networks. k=6인 FT6(host 64개, switch 45개)와 level 2 radix 4 인 BCube(2,4)(host 64개, switch 48개) 에서 노드 자원 용량은 host=100, switch=0 으로 하고 링크 자원 용량은 100 으로 한다. 이때 switch 의 자원용량이 0이므로 virtual node는 host에만 배치되며 switch 는 virtual-link forwarding 에만 사용된다.
 \end{itemize}
 
 
