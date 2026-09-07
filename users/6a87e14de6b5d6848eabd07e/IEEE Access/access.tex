@@ -761,7 +761,72 @@ candidate generation, commitment, rollback, and bounded backtracking remain unch
 
 Algorithm~\ref{alg:ecf_eval} summarizes the evaluation of a tentative embedding $M$.
 
+\begin{algorithm}[!t]
+    \caption{VNE-ECF-LB Algorithm}
+    \label{alg:ecf_algo}
+    \footnotesize
+    \begin{algorithmic}[1]
+        \STATE \textbf{Input:} $G^S$, $G^V$, $K$, $\beta$, $\lambda$, $\gamma$, $\epsilon$
+        \STATE \textbf{Output:} embedding $M^*$
 
+        \STATE Select root $r\in N^V$ according to degree, CPU demand, and
+        adjacent-link bandwidth, and obtain the BFS order $\pi$ from $r$
+        \STATE $M\leftarrow\emptyset$
+
+        \FOR{each virtual node $n\in\pi$, in order}
+
+            \IF{$n=r$ \textbf{and} $G^S$ is unused}
+                \STATE $v^*\leftarrow
+                \textsc{FirstNodeMapping}$(G^S,G^V)$~\cite{lu2022resource}
+                \STATE $M\leftarrow M\cup\{n\mapsto v^*\}$
+                \STATE \textbf{continue}
+            \ENDIF
+
+            \STATE $\mathcal{C}\leftarrow\emptyset$
+
+            \FOR{each $v\in N^S$ with $r_v(M)\ge d_n$
+            and $v\notin M_N(N^V)$}
+
+                \STATE $\widehat M\leftarrow M\cup\{n\mapsto v\}$
+                \STATE $\mathit{feasible}\leftarrow\textbf{true}$
+
+                \FOR{each $l=\{n,m\}\in L^V$ with $m$ already mapped}
+                    \STATE $\mathcal{P}_l\leftarrow$ up to $K$ shortest feasible
+                    substrate paths from $v$ to $M_N(m)$ under $\widehat M$
+
+                    \IF{$\mathcal{P}_l=\emptyset$}
+                        \STATE $\mathit{feasible}\leftarrow\textbf{false}$;
+                        \textbf{break}
+                    \ENDIF
+
+                    \STATE $p^*\leftarrow
+                    \arg\min_{p\in\mathcal{P}_l}
+                    J\!\left(\widehat M\cup\{l\mapsto p\}\right)$
+
+                    \STATE $\widehat M\leftarrow
+                    \widehat M\cup\{l\mapsto p^*\}$
+                \ENDFOR
+
+                \IF{$\mathit{feasible}$}
+                    \STATE $\mathcal{C}\leftarrow
+                    \mathcal{C}\cup\{(v,\widehat M)\}$
+                \ENDIF
+            \ENDFOR
+
+            \IF{$\mathcal{C}=\emptyset$}
+                \STATE \textbf{reject} $G^V$ and \textbf{return} $\emptyset$
+            \ENDIF
+
+            \STATE $(v^*,M^*)\leftarrow
+            \arg\min_{(v,\widehat M)\in\mathcal{C}} J(\widehat M)$
+            \COMMENT{ties broken by smaller substrate index}
+
+            \STATE $M\leftarrow M^*$
+        \ENDFOR
+
+        \STATE \textbf{return} $M^*\leftarrow M$
+    \end{algorithmic}
+\end{algorithm}
 
 
 The evaluation in Algorithm~\ref{alg:ecf_eval} is invoked whenever the underlying VNE-RFD framework
