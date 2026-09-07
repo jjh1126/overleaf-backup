@@ -860,15 +860,21 @@ $O(|N^S||N^V|+
 
 For each generated path, the algorithm evaluates the complete tentative
 embedding. With the direct ECF implementation, one objective evaluation
-requires
-$T_J=O(|N^V|+|L^V||N^S|+|N^S|+|L^S|
-+\sum_{v\in N^S}(d_v^S)^2)$,
-where the last term results from evaluating link external connectivity over
-the endpoint neighborhoods. Since at most $K$ path candidates are evaluated
-for each substrate-node/virtual-link combination, the overall worst-case
-complexity is
-$O(|N^S||N^V|+
-|N^S||L^V|(|L^S|+|N^S|\log_2|N^S|+K+KT_J))$.
+requires $T_J=O(|N^V|+|L^V||N^S|+|N^S||L^S|)$, since every substrate node has
+degree at most $|N^S|-1$ and the direct evaluation of link external
+connectivity recomputes each endpoint neighborhood from scratch. Substituting
+$T_J$ into the per-path cost, the overall worst-case complexity of
+VNE-ECF-LB is
+\[
+    O\Big(
+    |N^S||N^V|
+    +
+    |N^S||L^V|
+    \big(
+    K|L^S|+|N^S|\log_2|N^S|+K
+    \big)
+    \Big).
+\]
 No additional backtracking factor is required because VNE-ECF-LB commits the
 best candidate greedily and does not revisit previously mapped virtual nodes.
 
