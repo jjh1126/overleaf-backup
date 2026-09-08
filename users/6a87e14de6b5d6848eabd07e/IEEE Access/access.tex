@@ -859,8 +859,6 @@ overall worst-case complexity of VNE-ECF-LB is $O\Big(|N^S||N^V|+|N^S||L^V|\big(
 
 
 
-
-```latex
 \section{Performance Evaluation}
 
 \subsection{Evaluation Setup}
@@ -996,6 +994,11 @@ overall worst-case complexity of VNE-ECF-LB is $O\Big(|N^S||N^V|+|N^S||L^V|\big(
     \caption{VNR acceptance ratio.}
     \label{fig:acceptance}
 \end{figure}
+% Acceptance ratio
+%  	VNE-ECF-LB	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
+% Columbus	0.850490	0.616025	0.525403	0.519489	0.358104	0.358202
+% FT6	0.391071	0.076282	0.221406	0.222786	0.344010	0.351254
+% BCube(2,4)	0.630513	0.207165	0.343912	0.334056	0.460898	0.467353
 
 \begin{figure}[!t]
     \centering
@@ -1003,6 +1006,11 @@ overall worst-case complexity of VNE-ECF-LB is $O\Big(|N^S||N^V|+|N^S||L^V|\big(
     \caption{Time average of generated revenue.}
     \label{fig:revenue}
 \end{figure}
+% Time-average revenue
+%  	VNE-ECF-LB	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
+% Columbus	8.553936	5.161965	3.589142	3.572573	2.105087	2.095923
+% FT6	1.771785	0.205357	0.695184	0.717869	1.502564	1.546385
+% BCube(2,4)	5.017500	1.097689	1.685764	1.607970	2.954614	3.038214
 
 \begin{figure}[!t]
     \centering
@@ -1010,6 +1018,11 @@ overall worst-case complexity of VNE-ECF-LB is $O\Big(|N^S||N^V|+|N^S||L^V|\big(
     \caption{Average embedding cost per accepted VNR.}
     \label{fig:cost}
 \end{figure}
+% Average provisioning cost
+%  	VNE-ECF-LB	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
+% Columbus	398.631236	358.183837	302.008206	303.288561	788.874081	785.084744
+% FT6	246.010153	122.523802	175.675998	182.553828	398.586629	408.092600
+% BCube(2,4)	407.645146	243.238072	222.799521	219.380631	573.585859	589.713464
 
 \begin{figure*}[!t]
     \centering
@@ -1029,72 +1042,63 @@ overall worst-case complexity of VNE-ECF-LB is $O\Big(|N^S||N^V|+|N^S||L^V|\big(
     \caption{Average substrate resource utilization.}
     \label{fig:util}
 \end{figure*}
+% Node utilization
+%  	VNE-ECF-LB	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
+% Columbus	0.396384	0.259326	0.192645	0.194784	0.122629	0.121004
+% FT6	0.114947	0.017442	0.050802	0.051106	0.098186	0.100411
+% BCube(2,4)	0.210964	0.056643	0.084828	0.081123	0.133850	0.137675
 
-\begin{figure}[!t]
-    \centering
-    \includegraphics[width=\columnwidth]{figures/fig6_fix_rate_runtime_ms_per_vnr.pdf}
-    \caption{Average runtime per VNR.}
-    \label{fig:runtime}
-\end{figure}
+% Link utilization
+%  	VNE-ECF-LB	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
+% Columbus	0.374631	0.239699	0.167537	0.171434	0.344444	0.339634
+% FT6	0.204074	0.017339	0.082441	0.084033	0.316808	0.326932
+% BCube(2,4)	0.470492	0.089231	0.130920	0.126637	0.510461	0.536424
 
-% 일단 빼자!
-% \begin{figure*}[!t]
+
+% 런타임은 일단 보류
+% \begin{figure}[!t]
 %     \centering
-%     \includegraphics[width=\textwidth]{figures/fig7_acceptance_arrival_rate.pdf}
-%     \caption{VNR acceptance ratio under increasing arrival rates for the Columbus, FT6, and BCube(2,4) substrate networks.}
-%     \label{fig:acceptance_arrival_rate}
-% \end{figure*}
-
-\begin{itemize}
-    \item Fig \ref{fig:acceptance}
-\end{itemize}
+%     \includegraphics[width=\columnwidth]{figures/fig6_fix_rate_runtime_ms_per_vnr.pdf}
+%     \caption{Average runtime per VNR.}
+%     \label{fig:runtime}
+% \end{figure}
 
 
-
-
-
-
+\begin{figure*}[!t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig7_acceptance_arrival_rate.pdf}
+    \caption{VNR acceptance ratio under increasing arrival rates for the Columbus, FT6, and BCube(2,4) substrate networks.}
+    \label{fig:acceptance_arrival_rate}
+\end{figure*}
+% Acceptance values — Columbus
+%  	VNE-ECF-LB	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
+% rate	 	 	 	 	 	 
+% 40	0.850490	0.616025	0.525403	0.519489	0.358104	0.358202
+% 50	0.803637	0.591417	0.502031	0.501755	0.325589	0.326890
+% 60	0.760323	0.568891	0.497380	0.490789	0.296886	0.303411
+% 70	0.719887	0.552681	0.488227	0.482894	0.283064	0.278723
+% 80	0.680216	0.533320	0.476972	0.475211	0.260807	0.262816
+% Acceptance values — FT6
+%  	VNE-ECF-LB	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
+% rate	 	 	 	 	 	 
+% 40	0.391071	0.076282	0.221406	0.222786	0.344010	0.351254
+% 50	0.355568	0.068242	0.217940	0.219242	0.307956	0.311704
+% 60	0.326446	0.064689	0.213742	0.218718	0.278728	0.279980
+% 70	0.302667	0.058298	0.210525	0.212511	0.259319	0.257674
+% 80	0.283029	0.055306	0.207733	0.210511	0.239875	0.243050
+% Acceptance values — BCube(2,4)
+%  	VNE-ECF-LB	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
+% rate	 	 	 	 	 	 
+% 40	0.630513	0.207165	0.343912	0.334056	0.460898	0.467353
+% 50	0.569839	0.199755	0.322551	0.315609	0.412410	0.420615
+% 60	0.523381	0.192750	0.312078	0.302719	0.381117	0.390015
+% 70	0.494780	0.191092	0.302184	0.292965	0.358496	0.358922
+% 80	0.465688	0.179609	0.291188	0.282582	0.340344	0.341609
 
 \section{Conclusion}
 \label{sec:conclusion}
 
-This paper addressed the resource-fragmentation problem in online VNE, where residual substrate
-resources may remain sufficient in aggregate but become difficult to use for future requests because
-they cannot be effectively combined with other residual resources. To characterize this loss of
-usability, we introduced the External-Connectivity-based Fragmentation (\ecf{}) metric, which
-jointly considers the residual resource amount and its external connectivity. The metric is
-specialized for substrate nodes and links to reflect the different resource relationships required
-by node embedding and virtual-link routing.
 
-We further separated the change in fragmentation caused by direct resource consumption from the
-degradation in the connectivity of the resources that remain after an embedding. The latter was
-defined as the induced fragmentation cost. Based on this formulation, \ecfvne{} jointly considers
-the induced fragmentation cost and a load-balancing cost when evaluating embedding decisions. We
-also evaluated VNE-ECF, an ablation variant that removes the load-balancing term, to distinguish the
-contribution of external-connectivity-based fragmentation control from the additional effect of load
-balancing.
-
-Experiments on synthetic Erd\H{o}s--R\'{e}nyi substrates with different connectivity densities and
-on real Internet Topology Zoo networks under varying VNR arrival rates showed that \ecfvne{}
-consistently achieved higher VNR acceptance ratios than the compared methods. The comparison with
-VNE-ECF also showed that combining ECF-based fragmentation control with load balancing further
-improves online embedding performance. Although a trade-off in revenue-to-cost ratio was observed
-under some conditions, \ecfvne{} was able to admit more VNRs while sustaining substrate-resource
-utilization, which is consistent with the objective of preserving residual resources for future
-requests.
-
-The proposed metric evaluates residual-resource usability through local external connectivity around
-each substrate node or link. Therefore, it does not directly capture resource-sharing relationships
-among multiple outward paths. In particular, different boundary links may later share the same
-substrate link or bottleneck region, in which case high local external connectivity does not
-necessarily imply high independent embedding capacity. Thus, while the proposed metric provides an
-efficient measure of local residual-resource usability, it does not fully represent dependencies
-caused by global path overlap or shared bottlenecks.
-
-Future work may extend the external-connectivity formulation by incorporating path overlap, shared
-bottlenecks, or broader flow- and cut-based structures. An important direction is to capture both
-local resource connectivity and global resource-sharing relationships while retaining a
-computational cost suitable for repeated evaluation in online VNE.
 
 
 % \nocite{*}
