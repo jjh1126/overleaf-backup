@@ -486,60 +486,90 @@ fragmentation score as
 \]
 
 \subsection{Link Fragmentation}
-For a substrate link $e=\{u,v\}$ to remain useful for future
-virtual-link routing, its residual bandwidth should be combinable with
-the surrounding bandwidth resources at its endpoints. Because a path
-may start or terminate at either endpoint, the absence of another
-incident link at an endpoint is not itself treated as a connectivity
-deficiency. We therefore assign unit external connectivity to an
-endpoint for which $\delta(u\mid e)$ is empty. When external links do
-exist, their residual-to-initial bandwidth ratio represents the extent
-to which the residual bandwidth of $e$ can be extended through that
-endpoint. That is, we define
-\[
-    \delta(u\mid e)
-    =
-    \delta(\{u\})\setminus\{e\},
-    \qquad
-    \delta(v\mid e)
-    =
-    \delta(\{v\})\setminus\{e\}.
-\]
-The external connectivity at endpoint $u$ is defined as
-\[
-    \mathrm{Conn}(u\mid e)
-    =
-    \begin{cases}
-        \dfrac{\sum_{q\in\delta(u\mid e)}r_q}
-        {\sum_{q\in\delta(u\mid e)}c_q},
-         & \sum_{q\in\delta(u\mid e)}c_q>0, \\[1mm]
-        1,
-         & \text{otherwise,}
-    \end{cases}
-\]
-and $\mathrm{Conn}(v\mid e)$ is defined analogously.
 
-For link $e$ to be used as part of a substrate path, connectivity to a subsequent link is required
-at both endpoints; we therefore treat the endpoint with lower external connectivity as the one that
-limits the usability of the link. Accordingly, we define
+For a substrate link $e=\{u,v\}\in L^S$, the usability of its residual
+bandwidth depends on the availability of bandwidth resources surrounding
+its two endpoints. If the links adjacent to $u$ and $v$ retain sufficient
+bandwidth, the residual bandwidth of $e$ can be combined with those
+resources to form substrate paths for future virtual-link requests.
+Conversely, if the surrounding bandwidth is heavily depleted, the
+remaining bandwidth of $e$ becomes more isolated and therefore less useful.
+
+To quantify this property, we define the external neighboring-link set of
+$e$ as
+\[
+    \mathcal{N}_L(e)
+    =
+    \left(
+        \delta(\{u\}) \cup \delta(\{v\})
+    \right)
+    \setminus \{e\}.
+\]
+
+That is, $\mathcal{N}_L(e)$ contains the substrate links incident to either
+endpoint of $e$, excluding $e$ itself. We then define the initial and
+residual external bandwidth capacities surrounding $e$ as
+\[
+    B_{\mathrm{cap}}^L(e)
+    =
+    \sum_{q\in\mathcal{N}_L(e)} c_q,
+    \qquad
+    B_{\mathrm{res}}^L(e)
+    =
+    \sum_{q\in\mathcal{N}_L(e)} r_q.
+\]
+
+The external connectivity of link $e$ is defined as the residual-to-initial
+capacity ratio of its surrounding links:
 \[
     \mathrm{Conn}_L(e)
     =
-    \min
-    \left\{
-    \mathrm{Conn}(u\mid e),
-    \mathrm{Conn}(v\mid e)
-    \right\},
+    \begin{cases}
+        \dfrac{
+            B_{\mathrm{res}}^L(e)
+        }{
+            B_{\mathrm{cap}}^L(e)
+        },
+        &
+        B_{\mathrm{cap}}^L(e)>0,
+        \\[3mm]
+        0,
+        &
+        B_{\mathrm{cap}}^L(e)=0.
+    \end{cases}
 \]
-and we define the link connectivity-deficiency factor and the link fragmentation score as
+
+When $B_{\mathrm{cap}}^L(e)=0$, no external bandwidth resource exists
+around the two endpoints of $e$. In this case, the residual bandwidth of
+$e$ cannot be combined with any surrounding link resource, and we therefore
+assign zero external connectivity.
+
+Unlike treating the two endpoints independently, this definition regards
+the bandwidth resources surrounding both endpoints as a single external
+resource pool. Hence, $\mathrm{Conn}_L(e)$ directly represents the fraction
+of the originally available surrounding bandwidth that remains usable.
+A larger value indicates that the residual bandwidth of $e$ can be more
+readily extended through neighboring substrate links, whereas a smaller
+value indicates greater isolation from the surrounding network.
+
+Accordingly, we define the link connectivity-deficiency factor as
 \[
-    I_L(e)=1-\mathrm{Conn}_L(e),
-    \qquad
-    F_L(e)=r_e I_L(e).
+    I_L(e)
+    =
+    1-\mathrm{Conn}_L(e),
+\]
+and the link fragmentation score as
+\[
+    F_L(e)
+    =
+    r_e I_L(e).
 \]
 
-We aggregate the two endpoint connectivities using a $\min$ operator. Structurally, extending $e$ into a substrate path requires a further link at both endpoints, so a path can be formed only if both $\mathrm{Conn}(u\mid e)$ and $\mathrm{Conn}(v\mid e)$ remain positive. Accordingly, the connectivity of $e$ is governed by the less-connected endpoint, which naturally leads to the use of the $\min$ operator.
-
+Thus, a substrate link incurs a larger fragmentation score when it retains
+a large amount of residual bandwidth while the bandwidth resources
+surrounding its endpoints have been substantially depleted. Such a link
+contains residual capacity, but that capacity has limited ability to
+combine with neighboring resources for future substrate-path construction.
 
 
 \subsection{Induced Fragmentation Cost}
