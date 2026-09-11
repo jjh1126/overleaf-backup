@@ -896,7 +896,7 @@ overall worst-case complexity of VNE-ECF-LB is $O\Big(|N^S||N^V|+|N^S||L^V|\big(
     \item The framework is implemented and evaluated within the VIRNE simulation environment~\cite{wang_virne}.
     \item Dynamic VNE simulation with Poisson VNR arrivals and exponentially distributed VNR lifetimes.
     \item Each substrate network--VNE algorithm pair is evaluated over at least 10 independent simulation runs.
-    \item Initial transient periods are truncated to evaluate steady-state performance only.
+    \item 정상상태 평가를 위해 평균 VNR 수명의 10배인 초기 10,000 time units를 제외하였다.
     \item Measurement period: 50,000 time units per simulation run.
 \end{itemize}
 
