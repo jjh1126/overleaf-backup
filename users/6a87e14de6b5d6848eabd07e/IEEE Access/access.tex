@@ -20,7 +20,7 @@
 
 % 제안 기법 명칭
 \newcommand{\ecf}{ECF}
-\newcommand{\ecfvne}{VNE-ECF-LB}
+\newcommand{\ecfvne}{VNE-ECF}
 
 % ============================================================
 
@@ -110,9 +110,9 @@ NP-hard~\cite{rost2020hardness}. Practical algorithms therefore rely on heuristi
 than globally optimal solutions. Second, each locally feasible embedding changes the residual
 substrate state available to future requests. As VNRs are repeatedly embedded and released, residual
 resources may become distributed in ways that make future embeddings difficult even when sufficient
-aggregate capacity remains. This degradation of future resource usability is commonly referred to as
-resource fragmentation~\cite{fischer2013virtual}. A locally feasible embedding may therefore serve
-the current request while increasing the likelihood that subsequent requests are rejected.
+aggregate capacity remains~\cite{fischer2013virtual}. 
+% This degradation of future resource usability is commonly referred to as resource fragmentation. 
+A locally feasible embedding may therefore serve the current request while increasing the likelihood that subsequent requests are rejected.
 
 Existing online VNE heuristics manage residual capacity, path feasibility, and embedding cost during
 node embedding and virtual-link routing. However, their control granularity is mainly limited to
@@ -140,7 +140,7 @@ residual substrate resources.
     \label{fig:combined_figures}
 \end{figure}
 
-Fig.~\ref{fig:combined_figures} illustrates the resource-fragmentation problem. Fig.~\ref{fig:vn}
+Fig.~\ref{fig:combined_figures} illustrates the resource fragmentation problem. Fig.~\ref{fig:vn}
 shows a newly arriving VNR, while Fig.~\ref{fig:sn} represents the residual-resource state of the
 substrate network. In terms of aggregate resource capacity, the substrate network may contain
 sufficient residual resources to accommodate the request. Nevertheless, the VNR can still be
