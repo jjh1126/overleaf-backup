@@ -605,21 +605,22 @@ that have already been consumed.
 \section{Problem Formulation}
 \label{sec:problem_formulation}
 
-The objective of \ecfvne{} is to embed the current VNR while preserving
-the future usability of the residual substrate resources. In the proposed
-method, the quality of a tentative embedding is evaluated by the
-connectivity degradation that it induces in the residual substrate network.
+The objective of \ecfvne{} is to embed the current VNR while preserving the
+future usability of residual substrate resources. For each arriving VNR, let
+$S_0$ denote the residual substrate state immediately before the request is
+processed, and let $S(M)$ denote the residual state after a partial or
+complete embedding $M$. The reference state $S_0$ remains fixed throughout
+processing of the current request.
 
 The decision variable $x_{nv}\in\{0,1\}$ indicates whether virtual node
-$n\in N^V$ is mapped to substrate node $v\in N^S$, and
-$f_{uv}^l\ge0$ denotes the bandwidth of virtual link $l$ routed through
-substrate arc $(u,v)\in A^S$.
+$n\in N^V$ is mapped to substrate node $v\in N^S$, and $f_{uv}^l\ge0$
+denotes the bandwidth of virtual link $l$ routed through substrate arc
+$(u,v)\in A^S$.
 
 \subsection{Embedding Constraints}
 
-Each virtual node must be mapped to exactly one substrate node. In addition,
-distinct virtual nodes belonging to the same VNR cannot be mapped to the
-same substrate node:
+Each virtual node must be mapped to exactly one substrate node, and distinct
+virtual nodes of the same VNR cannot be mapped to the same substrate node:
 \[
 \sum_{v\in N^S}x_{nv}=1,
 \qquad
@@ -631,8 +632,8 @@ same substrate node:
 \forall v\in N^S.
 \]
 
-The total CPU demand allocated to each substrate node must not exceed its
-current residual CPU capacity:
+The CPU demand allocated to each substrate node must not exceed its current
+residual CPU capacity:
 \[
 \sum_{n\in N^V}d_nx_{nv}
 \le r_v,
@@ -645,7 +646,7 @@ substrate link in both directions must not exceed its residual bandwidth:
 \[
 \sum_{l\in L^V}
 \left(
-f_{uv}^l+f_{vu}^l
+ f_{uv}^l+f_{vu}^l
 \right)
 \le r_{\{u,v\}},
 \qquad
@@ -653,14 +654,14 @@ f_{uv}^l+f_{vu}^l
 \]
 
 For each virtual link $l=\{n,m\}\in L^V$, flow conservation determines the
-substrate nodes serving as its source and destination:
+substrate nodes that serve as its source and destination:
 \[
 \begin{aligned}
 \sum_{(v,w)\in A^S}f_{vw}^l
 -
 \sum_{(w,v)\in A^S}f_{wv}^l
 &=
-d_l\left(x_{nv}-x_{mv}\right),
+ d_l\left(x_{nv}-x_{mv}\right),
 \\
 &\forall v\in N^S,\quad
 \forall l=\{n,m\}\in L^V.
@@ -699,88 +700,68 @@ The ECF objective used to rank feasible tentative embeddings is
 \[
 J_{\mathrm{ECF}}(M)
 =
+\beta\left(
 \Delta F_L(M)
 +
-\gamma\Delta F_N(M),
+\gamma\Delta F_N(M)
+\right),
 \qquad
-\gamma\ge0.
+\beta\ge0,\;\gamma\ge0.
 \]
 
-The parameter $\gamma$ controls the relative contribution of node
-fragmentation. Thus, a candidate embedding is preferred when it produces a
-smaller degradation in the external connectivity of the residual substrate
-resources relative to the state observed at the arrival of the current VNR.
-
+Here $\gamma$ controls the relative contribution of node fragmentation
+within the fragmentation term, while $\beta$ scales the overall magnitude
+of the ECF-based selection criterion. Because $\beta$ multiplies the entire
+expression by a positive constant, it does not alter the ranking of
+candidates within a single VNR; its role is to keep $J_{\mathrm{ECF}}$
+compatible in scale with other cost terms when the ECF criterion is
+combined with additional objectives in an extended formulation.
 
 \section{ECF-VNE Embedding Algorithm}
 \label{sec:embedding_algorithm}
 
-We now present the ECF-VNE algorithm, which constructs an embedding
-sequentially and greedily. For each arriving VNR, the current residual
-substrate state is stored as the reference state $S_0$. Every tentative
-partial embedding of that VNR is evaluated relative to this same reference
-state using $J_{\mathrm{ECF}}$.
+We propose ECF-VNE, a sequential greedy algorithm that evaluates each
+partial embedding relative to the fixed residual state $S_0$ observed when
+the current VNR arrives. The algorithm first selects a root virtual node by
+lexicographically maximizing its degree, CPU demand, and total incident
+virtual-link bandwidth; ties are resolved by the smaller virtual-node index.
+It then processes virtual nodes in breadth-first order from that root. If a
+VNR has disconnected components, the traversal resumes at the smallest-index
+unvisited virtual node after the preceding component is exhausted.
 
-The algorithm first selects a root virtual node by lexicographically
-maximizing its degree, CPU demand, and the total bandwidth demand of its
-incident virtual links. Ties are broken by the smaller virtual-node index.
-The remaining virtual nodes are then processed in breadth-first order from
-the selected root. If the VNR contains disconnected components, breadth-first
-traversal continues from the smallest-index unvisited virtual node after one
-component has been processed.
-
-Before mapping the root, the algorithm considers all substrate nodes with
-sufficient residual CPU. It selects the node with the minimum node isolation.
-Ties are resolved by choosing the node with larger residual CPU capacity and
-then the smaller substrate-node index.
-
-For each subsequent virtual node $n$, the algorithm examines every substrate
-node $v$ that has sufficient residual CPU and has not already been assigned
-to another virtual node of the same VNR. For each candidate $v$, a tentative
-embedding $\widehat{M}=M\cup\{n\mapsto v\}$ is formed. The virtual links
-between $n$ and its already mapped neighbors are then routed in increasing
-virtual-link index order.
-
-For each required virtual link $l=\{n,m\}$, the algorithm finds one feasible
-minimum-hop substrate path from $v$ to $M_N(m)$ by breadth-first search. Only
-substrate links with residual bandwidth sufficient for the demand of $l$ are
-traversed. When multiple minimum-hop paths exist, the breadth-first search
-uses a deterministic order based on neighboring substrate-node indices and
-then substrate-link indices. The bandwidth demand of $l$ is allocated on the
-selected path before the next pending virtual link is processed.
-
-If no feasible path exists for any required virtual link, the corresponding
-substrate-node candidate is discarded. Otherwise, the algorithm evaluates
-the complete tentative partial embedding using $J_{\mathrm{ECF}}$. After all
-feasible substrate-node candidates have been evaluated, the candidate with
-the smallest objective value is committed. Equal objective values are resolved
-by the smaller substrate-node index. The algorithm does not revise previously
-committed mapping decisions.
-
-If no unused substrate node has sufficient residual CPU for the current
-virtual node, the VNR is rejected due to CPU infeasibility. If one or more
-CPU-feasible substrate nodes exist but none can route all required virtual
-links, the VNR is rejected due to routing infeasibility.
+Algorithm~\ref{alg:ecf_main} presents the main greedy procedure.
+\textsc{RootPlacement}, given in Algorithm~\ref{alg:ecf_root}, selects a
+CPU-feasible substrate node with minimum node isolation for the root. It
+breaks ties by larger residual CPU and then by the smaller substrate-node
+index. For each later virtual node, the main procedure tentatively maps that
+node to every unused CPU-feasible substrate node. It then routes all virtual
+links to already mapped neighbors in increasing virtual-link index order.
+Each link is assigned one bandwidth-feasible minimum-hop substrate path found
+by breadth-first search. A substrate-node candidate is discarded if any such
+path does not exist. Otherwise, the complete tentative partial embedding is
+scored by $J_{\mathrm{ECF}}$, and the minimum-score candidate is committed.
+Equal scores are resolved by the smaller substrate-node index.
 
 \begin{algorithm}[!t]
-\caption{ECF-VNE Algorithm}
-\label{alg:ecf_algo}
+\caption{Main Greedy ECF-VNE Procedure}
+\label{alg:ecf_main}
 \footnotesize
 \begin{algorithmic}[1]
-\STATE \textbf{Input:} substrate network $G^S$, VNR $G^V$, weight $\gamma$
+\STATE \textbf{Input:} substrate network $G^S$, VNR $G^V$, weight $\beta$
 \STATE \textbf{Output:} embedding $M$ or rejection
 \STATE $S_0\leftarrow$ current residual state of $G^S$
 \STATE Select root $r\in N^V$ by lexicographically maximizing
 $\left(\deg(n),d_n,\sum_{l\in L^V:n\in l}d_l\right)$
-\STATE Obtain the BFS order $\pi$ from $r$
+\STATE Obtain BFS order $\pi$ from $r$
 \STATE $M\leftarrow\emptyset$
-\STATE Select root substrate node $v_r$ with minimum node isolation;
-break ties by larger residual CPU and then smaller index
+\STATE $v_r\leftarrow\textsc{RootPlacement}(G^S,G^V,r)$
+\IF{$v_r=\emptyset$}
+    \STATE \textbf{reject due to CPU infeasibility}; \textbf{return} $\emptyset$
+\ENDIF
 
 \FOR{each virtual node $n\in\pi$, in order}
     \STATE $\mathcal{C}\leftarrow\emptyset$
     \STATE $\mathit{hasCpuCandidate}\leftarrow\textbf{false}$
-
     \IF{$n=r$}
         \STATE $\mathcal{V}\leftarrow\{v_r\}$
     \ELSE
@@ -788,10 +769,9 @@ break ties by larger residual CPU and then smaller index
     \ENDIF
 
     \FOR{each substrate node $v\in\mathcal{V}$}
-        \IF{$v$ is already used by $M_N$ or $r_v<d_n$}
+        \IF{$v$ is used by $M_N$ or $r_v<d_n$}
             \STATE \textbf{continue}
         \ENDIF
-
         \STATE $\mathit{hasCpuCandidate}\leftarrow\textbf{true}$
         \STATE $\widehat{M}\leftarrow M\cup\{n\mapsto v\}$
         \STATE $\mathit{feasible}\leftarrow\textbf{true}$
@@ -799,14 +779,12 @@ break ties by larger residual CPU and then smaller index
         \{l=\{n,m\}\in L^V:m\text{ is already mapped}\}$
 
         \FOR{each $l=\{n,m\}\in\mathcal{L}_n$, in increasing link-index order}
-            \STATE $p\leftarrow$ feasible minimum-hop path from
+            \STATE $p\leftarrow$ bandwidth-feasible minimum-hop path from
             $v$ to $M_N(m)$ under $\widehat{M}$
-
             \IF{$p=\emptyset$}
                 \STATE $\mathit{feasible}\leftarrow\textbf{false}$
                 \STATE \textbf{break}
             \ENDIF
-
             \STATE $\widehat{M}\leftarrow\widehat{M}\cup\{l\mapsto p\}$
         \ENDFOR
 
@@ -829,38 +807,79 @@ break ties by larger residual CPU and then smaller index
     \arg\min_{(\widehat{M},J_{\mathrm{ECF}}(\widehat{M}))\in\mathcal{C}}
     J_{\mathrm{ECF}}(\widehat{M})$
 \ENDFOR
-
 \STATE \textbf{return} $M$
 \end{algorithmic}
 \end{algorithm}
 
-For every non-root virtual node, ECF-VNE examines at most $|N^S|$
-substrate-node candidates. Each virtual link is routed once, when the second
-endpoint is mapped. For a candidate mapping, each required virtual link is
-routed by a breadth-first search over bandwidth-feasible substrate links.
-The path-search cost is therefore $O(|N^S|+|L^S|)$ per routed virtual link.
+\begin{algorithm}[!t]
+\caption{\textsc{RootPlacement}$(G^S,G^V,r)$}
+\label{alg:ecf_root}
+\footnotesize
+\begin{algorithmic}[1]
+\STATE \textbf{Input:} current substrate network $G^S$, VNR $G^V$, root $r$
+\STATE \textbf{Output:} root substrate node $v_r$ or $\emptyset$
+\STATE $v_r\leftarrow\emptyset$
+\STATE $I^*\leftarrow+\infty$, $R^*\leftarrow-\infty$
+\FOR{each substrate node $v\in N^S$ in increasing index order}
+    \IF{$r_v<d_r$}
+        \STATE \textbf{continue}
+    \ENDIF
+    \STATE $I\leftarrow I_N(v)$
+    \IF{$I<I^*$, or $I=I^*$ and $r_v>R^*$}
+        \STATE $v_r\leftarrow v$, $I^*\leftarrow I$, $R^*\leftarrow r_v$
+    \ENDIF
+\ENDFOR
+\STATE \textbf{return} $v_r$
+\end{algorithmic}
+\end{algorithm}
 
-The ECF objective is evaluated once for every feasible substrate-node
-candidate. Node isolation can be computed by scanning the incident substrate
-links of every substrate node. Link isolation is computed from the external
-neighboring links of its endpoints; endpoints without external neighboring
-resources are excluded from the bottleneck comparison. Hence, an objective
-evaluation requires $O(|L^S|)$ time when the required incident-capacity sums
-are accumulated during a scan of the substrate links.
+The algorithm never maps two virtual nodes of the same request to one
+substrate node. Hence, every accepted request satisfies
+$|N^V|\le |N^S|$. Write $n_s=|N^S|$, $m_s=|L^S|$,
+$n_v=|N^V|$, and $m_v=|L^V|$. During processing of one request, at most
+$n_s$ substrate-node candidates are evaluated for each of the $n_v$ virtual
+nodes. Each virtual link is routed exactly once, when its second endpoint is
+mapped. A bandwidth-feasible breadth-first search costs $O(n_s+m_s)$, while
+an ECF objective evaluation costs $O(n_s+m_s)$ when node and link
+connectivities are accumulated by scans of substrate adjacency lists.
 
-Accordingly, a worst-case upper bound for the greedy embedding procedure is
+Consequently, the worst-case time complexity per request is
 \[
-O\left(
-|N^S||N^V|
+T_{\,\mathrm{ECF\text{-}VNE}}
+=
+O\!\left(
+ n_s n_v
 +
-|N^S||L^V|(|N^S|+|L^S|)
+ n_s m_v(n_s+m_s)
 +
-|N^S||N^V||L^S|
+ n_s n_v(n_s+m_s)
 \right).
 \]
-The first term represents candidate enumeration, the second represents
-bandwidth-feasible minimum-hop path searches, and the third represents ECF
-objective evaluations for tentative substrate-node candidates.
+The first term accounts for candidate enumeration, the second for
+minimum-hop path searches, and the third for objective evaluations. Since
+$n_v\le n_s$ and $m_v\le O(n_v^2)\le O(n_s^2)$, the bound can be specialized
+according to substrate density.
+
+For a sparse substrate network with $m_s=O(n_s)$,
+\[
+T_{\mathrm{sparse}}
+=
+O\!\left(n_s^2m_v+n_s^2n_v\right)
+=
+O\!\left(n_s^2(m_v+n_v)\right).
+\]
+For a dense substrate network with $m_s=O(n_s^2)$,
+\[
+T_{\mathrm{dense}}
+=
+O\!\left(n_s^3m_v+n_s^3n_v\right)
+=
+O\!\left(n_s^3(m_v+n_v)\right).
+\]
+Under the additional worst-case condition of a dense VNR,
+$m_v=O(n_v^2)$ and $n_v=\Theta(n_s)$, these simplify to
+$T_{\mathrm{sparse}}=O(n_s^4)$ and
+$T_{\mathrm{dense}}=O(n_s^5)$, respectively.
 
 
 \section{Performance Evaluation}
