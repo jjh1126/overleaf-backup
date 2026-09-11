@@ -487,153 +487,80 @@ fragmentation score as
 
 \subsection{Link Fragmentation}
 
-For a substrate link $e=\{u,v\}\in L^S$, the usability of its residual
-bandwidth depends on the availability of bandwidth resources surrounding
-its two endpoints. If the links adjacent to $u$ and $v$ retain sufficient
-bandwidth, the residual bandwidth of $e$ can be combined with those
-resources to form substrate paths for future virtual-link requests.
-Conversely, if the surrounding bandwidth is heavily depleted, the
-remaining bandwidth of $e$ becomes more isolated and therefore less useful.
-
-To quantify this property, we define the external neighboring-link set of
-$e$ as
+For a substrate link $e=\{u,v\}\in L^S$, we evaluate the residual
+bandwidth of $e$ according to the external bandwidth resources available at
+its endpoints. For each endpoint $z\in\{u,v\}$, define the external
+neighboring-link set, excluding $e$ itself, as
 \[
-    \mathcal{N}_L(e)
-    =
-    \left(
-        \delta(\{u\}) \cup \delta(\{v\})
-    \right)
-    \setminus \{e\}.
+\mathcal{N}_{L,z}(e)
+=
+\delta(\{z\})\setminus\{e\}.
+\]
+The corresponding initial and residual external bandwidth capacities are
+\[
+B_{\mathrm{cap},z}^{L}(e)
+=
+\sum_{q\in\mathcal{N}_{L,z}(e)}c_q,
+\qquad
+B_{\mathrm{res},z}^{L}(e)
+=
+\sum_{q\in\mathcal{N}_{L,z}(e)}r_q.
 \]
 
-That is, $\mathcal{N}_L(e)$ contains the substrate links incident to either
-endpoint of $e$, excluding $e$ itself. We then define the initial and
-residual external bandwidth capacities surrounding $e$ as
+Only endpoints with a positive initial external bandwidth capacity
+participate in the bottleneck calculation. Let
 \[
-    B_{\mathrm{cap}}^L(e)
-    =
-    \sum_{q\in\mathcal{N}_L(e)} c_q,
-    \qquad
-    B_{\mathrm{res}}^L(e)
-    =
-    \sum_{q\in\mathcal{N}_L(e)} r_q.
+\mathcal{A}_L(e)
+=
+\left\{
+z\in\{u,v\}
+\mid
+B_{\mathrm{cap},z}^{L}(e)>0
+\right\}.
+\]
+For every $z\in\mathcal{A}_L(e)$, its endpoint connectivity is
+\[
+\mathrm{Conn}_{L,z}(e)
+=
+\frac{
+B_{\mathrm{res},z}^{L}(e)
+}{
+B_{\mathrm{cap},z}^{L}(e)
+}.
 \]
 
-The external connectivity of link $e$ is defined as the residual-to-initial
-capacity ratio of its surrounding links:
+The link external connectivity is defined as
 \[
-    \mathrm{Conn}_L(e)
-    =
-    \begin{cases}
-        \dfrac{
-            B_{\mathrm{res}}^L(e)
-        }{
-            B_{\mathrm{cap}}^L(e)
-        },
-        &
-        B_{\mathrm{cap}}^L(e)>0,
-        \\[3mm]
-        0,
-        &
-        B_{\mathrm{cap}}^L(e)=0.
-    \end{cases}
+\mathrm{Conn}_L(e)
+=
+\begin{cases}
+\displaystyle
+\min_{z\in\mathcal{A}_L(e)}
+\mathrm{Conn}_{L,z}(e),
+&
+\mathcal{A}_L(e)\neq\emptyset,
+\\[3mm]
+0,
+&
+\mathcal{A}_L(e)=\emptyset.
+\end{cases}
+\]
+Accordingly, the link connectivity-deficiency factor and fragmentation
+score are
+\[
+I_L(e)=1-\mathrm{Conn}_L(e),
+\qquad
+F_L(e)=r_e I_L(e).
 \]
 
-When $B_{\mathrm{cap}}^L(e)=0$, no external bandwidth resource exists
-around the two endpoints of $e$. In this case, the residual bandwidth of
-$e$ cannot be combined with any surrounding link resource, and we therefore
-assign zero external connectivity.
+When both endpoints have external neighboring links, the less connected
+endpoint determines the usability of $e$. When exactly one endpoint has
+external neighboring links, only that endpoint participates in the
+calculation. When neither endpoint has an external neighboring link,
+$\mathrm{Conn}_L(e)=0$ and $I_L(e)=1$, indicating that the residual
+bandwidth of $e$ is completely isolated from the rest of the substrate
+network.
 
-Unlike treating the two endpoints independently, this definition regards
-the bandwidth resources surrounding both endpoints as a single external
-resource pool. Hence, $\mathrm{Conn}_L(e)$ directly represents the fraction
-of the originally available surrounding bandwidth that remains usable.
-A larger value indicates that the residual bandwidth of $e$ can be more
-readily extended through neighboring substrate links, whereas a smaller
-value indicates greater isolation from the surrounding network.
-
-Accordingly, we define the link connectivity-deficiency factor as
-\[
-    I_L(e)
-    =
-    1-\mathrm{Conn}_L(e),
-\]
-and the link fragmentation score as
-\[
-    F_L(e)
-    =
-    r_e I_L(e).
-\]
-
-Thus, a substrate link incurs a larger fragmentation score when it retains
-a large amount of residual bandwidth while the bandwidth resources
-surrounding its endpoints have been substantially depleted. Such a link
-contains residual capacity, but that capacity has limited ability to
-combine with neighboring resources for future substrate-path construction.
-
-
-\subsection{Induced Fragmentation Cost}
-The difference between the pre- and post-embedding fragmentation scores contains both the direct
-effect of resources being consumed and the effect of the connectivity of the remaining resources
-changing after that consumption. For a general fragmentation score $F=RI$, we decompose the change
-caused by embedding $M$ as
-\[
-    F(M)-F
-    =
-    \bigl(R(M)-R\bigr)I
-    +
-    R(M)\bigl(I(M)-I\bigr).
-\]
-The first term captures the direct consumption effect from the reduction in the resource amount
-itself, while the second term captures the additional fragmentation effect caused by the degraded
-connectivity of the remaining resources after embedding. Because our objective is to measure the
-loss of usability of the resources that remain, we retain only the second term as induced
-fragmentation.
-
-We accordingly define the induced fragmentation cost of nodes and links as
-\[
-    \Delta F_N(M)
-    =
-    \sum_{v\in N^S}
-    r_v(M)
-    \left(
-    I_N(v;M)-I_N(v)
-    \right),
-\]
-\[
-    \Delta F_L(M)
-    =
-    \sum_{e\in L^S}
-    r_e(M)
-    \left(
-    I_L(e;M)-I_L(e)
-    \right),
-\]
-To make node and link induced-fragmentation costs comparable in a single scalar objective, we
-normalize each term by the corresponding substrate-wide capacity budget. Let
-$C_{N,\mathrm{tot}}=\sum_{v\in N^S}c_v$ denote the total initial CPU capacity of the substrate and
-$C_{L,\mathrm{tot}}=\sum_{e\in L^S}c_e$ the total initial bandwidth capacity. The normalized
-induced-fragmentation costs are then
-\[
-    \widetilde{\Delta F}_N(M)=\frac{\Delta F_N(M)}{C_{N,\mathrm{tot}}},
-    \qquad
-    \widetilde{\Delta F}_L(M)=\frac{\Delta F_L(M)}{C_{L,\mathrm{tot}}},
-\]
-both of which are dimensionless and lie in $[0,1]$ under the monotonicity property of
-Section~\ref{sec:metric_definition_of_resource_fragmentation}. We define the overall induced
-fragmentation cost as
-\[
-    \Delta F_{\mathrm{frag}}(M)
-    =
-    \widetilde{\Delta F}_L(M)
-    +
-    \gamma\,\widetilde{\Delta F}_N(M),
-    \qquad
-    \gamma\ge0,
-\]
-where $\gamma$ controls the relative weight between node and link fragmentation. Because both
-normalized terms share the same $[0,1]$ scale, $\gamma$ carries a clear ratio interpretation rather
-than absorbing the CPU-to-bandwidth unit gap.
 
 
 \section{Problem Formulation}
