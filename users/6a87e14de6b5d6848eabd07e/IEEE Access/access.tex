@@ -720,67 +720,43 @@ combined with additional objectives in an extended formulation.
 \section{ECF-VNE Embedding Algorithm}
 \label{sec:embedding_algorithm}
 
-We propose ECF-VNE, a sequential greedy algorithm that evaluates each
-partial embedding relative to the fixed residual state $S_0$ observed when
-the current VNR arrives. The algorithm first selects a root virtual node by
-lexicographically maximizing its degree, CPU demand, and total incident
-virtual-link bandwidth; ties are resolved by the smaller virtual-node index.
-It then processes virtual nodes in breadth-first order from that root. If a
-VNR has disconnected components, the traversal resumes at the smallest-index
-unvisited virtual node after the preceding component is exhausted.
-
-Algorithm~\ref{alg:ecf_main} presents the main greedy procedure.
-\textsc{RootPlacement}, given in Algorithm~\ref{alg:ecf_root}, selects a
-CPU-feasible substrate node with minimum node isolation for the root. It
-breaks ties by larger residual CPU and then by the smaller substrate-node
-index. For each later virtual node, the main procedure tentatively maps that
-node to every unused CPU-feasible substrate node. It then routes all virtual
-links to already mapped neighbors in increasing virtual-link index order.
-Each link is assigned one bandwidth-feasible minimum-hop substrate path found
-by breadth-first search. A substrate-node candidate is discarded if any such
-path does not exist. Otherwise, the complete tentative partial embedding is
-scored by $J_{\mathrm{ECF}}$, and the minimum-score candidate is committed.
-Equal scores are resolved by the smaller substrate-node index.
-
 \begin{algorithm}[!t]
-\caption{Main Greedy ECF-VNE Procedure}
+\caption{ECF-VNE Main Greedy Embedding Algorithm}
 \label{alg:ecf_main}
 \footnotesize
 \begin{algorithmic}[1]
-\STATE \textbf{Input:} substrate network $G^S$, VNR $G^V$, weight $\beta$
+\STATE \textbf{Input:} substrate network $G^S$, VNR $G^V$, weights
+$\beta$ and $\gamma$
 \STATE \textbf{Output:} embedding $M$ or rejection
 \STATE $S_0\leftarrow$ current residual state of $G^S$
 \STATE Select root $r\in N^V$ by lexicographically maximizing
 $\left(\deg(n),d_n,\sum_{l\in L^V:n\in l}d_l\right)$
-\STATE Obtain BFS order $\pi$ from $r$
+\STATE Obtain BFS processing order $\pi$ from $r$
 \STATE $M\leftarrow\emptyset$
-\STATE $v_r\leftarrow\textsc{RootPlacement}(G^S,G^V,r)$
+\STATE $v_r\leftarrow$\textsc{RootPlacement}$(G^S,r)$
 \IF{$v_r=\emptyset$}
-    \STATE \textbf{reject due to CPU infeasibility}; \textbf{return} $\emptyset$
+    \STATE \textbf{return} CPU rejection
 \ENDIF
+\STATE $M\leftarrow M\cup\{r\mapsto v_r\}$
 
-\FOR{each virtual node $n\in\pi$, in order}
+\FOR{each virtual node $n\in\pi\setminus\{r\}$}
     \STATE $\mathcal{C}\leftarrow\emptyset$
     \STATE $\mathit{hasCpuCandidate}\leftarrow\textbf{false}$
-    \IF{$n=r$}
-        \STATE $\mathcal{V}\leftarrow\{v_r\}$
-    \ELSE
-        \STATE $\mathcal{V}\leftarrow N^S$
-    \ENDIF
 
-    \FOR{each substrate node $v\in\mathcal{V}$}
-        \IF{$v$ is used by $M_N$ or $r_v<d_n$}
+    \FOR{each substrate node $v\in N^S$}
+        \IF{$v$ is used by $M_N$ \OR $r_v<d_n$}
             \STATE \textbf{continue}
         \ENDIF
+
         \STATE $\mathit{hasCpuCandidate}\leftarrow\textbf{true}$
         \STATE $\widehat{M}\leftarrow M\cup\{n\mapsto v\}$
         \STATE $\mathit{feasible}\leftarrow\textbf{true}$
         \STATE $\mathcal{L}_n\leftarrow
-        \{l=\{n,m\}\in L^V:m\text{ is already mapped}\}$
+        \{l=\{n,m\}\in L^V:m\text{ is mapped in }M\}$
 
-        \FOR{each $l=\{n,m\}\in\mathcal{L}_n$, in increasing link-index order}
-            \STATE $p\leftarrow$ bandwidth-feasible minimum-hop path from
-            $v$ to $M_N(m)$ under $\widehat{M}$
+        \FOR{each $l=\{n,m\}\in\mathcal{L}_n$ in increasing link-index order}
+            \STATE $p\leftarrow$\textsc{MinimumHopPath}
+            $(G^S,v,M_N(m),d_l)$
             \IF{$p=\emptyset$}
                 \STATE $\mathit{feasible}\leftarrow\textbf{false}$
                 \STATE \textbf{break}
@@ -790,96 +766,180 @@ $\left(\deg(n),d_n,\sum_{l\in L^V:n\in l}d_l\right)$
 
         \IF{$\mathit{feasible}$}
             \STATE $\mathcal{C}\leftarrow\mathcal{C}\cup
-            \{(\widehat{M},J_{\mathrm{ECF}}(\widehat{M}))\}$
+            \{(\widehat{M},J_{\mathrm{ECF}}(\widehat{M};S_0))\}$
         \ENDIF
     \ENDFOR
 
     \IF{$\mathcal{C}=\emptyset$}
         \IF{\textbf{not} $\mathit{hasCpuCandidate}$}
-            \STATE \textbf{reject due to CPU infeasibility}
+            \STATE \textbf{return} CPU rejection
         \ELSE
-            \STATE \textbf{reject due to routing infeasibility}
+            \STATE \textbf{return} routing rejection
         \ENDIF
-        \STATE \textbf{return} $\emptyset$
     \ENDIF
 
     \STATE $(M,\cdot)\leftarrow
-    \arg\min_{(\widehat{M},J_{\mathrm{ECF}}(\widehat{M}))\in\mathcal{C}}
-    J_{\mathrm{ECF}}(\widehat{M})$
+    \arg\min_{(\widehat{M},J)\in\mathcal{C}} J$
 \ENDFOR
 \STATE \textbf{return} $M$
 \end{algorithmic}
 \end{algorithm}
 
 \begin{algorithm}[!t]
-\caption{\textsc{RootPlacement}$(G^S,G^V,r)$}
-\label{alg:ecf_root}
+\caption{RootPlacement}
+\label{alg:root_placement}
 \footnotesize
 \begin{algorithmic}[1]
-\STATE \textbf{Input:} current substrate network $G^S$, VNR $G^V$, root $r$
-\STATE \textbf{Output:} root substrate node $v_r$ or $\emptyset$
+\STATE \textbf{Input:} substrate network $G^S$, root virtual node $r$
+\STATE \textbf{Output:} substrate node $v_r$ or $\emptyset$
 \STATE $v_r\leftarrow\emptyset$
-\STATE $I^*\leftarrow+\infty$, $R^*\leftarrow-\infty$
-\FOR{each substrate node $v\in N^S$ in increasing index order}
+\STATE $I^*\leftarrow+\infty$
+\STATE $R^*\leftarrow-1$
+
+\FOR{each substrate node $v\in N^S$}
     \IF{$r_v<d_r$}
         \STATE \textbf{continue}
     \ENDIF
+
     \STATE $I\leftarrow I_N(v)$
-    \IF{$I<I^*$, or $I=I^*$ and $r_v>R^*$}
-        \STATE $v_r\leftarrow v$, $I^*\leftarrow I$, $R^*\leftarrow r_v$
+    \IF{$v_r=\emptyset$ \OR $I<I^*$
+    \OR $(I=I^* \AND r_v>R^*)$
+    \OR $(I=I^* \AND r_v=R^* \AND v<v_r)$}
+        \STATE $v_r\leftarrow v$
+        \STATE $I^*\leftarrow I$
+        \STATE $R^*\leftarrow r_v$
     \ENDIF
 \ENDFOR
+
 \STATE \textbf{return} $v_r$
 \end{algorithmic}
 \end{algorithm}
 
-The algorithm never maps two virtual nodes of the same request to one
-substrate node. Hence, every accepted request satisfies
-$|N^V|\le |N^S|$. Write $n_s=|N^S|$, $m_s=|L^S|$,
-$n_v=|N^V|$, and $m_v=|L^V|$. During processing of one request, at most
-$n_s$ substrate-node candidates are evaluated for each of the $n_v$ virtual
-nodes. Each virtual link is routed exactly once, when its second endpoint is
-mapped. A bandwidth-feasible breadth-first search costs $O(n_s+m_s)$, while
-an ECF objective evaluation costs $O(n_s+m_s)$ when node and link
-connectivities are accumulated by scans of substrate adjacency lists.
+This section presents the ECF-VNE algorithm for sequentially embedding an
+arriving VNR. Let $S_0$ denote the residual substrate state immediately
+before the VNR is processed. The algorithm preserves $S_0$ as a fixed
+reference state and evaluates every feasible partial embedding $M$ using
+the objective $J_{\mathrm{ECF}}(M)$ defined in
+Section~\ref{sec:problem_formulation}. Therefore, candidates considered at
+different stages of the same VNR are compared according to the cumulative
+fragmentation that they induce relative to the same pre-request substrate
+state.
 
-Consequently, the worst-case time complexity per request is
+The algorithm begins by selecting a root virtual node. Specifically, it
+lexicographically maximizes the tuple
 \[
-T_{\,\mathrm{ECF\text{-}VNE}}
-=
-O\!\left(
- n_s n_v
-+
- n_s m_v(n_s+m_s)
-+
- n_s n_v(n_s+m_s)
-\right).
+\left(
+\deg(n),\;
+d_n,\;
+\sum_{l\in L^V:n\in l}d_l
+\right),
 \]
-The first term accounts for candidate enumeration, the second for
-minimum-hop path searches, and the third for objective evaluations. Since
-$n_v\le n_s$ and $m_v\le O(n_v^2)\le O(n_s^2)$, the bound can be specialized
-according to substrate density.
+where the final tie is resolved by the smaller virtual-node index. This
+choice prioritizes virtual nodes that have more incident constraints and
+larger resource requirements. Starting from the selected root, the
+remaining virtual nodes are processed in breadth-first order. If the VNR
+contains more than one connected component, the traversal resumes from the
+smallest-index unvisited virtual node after completing each component.
 
-For a sparse substrate network with $m_s=O(n_s)$,
+The root substrate node is selected by \textsc{RootPlacement}. Among
+substrate nodes with enough residual CPU for the root demand, the procedure
+chooses the node with the minimum node isolation. Ties are resolved by
+selecting the node with larger residual CPU capacity and then the smaller
+substrate-node index. This rule favors a resource-rich substrate location
+whose neighboring bandwidth remains comparatively well connected.
+
+After root placement, ECF-VNE processes each remaining virtual node $n$.
+It considers every substrate node $v$ that has sufficient residual CPU and
+has not already been assigned to another virtual node of the same VNR. For
+each such candidate, the algorithm makes a temporary copy of the current
+partial embedding, maps $n$ to $v$, and identifies the virtual links from
+$n$ to already mapped virtual neighbors. Those pending virtual links are
+processed in increasing virtual-link index order.
+
+For a pending virtual link $l=\{n,m\}$, the algorithm uses breadth-first
+search to find a single minimum-hop path from $v$ to $M_N(m)$. During the
+search, a substrate link is traversable only if its current residual
+bandwidth satisfies the demand of $l$. When several minimum-hop paths are
+available, adjacent substrate links are examined deterministically by the
+neighboring substrate-node index and then by the substrate-link index. The
+demand of $l$ is allocated immediately after the path is found, so the
+routing decision for a later pending link reflects the resource consumption
+of earlier links in the same tentative candidate.
+
+A candidate substrate node is infeasible if any pending virtual link cannot
+be routed. Otherwise, its resulting tentative embedding is evaluated by
+$J_{\mathrm{ECF}}$, which measures the induced node and link fragmentation
+relative to $S_0$. Among all feasible candidates, the algorithm commits the
+one with the minimum objective value; equal scores are resolved by the
+smaller substrate-node index. The algorithm is greedy: after a candidate is
+committed, earlier node and link decisions are not revisited. A VNR is
+rejected due to CPU infeasibility when no unused substrate node can satisfy
+the current virtual-node CPU demand. It is rejected due to routing
+infeasibility when CPU-feasible candidates exist but none can route all of
+their required pending virtual links.
+
+\subsection{Complexity Analysis}
+
+Let $n_S=|N^S|$, $m_S=|L^S|$, $n_V=|N^V|$, and $m_V=|L^V|$. Let
+$\Delta_S$ denote the maximum degree of a substrate node. Because the
+algorithm maps distinct virtual nodes of the same VNR to distinct substrate
+nodes, a feasible request always satisfies $n_V\le n_S$.
+
+For each virtual node, ECF-VNE examines at most $n_S$ substrate-node
+candidates. The corresponding candidate-enumeration cost is
+$O(n_Sn_V)=O(n_S^2)$. Each virtual link is routed exactly once, when its
+second endpoint is mapped. For each tested substrate-node candidate,
+routing a pending virtual link requires a bandwidth-feasible minimum-hop
+breadth-first search, which costs $O(n_S+m_S)$. Therefore, the aggregate
+path-search cost is
 \[
-T_{\mathrm{sparse}}
-=
-O\!\left(n_s^2m_v+n_s^2n_v\right)
-=
-O\!\left(n_s^2(m_v+n_v)\right).
+O\bigl(n_Sm_V(n_S+m_S)\bigr).
 \]
-For a dense substrate network with $m_s=O(n_s^2)$,
+
+For one ECF objective evaluation, all node-isolation values can be obtained
+by scanning substrate links once, which costs $O(m_S)$. For link isolation,
+the external links incident to both endpoints of every substrate link are
+examined. The total cost is
 \[
-T_{\mathrm{dense}}
+O\left(
+\sum_{v\in N^S}\deg(v)^2
+\right)
 =
-O\!\left(n_s^3m_v+n_s^3n_v\right)
-=
-O\!\left(n_s^3(m_v+n_v)\right).
+O(m_S\Delta_S).
 \]
-Under the additional worst-case condition of a dense VNR,
-$m_v=O(n_v^2)$ and $n_v=\Theta(n_s)$, these simplify to
-$T_{\mathrm{sparse}}=O(n_s^4)$ and
-$T_{\mathrm{dense}}=O(n_s^5)$, respectively.
+Thus, one evaluation of $J_{\mathrm{ECF}}$ costs
+$O(m_S\Delta_S)$. At most $n_Sn_V=O(n_S^2)$ candidate embeddings are
+evaluated, giving a total objective-evaluation cost of
+\[
+O(n_S^2m_S\Delta_S).
+\]
+
+The overall worst-case running time is therefore
+\[
+O\Bigl(
+n_S^2
++
+n_Sm_V(n_S+m_S)
++
+n_S^2m_S\Delta_S
+\Bigr).
+\]
+
+For sparse substrate and virtual networks, where
+$m_S=O(n_S)$, $\Delta_S=O(1)$, and
+$m_V=O(n_V)=O(n_S)$, the path-search and objective-evaluation terms are
+both $O(n_S^3)$. Hence,
+\[
+T_{\mathrm{sparse}}=O(n_S^3).
+\]
+
+For dense substrate and virtual networks, where
+$m_S=O(n_S^2)$, $\Delta_S=O(n_S)$, and
+$m_V=O(n_V^2)=O(n_S^2)$, the path-search and objective-evaluation terms are
+both $O(n_S^5)$. Hence,
+\[
+T_{\mathrm{dense}}=O(n_S^5).
+\]
 
 
 \section{Performance Evaluation}
