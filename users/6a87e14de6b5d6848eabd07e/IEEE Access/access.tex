@@ -449,10 +449,9 @@ $\mathrm{Conn}(A)=0$, region $A$ cannot support any additional external combinat
 how the demand is routed. Second, $\mathrm{Conn}$ is monotone under embedding: because every
 embedding only removes bandwidth from $\delta(A)$, we have
 $\sum_{e\in\delta(A)}r_e(M)\le\sum_{e\in\delta(A)}r_e$ and therefore
-$\mathrm{Conn}(A;M)\le\mathrm{Conn}(A)$. Consequently $I(A;M)-I(A)\ge0$ for every $A$, so the induced
-fragmentation cost is non-negative by construction. These two properties keep the metric
-interpretable as a resource-usability bound and ensure that the induced fragmentation cost behaves
-consistently under embedding.
+$\mathrm{Conn}(A;M)\le\mathrm{Conn}(A)$ for every $A$. These two properties keep the metric
+interpretable as a resource-usability bound whose external connectivity cannot improve merely as a
+byproduct of embedding.
 
 \subsection{Node Fragmentation}
 For a substrate node $v\in N^S$, we set $A=\{v\}$, so that the external connectivity of the node is
