@@ -905,14 +905,13 @@ are evaluated, the total objective-evaluation cost is $O\bigl(|N^S||N^V||L^S|\De
 
 The overall worst-case running time is therefore
 \begin{equation}
+\begin{aligned}
 O\Bigl(
-|N^S||N^V|
-& +
-|N^S||L^V|\bigl(|N^S|+|L^S|\bigr)
-\\
-+
-|N^S||N^V||L^S|\Delta_S
+  |N^S||N^V| 
+  + |N^S||L^V| & \bigl(|N^S|+|L^S|\bigr) \\
+  & + |N^S||N^V||L^S|\Delta_S
 \Bigr).
+\end{aligned}
 \label{eq:complexity}
 \end{equation}
 This bound depends on both the substrate topology ($|N^S|$, $|L^S|$, $\Delta_S$) and the size of the
@@ -1001,14 +1000,14 @@ accepted VNRs, where the cost of an embedding is the sum of its CPU allocations 
 allocated on every substrate link traversed by its virtual links, so that longer substrate paths
 incur a higher cost. Finally, the \emph{average node utilization} and \emph{average link
 utilization} are defined as the time averages of the fraction of consumed substrate capacity,
-\begin{equation}
+$
 \frac{1}{T}\int_{t_0}^{t_1}
 \frac{\sum_{v\in N^S}\bigl(c_v-r_v(t)\bigr)}{\sum_{v\in N^S}c_v}\,dt
 \quad\text{and}\quad
 \frac{1}{T}\int_{t_0}^{t_1}
 \frac{\sum_{e\in L^S}\bigl(c_e-r_e(t)\bigr)}{\sum_{e\in L^S}c_e}\,dt,
 \label{eq:utilization}
-\end{equation}
+$
 respectively, where $[t_0,t_1]$ is the measurement period and $T=t_1-t_0$.
 
 \subsection{Results Under a Fixed Arrival Rate}
