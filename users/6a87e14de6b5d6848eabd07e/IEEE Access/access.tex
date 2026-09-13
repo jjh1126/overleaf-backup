@@ -721,18 +721,23 @@ I_N(v;S(M))-I_N(v;S_0)
 \STATE \textbf{Input:} substrate network $G^S$, VNR $G^V$, weights
 $\beta$ and $\gamma$
 \STATE \textbf{Output:} embedding $M$ or rejection
+
 \STATE $S_0\leftarrow$ current residual state of $G^S$
+\COMMENT{fixed reference state for this VNR}
 \STATE Select root $r\in N^V$ by lexicographically maximizing
 $\left(\deg(n),d_n,\sum_{l\in L^V:n\in l}d_l\right)$
 \STATE Obtain BFS processing order $\pi$ from $r$
 \STATE $M\leftarrow\emptyset$
+
 \STATE $v_r\leftarrow$\textsc{RootPlacement}$(G^S,r)$
+\COMMENT{place the root virtual node}
 \IF{$v_r=\emptyset$}
     \STATE \textbf{return} CPU rejection
 \ENDIF
 \STATE $M\leftarrow M\cup\{r\mapsto v_r\}$
 
 \FOR{each virtual node $n\in\pi\setminus\{r\}$}
+    \COMMENT{enumerate candidate substrate nodes for $n$}
     \STATE $\mathcal{C}\leftarrow\emptyset$
     \STATE $\mathit{hasCpuCandidate}\leftarrow\textbf{false}$
 
@@ -748,6 +753,7 @@ $\left(\deg(n),d_n,\sum_{l\in L^V:n\in l}d_l\right)$
         \{l=\{n,m\}\in L^V:m\text{ is mapped in }M\}$
 
         \FOR{each $l=\{n,m\}\in\mathcal{L}_n$ in increasing link-index order}
+        \COMMENT{route pending virtual links to mapped neighbors}
             \STATE $p\leftarrow$\textsc{MinimumHopPath}
             $(G^S,v,M_N(m),d_l)$
             \IF{$p=\emptyset$}
@@ -764,6 +770,7 @@ $\left(\deg(n),d_n,\sum_{l\in L^V:n\in l}d_l\right)$
     \ENDFOR
 
     \IF{$\mathcal{C}=\emptyset$}
+    \COMMENT{no feasible candidate for $n$}
         \IF{\textbf{not} $\mathit{hasCpuCandidate}$}
             \STATE \textbf{return} CPU rejection
         \ELSE
@@ -773,10 +780,12 @@ $\left(\deg(n),d_n,\sum_{l\in L^V:n\in l}d_l\right)$
 
     \STATE $(M,\cdot)\leftarrow
     \arg\min_{(\widehat{M},J)\in\mathcal{C}} J$
+    \COMMENT{commit the minimum-cost candidate}
 \ENDFOR
 \STATE \textbf{return} $M$
 \end{algorithmic}
 \end{algorithm}
+
 
 \begin{algorithm}[!t]
 \caption{RootPlacement}
@@ -798,6 +807,7 @@ $\left(\deg(n),d_n,\sum_{l\in L^V:n\in l}d_l\right)$
     \IF{$v_r=\emptyset$ \OR $I<I^*$
     \OR $(I=I^* \AND r_v>R^*)$
     \OR $(I=I^* \AND r_v=R^* \AND v<v_r)$}
+    \COMMENT{minimize isolation; break ties by larger residual CPU, then smaller index}
         \STATE $v_r\leftarrow v$
         \STATE $I^*\leftarrow I$
         \STATE $R^*\leftarrow r_v$
@@ -818,21 +828,13 @@ different stages of the same VNR are compared according to the cumulative
 fragmentation that they induce relative to the same pre-request substrate
 state.
 
-The algorithm begins by selecting a root virtual node. Specifically, it
-lexicographically maximizes the tuple
-\[
-\left(
-\deg(n),\;
-d_n,\;
-\sum_{l\in L^V:n\in l}d_l
-\right),
-\]
-where the final tie is resolved by the smaller virtual-node index. This
-choice prioritizes virtual nodes that have more incident constraints and
-larger resource requirements. Starting from the selected root, the
-remaining virtual nodes are processed in breadth-first order. If the VNR
-contains more than one connected component, the traversal resumes from the
-smallest-index unvisited virtual node after completing each component.
+The algorithm begins by selecting a root virtual node, namely the one that lexicographically
+maximizes the tuple $\bigl(\deg(n),\,d_n,\,\sum_{l\in L^V:n\in l}d_l\bigr)$, with the final tie
+resolved by the smaller virtual-node index. This choice prioritizes virtual nodes that have more
+incident constraints and larger resource requirements. Starting from the selected root, the
+remaining virtual nodes are processed in breadth-first order. If the VNR contains more than one
+connected component, the traversal resumes from the smallest-index unvisited virtual node after
+completing each component.
 
 The root substrate node is selected by \textsc{RootPlacement}. Among
 substrate nodes with enough residual CPU for the root demand, the procedure
@@ -873,67 +875,41 @@ their required pending virtual links.
 
 \subsection{Complexity Analysis}
 
-Let $n_S=|N^S|$, $m_S=|L^S|$, $n_V=|N^V|$, and $m_V=|L^V|$. Let
-$\Delta_S$ denote the maximum degree of a substrate node. Because the
-algorithm maps distinct virtual nodes of the same VNR to distinct substrate
-nodes, a feasible request always satisfies $n_V\le n_S$.
+Let $\Delta_S$ denote the maximum degree of a substrate node. Because the algorithm maps distinct
+virtual nodes of the same VNR to distinct substrate nodes, a feasible request always satisfies
+$|N^V|\le|N^S|$.
 
-For each virtual node, ECF-VNE examines at most $n_S$ substrate-node
-candidates. The corresponding candidate-enumeration cost is
-$O(n_Sn_V)=O(n_S^2)$. Each virtual link is routed exactly once, when its
-second endpoint is mapped. For each tested substrate-node candidate,
-routing a pending virtual link requires a bandwidth-feasible minimum-hop
-breadth-first search, which costs $O(n_S+m_S)$. Therefore, the aggregate
-path-search cost is
-\[
-O\bigl(n_Sm_V(n_S+m_S)\bigr).
-\]
+For each virtual node, ECF-VNE examines at most $|N^S|$ substrate-node candidates, so the aggregate
+candidate-enumeration cost is $O(|N^S||N^V|)$. Each virtual link is routed exactly once, when its
+second endpoint is mapped. For each tested substrate-node candidate, routing a pending virtual link
+requires a bandwidth-feasible minimum-hop breadth-first search, which costs $O(|N^S|+|L^S|)$;
+therefore, the aggregate path-search cost is $O\bigl(|N^S||L^V|(|N^S|+|L^S|)\bigr)$.
 
-For one ECF objective evaluation, all node-isolation values can be obtained
-by scanning substrate links once, which costs $O(m_S)$. For link isolation,
-the external links incident to both endpoints of every substrate link are
-examined. The total cost is
-\[
-O\left(
-\sum_{v\in N^S}\deg(v)^2
-\right)
-=
-O(m_S\Delta_S).
-\]
-Thus, one evaluation of $J_{\mathrm{ECF}}$ costs
-$O(m_S\Delta_S)$. At most $n_Sn_V=O(n_S^2)$ candidate embeddings are
-evaluated, giving a total objective-evaluation cost of
-\[
-O(n_S^2m_S\Delta_S).
-\]
+For one ECF objective evaluation, all node-isolation values can be obtained by scanning substrate
+links once, which costs $O(|L^S|)$. For link isolation, the external links incident to both
+endpoints of every substrate link are examined, at a total cost of
+$O\bigl(\sum_{v\in N^S}\deg(v)^2\bigr)=O(|L^S|\Delta_S)$. Thus, one evaluation of
+$J_{\mathrm{ECF}}$ costs $O(|L^S|\Delta_S)$, and since at most $O(|N^S||N^V|)$ candidate embeddings
+are evaluated, the total objective-evaluation cost is $O\bigl(|N^S||N^V||L^S|\Delta_S\bigr)$.
 
 The overall worst-case running time is therefore
 \[
 O\Bigl(
-n_S^2
+|N^S||N^V|
 +
-n_Sm_V(n_S+m_S)
+|N^S||L^V|\bigl(|N^S|+|L^S|\bigr)
 +
-n_S^2m_S\Delta_S
+|N^S||N^V||L^S|\Delta_S
 \Bigr).
 \]
-
-For sparse substrate and virtual networks, where
-$m_S=O(n_S)$, $\Delta_S=O(1)$, and
-$m_V=O(n_V)=O(n_S)$, the path-search and objective-evaluation terms are
-both $O(n_S^3)$. Hence,
-\[
-T_{\mathrm{sparse}}=O(n_S^3).
-\]
-
-For dense substrate and virtual networks, where
-$m_S=O(n_S^2)$, $\Delta_S=O(n_S)$, and
-$m_V=O(n_V^2)=O(n_S^2)$, the path-search and objective-evaluation terms are
-both $O(n_S^5)$. Hence,
-\[
-T_{\mathrm{dense}}=O(n_S^5).
-\]
-
+This bound depends on both the substrate topology ($|N^S|$, $|L^S|$, $\Delta_S$) and the size of the
+arriving VNR ($|N^V|$, $|L^V|$); we keep these request-side quantities explicit rather than
+expressing them in terms of the substrate size, since the size of a VNR is independent of the
+substrate network. To characterize how substrate topology affects this bound, we consider two
+representative regimes. For a sparse substrate, where $|L^S|=O(|N^S|)$ and $\Delta_S=O(1)$, the
+running time reduces to $T_{\mathrm{sparse}}=O\bigl(|N^S|^2|N^V|+|N^S|^2|L^V|\bigr)$. For a dense
+substrate, where $|L^S|=O(|N^S|^2)$ and $\Delta_S=O(|N^S|)$, it reduces to
+$T_{\mathrm{dense}}=O\bigl(|N^S|^4|N^V|+|N^S|^3|L^V|\bigr)$.
 
 \section{Performance Evaluation}
 
