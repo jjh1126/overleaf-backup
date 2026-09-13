@@ -449,10 +449,9 @@ $\mathrm{Conn}(A)=0$, region $A$ cannot support any additional external combinat
 how the demand is routed. Second, $\mathrm{Conn}$ is monotone under embedding: because every
 embedding only removes bandwidth from $\delta(A)$, we have
 $\sum_{e\in\delta(A)}r_e(M)\le\sum_{e\in\delta(A)}r_e$ and therefore
-$\mathrm{Conn}(A;M)\le\mathrm{Conn}(A)$. Consequently $I(A;M)-I(A)\ge0$ for every $A$, so the induced
-fragmentation cost is non-negative by construction. These two properties keep the metric
-interpretable as a resource-usability bound and ensure that the induced fragmentation cost behaves
-consistently under embedding.
+$\mathrm{Conn}(A;M)\le\mathrm{Conn}(A)$ for every $A$. These two properties keep the metric
+interpretable as a resource-usability bound whose external connectivity cannot improve merely as a
+byproduct of embedding.
 
 \subsection{Node Fragmentation}
 For a substrate node $v\in N^S$, we set $A=\{v\}$, so that the external connectivity of the node is
@@ -486,19 +485,14 @@ through residual bandwidth resources around its endpoints. We therefore
 evaluate the external connectivity of $e$ separately at $u$ and $v$, while
 excluding $e$ itself from the neighboring-link set of each endpoint.
 
-For an endpoint $z\in\{u,v\}$, let
-\[
-\mathcal{N}_{L,z}(e)
-=
-\delta(\{z\})\setminus\{e\}
-\]
-denote the set of external substrate links incident to $z$. If the total
-initial capacity of $\mathcal{N}_{L,z}(e)$ is positive, its endpoint
-connectivity is defined as the residual-to-initial capacity ratio of these
-links. If that total initial capacity is zero, endpoint $z$ has no external
-link resource through which $e$ can be extended; this endpoint is excluded
-from the link-connectivity comparison rather than assigned an artificial
-connectivity value.
+For an endpoint $z\in\{u,v\}$, the set of external substrate links incident to $z$, excluding $e$
+itself, is $\delta(\{z\})\setminus\{e\}$. If the total initial capacity of these links,
+$\sum_{e'\in\delta(\{z\})\setminus\{e\}}c_{e'}$, is positive, its endpoint connectivity is defined as
+the residual-to-initial capacity ratio of these links,
+$\sum_{e'\in\delta(\{z\})\setminus\{e\}}r_{e'}\big/\sum_{e'\in\delta(\{z\})\setminus\{e\}}c_{e'}$. If
+that total initial capacity is zero, endpoint $z$ has no external link resource through which $e$
+can be extended; this endpoint is excluded from the link-connectivity comparison rather than
+assigned an artificial connectivity value.
 
 The external connectivity of $e$ is determined by the minimum endpoint
 connectivity among the endpoints that possess external link resources.
@@ -587,13 +581,15 @@ not normalized by substrate-wide resource capacities; therefore, the
 weights $\beta$ and $\gamma$ also account for possible differences in the
 numerical scales of CPU and bandwidth resources.
 
-Because an embedding only consumes substrate resources, the external
-connectivity of an eligible node or link cannot increase under the proposed
-definitions. Hence, the connectivity-deficiency increments in the above
-expressions are non-negative. The residual-resource factors ensure that
-the metric penalizes degradation in the usability of resources that remain
-available after the embedding, rather than merely charging the resources
-that have already been consumed.
+The connectivity-deficiency increments in the above expressions are non-negative, so the induced
+fragmentation cost is non-negative by construction. This follows from the connectivity monotonicity
+property established in Section~\ref{sec:metric_definition_of_resource_fragmentation}: because an
+embedding only consumes substrate resources and removes bandwidth from the associated boundary, the
+external connectivity of an eligible node or link cannot increase, i.e.,
+$I_N(v;S(M))-I_N(v;S_0)\ge0$ for every $v\in N^S$ and $I_L(e;S(M))-I_L(e;S_0)\ge0$ for every $e\in
+L^S$. The residual-resource factors ensure that the metric penalizes degradation in the usability of
+resources that remain available after the embedding, rather than merely charging the resources that
+have already been consumed.
 
 \section{Problem Formulation}
 \label{sec:problem_formulation}
@@ -602,41 +598,74 @@ The objective of \ecfvne{} is to embed the current VNR while preserving the
 future usability of residual substrate resources. For each arriving VNR, let
 $S_0$ denote the residual substrate state immediately before the request is
 processed, and let $S(M)$ denote the residual state after a partial or
-complete embedding $M$. The reference state $S_0$ remains fixed throughout
-processing of the current request.
+complete embedding $M$; the reference state $S_0$ remains fixed throughout
+processing of the current request. The decision variable
+$x_{nv}\in\{0,1\}$ indicates whether virtual node $n\in N^V$ is mapped to
+substrate node $v\in N^S$, and $f_{uv}^l\ge0$ denotes the bandwidth of
+virtual link $l$ routed through substrate arc $(u,v)\in A^S$.
 
-The decision variable $x_{nv}\in\{0,1\}$ indicates whether virtual node
-$n\in N^V$ is mapped to substrate node $v\in N^S$, and $f_{uv}^l\ge0$
-denotes the bandwidth of virtual link $l$ routed through substrate arc
-$(u,v)\in A^S$.
+\textbf{Objective:}
 
-\subsection{Embedding Constraints}
+\ecfvne{} ranks feasible tentative embeddings $M$ of the current VNR by the
+induced fragmentation cost they impose on the substrate network:
+\begin{equation}
+\text{minimize}\quad
+J_{\mathrm{ECF}}(M)
+=
+\beta\,\Delta F_L(M)
++
+\gamma\,\Delta F_N(M),
+\qquad
+\beta,\gamma\ge0,
+\label{eq:objective}
+\end{equation}
+where the induced link and node fragmentation terms are
+\begin{equation}
+\Delta F_L(M)
+=
+\sum_{e\in L^S}
+\max\{0,r_e(S(M))\}
+\left(
+I_L(e;S(M))-I_L(e;S_0)
+\right),
+\label{eq:delta_fl}
+\end{equation}
+\begin{equation}
+\Delta F_N(M)
+=
+\sum_{v\in N^S}
+\max\{0,r_v(S(M))\}
+\left(
+I_N(v;S(M))-I_N(v;S_0)
+\right).
+\label{eq:delta_fn}
+\end{equation}
 
-Each virtual node must be mapped to exactly one substrate node, and distinct
-virtual nodes of the same VNR cannot be mapped to the same substrate node:
-\[
+\textbf{Constraints:}
+
+\textbf{--- Node Assignment Constraints:}
+\begin{equation}
 \sum_{v\in N^S}x_{nv}=1,
 \qquad
 \forall n\in N^V,
-\]
-\[
+\label{eq:node_assign}
+\end{equation}
+\begin{equation}
 \sum_{n\in N^V}x_{nv}\le1,
 \qquad
 \forall v\in N^S.
-\]
+\label{eq:node_unique}
+\end{equation}
 
-The CPU demand allocated to each substrate node must not exceed its current
-residual CPU capacity:
-\[
+\textbf{--- Capacity Constraints:}
+\begin{equation}
 \sum_{n\in N^V}d_nx_{nv}
 \le r_v,
 \qquad
-\forall v\in N^S.
-\]
-
-For virtual-link routing, the total bandwidth allocated on an undirected
-substrate link in both directions must not exceed its residual bandwidth:
-\[
+\forall v\in N^S,
+\label{eq:cpu_cap}
+\end{equation}
+\begin{equation}
 \sum_{l\in L^V}
 \left(
  f_{uv}^l+f_{vu}^l
@@ -644,11 +673,11 @@ substrate link in both directions must not exceed its residual bandwidth:
 \le r_{\{u,v\}},
 \qquad
 \forall\{u,v\}\in L^S.
-\]
+\label{eq:bw_cap}
+\end{equation}
 
-For each virtual link $l=\{n,m\}\in L^V$, flow conservation determines the
-substrate nodes that serve as its source and destination:
-\[
+\textbf{--- Flow Conservation Constraints:}
+\begin{equation}
 \begin{aligned}
 \sum_{(v,w)\in A^S}f_{vw}^l
 -
@@ -659,56 +688,27 @@ substrate nodes that serve as its source and destination:
 &\forall v\in N^S,\quad
 \forall l=\{n,m\}\in L^V.
 \end{aligned}
-\]
+\label{eq:flow_cons}
+\end{equation}
 
-\subsection{ECF Objective Function}
-
-For each arriving VNR, let $S_0$ denote the residual substrate state
-immediately before processing the request. Let $S(M)$ denote the residual
-state after applying a partial or complete embedding $M$. The reference
-state $S_0$ is fixed throughout the processing of the current VNR.
-
-The induced node fragmentation of $M$ is defined as
-\[
-\Delta F_N(M)
-=
-\sum_{v\in N^S}
-\max\{0,r_v(S(M))\}
-\left(
-I_N(v;S(M))-I_N(v;S_0)
-\right),
-\]
-and the induced link fragmentation is defined as
-\[
-\Delta F_L(M)
-=
-\sum_{e\in L^S}
-\max\{0,r_e(S(M))\}
-\left(
-I_L(e;S(M))-I_L(e;S_0)
-\right).
-\]
-
-The ECF objective used to rank feasible tentative embeddings is
-\[
-J_{\mathrm{ECF}}(M)
-=
-\beta\left(
-\Delta F_L(M)
-+
-\gamma\Delta F_N(M)
-\right),
-\qquad
-\beta\ge0,\;\gamma\ge0.
-\]
-
-Here $\gamma$ controls the relative contribution of node fragmentation
-within the fragmentation term, while $\beta$ scales the overall magnitude
-of the ECF-based selection criterion. Because $\beta$ multiplies the entire
-expression by a positive constant, it does not alter the ranking of
-candidates within a single VNR; its role is to keep $J_{\mathrm{ECF}}$
-compatible in scale with other cost terms when the ECF criterion is
-combined with additional objectives in an extended formulation.
+\textbf{Remarks:}
+\begin{itemize}
+    \item The objective~\eqref{eq:objective} is exactly the induced fragmentation cost
+    $\Delta F_{\mathrm{frag}}(M)$ introduced in
+    Section~\ref{sec:metric_definition_of_resource_fragmentation}: $\beta$ controls the contribution
+    of link fragmentation~\eqref{eq:delta_fl} and $\gamma$ controls the contribution of node
+    fragmentation~\eqref{eq:delta_fn}, both evaluated relative to the fixed reference state $S_0$.
+    \item Constraint sets~\eqref{eq:node_assign} and~\eqref{eq:node_unique} enforce that each virtual
+    node is mapped to exactly one substrate node and that distinct virtual nodes of the same VNR are
+    not mapped to the same substrate node.
+    \item Constraint~\eqref{eq:cpu_cap} ensures that the CPU demand allocated to a substrate node
+    does not exceed its current residual CPU capacity.
+    \item Constraint~\eqref{eq:bw_cap} ensures that the total bandwidth allocated on an undirected
+    substrate link, summed over both directions, does not exceed its residual bandwidth.
+    \item Constraint~\eqref{eq:flow_cons} enforces flow conservation for each virtual link
+    $l=\{n,m\}\in L^V$: the net flow at every substrate node is zero, except at the substrate nodes
+    hosting $n$ and $m$, which act as the source and destination of $l$'s routed flow.
+\end{itemize}
 
 \section{ECF-VNE Embedding Algorithm}
 \label{sec:embedding_algorithm}
