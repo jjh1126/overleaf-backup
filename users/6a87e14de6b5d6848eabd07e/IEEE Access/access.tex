@@ -555,7 +555,17 @@ assigned an artificial connectivity value.
 The external connectivity of $e$ is determined by the minimum endpoint connectivity among the
 endpoints that possess external link resources:
 \begin{equation}
-    \mathrm{Conn}_L(e)
+\begin{aligned}
+
+    & \mathcal{Z}_e
+    =
+    \left\{
+    z \in \{u,v\}
+    \;\middle|\;
+    \sum_{e' \in \delta(z)\setminus\{e\}} c_{e'} > 0
+    \right\}.
+    \\
+    & \mathrm{Conn}_L(e)
     =
     \begin{cases}
         \displaystyle\min_{\substack{z\in\{u,v\}\\ \sum_{e'\in\delta(\{z\})\setminus\{e\}}c_{e'}>0}}
@@ -564,6 +574,7 @@ endpoints that possess external link resources:
         0,
          & \text{otherwise.}
     \end{cases}
+\end{aligned}
 \label{eq:conn_l}
 \end{equation}
 Accordingly, three cases arise naturally. If both endpoints have external link resources, the
