@@ -956,22 +956,21 @@ resource-fragmentation-based algorithms VNE-RFD-B and VNE-RFD-D~\cite{lu2022reso
 each VNR so as to minimize the resource fragmentation degree (RFD) reviewed in
 Section~\ref{sec:related_work}; the two variants differ only in whether the virtual nodes following
 the root are ordered by breadth-first or depth-first search. The
-second group consists of the load-balancing-based algorithms D-ViNE and
-R-ViNE~\cite{chowdhury2012vineyard}, which coordinate node and link mapping through a relaxed
+second group consists of the load-balancing-based algorithms D-ViNE-LB and
+R-ViNE-LB~\cite{chowdhury2012vineyard}, which coordinate node and link mapping through a relaxed
 mixed-integer program and select substrate nodes by deterministic and randomized rounding,
 respectively. For VNE-RFD-B and VNE-RFD-D, the backtracking bound, the number of candidate paths,
 and the hop bound of the fragmentation neighborhood are set to $\Delta=100$, $K=10$, and $\tau=3$
 for computational tractability. Placement-location constraints are disabled for all algorithms so
 that every substrate node with sufficient CPU is a valid candidate. Unless otherwise specified, the
 remaining algorithm-specific parameters follow the settings reported in the original papers. For
-\ecfvne{}, both weighting factors of the objective are set to $\beta=\gamma=1$ without
-topology-specific tuning.
+\ecfvne{}, both weighting factors of the objective are set to $\beta=\gamma=1$.
 
 VNE-RFD-B shares its overall structure with \ecfvne{}: the root virtual node is selected by degree
 and resource demand, the remaining virtual nodes are processed in breadth-first order, and every
 CPU-feasible substrate node is evaluated for each virtual node. The two algorithms differ in the
-fragmentation metric that drives node selection, in the path search ($K$ candidate paths versus a
-single minimum-hop path), in the root placement rule, and in the presence of backtracking, which
+fragmentation metric that drives node selection, in the path search ($K$ candidate minimum-hop paths vs. a
+single one), in the root placement rule, and in the presence of backtracking, which
 \ecfvne{} does not use. The comparison with VNE-RFD-B therefore primarily reflects the difference
 between the two fragmentation metrics.
 
@@ -1035,7 +1034,7 @@ respectively, where $[t_0,t_1]$ is the measurement period and $T=t_1-t_0$.
     \label{fig:acceptance}
 \end{figure}
 % Acceptance ratio (arrival rate 40)
-%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE	R-ViNE
+%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
 % Columbus	0.932193	0.525403	0.519489	0.358104	0.358202
 % FT6	0.388311	0.221406	0.222786	0.344010	0.351254
 % BCube(2,4)	0.688464	0.343912	0.334056	0.460898	0.467353
@@ -1045,19 +1044,19 @@ respectively, where $[t_0,t_1]$ is the measurement period and $T=t_1-t_0$.
 Fig.~\ref{fig:acceptance} shows the VNR acceptance ratio under an arrival rate of 40 VNRs per
 1{,}000 time units. \ecfvne{} achieves the highest acceptance ratio on all three substrate
 networks. On Columbus, \ecfvne{} accepts 93.2\% of the arriving VNRs, compared with 52.5\% and
-51.9\% for VNE-RFD-B and VNE-RFD-D and 35.8\% for both D-ViNE and R-ViNE; that is, the acceptance
+51.9\% for VNE-RFD-B and VNE-RFD-D and 35.8\% for both D-ViNE-LB and R-ViNE-LB; that is, the acceptance
 ratio is improved by a factor of about 1.8 over the fragmentation-based baselines and about 2.6
 over the load-balancing baselines. On BCube$(2,4)$, \ecfvne{} accepts 68.8\% of the VNRs, whereas
-the best baseline, R-ViNE, accepts 46.7\%, and the RFD-based algorithms accept only about 34\%. On
+the best baseline, R-ViNE-LB, accepts 46.7\%, and the RFD-based algorithms accept only about 34\%. On
 FT6, all algorithms attain comparatively low acceptance ratios, and \ecfvne{} achieves 38.8\%
-against 35.1\% for R-ViNE and about 22\% for the RFD-based algorithms.
+against 35.1\% for R-ViNE-LB and about 22\% for the RFD-based algorithms.
 
 Two observations follow from these results. First, the relative ordering of the two baseline
 groups reverses between the ISP network and the DCNs. On Columbus, the RFD-based algorithms clearly
-outperform D-ViNE and R-ViNE, which is consistent with the premise that fragmentation awareness is
+outperform D-ViNE-LB and R-ViNE-LB, which is consistent with the premise that fragmentation awareness is
 beneficial on heterogeneous topologies. On FT6 and BCube$(2,4)$, however, VNE-RFD-B and VNE-RFD-D
 fall well below the load-balancing baselines, accepting only about 64\% and 75\% as many VNRs as
-D-ViNE, respectively. We attribute this degradation to the way RFD aggregates the residual
+D-ViNE-LB, respectively. We attribute this degradation to the way RFD aggregates the residual
 resources of a hop-bounded neighborhood. The link RFD weights each adjacent link by the residual
 CPU ratio of the shared node, so every link incident to a zero-CPU switch is assigned the maximum
 fragmentation degree irrespective of its residual bandwidth, and the node RFD of a host averages
@@ -1086,7 +1085,7 @@ a gain of about 22 percentage points over the best baseline.
     \label{fig:revenue}
 \end{figure}
 % Time-average revenue (arrival rate 40)
-%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE	R-ViNE
+%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
 % Columbus	9.709791	3.589142	3.572573	2.105087	2.095923
 % FT6	1.632458	0.695184	0.717869	1.502564	1.546385
 % BCube(2,4)	5.348123	1.685764	1.607970	2.954614	3.038214
@@ -1098,7 +1097,7 @@ a gain of about 22 percentage points over the best baseline.
     \label{fig:cost}
 \end{figure}
 % Average provisioning cost (arrival rate 40)
-%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE	R-ViNE
+%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
 % Columbus	424.002607	302.008206	303.288561	788.874081	785.084744
 % FT6	219.578423	175.675998	182.553828	398.586629	408.092600
 % BCube(2,4)	392.660787	222.799521	219.380631	573.585859	589.713464
@@ -1110,14 +1109,14 @@ acceptance results because \ecfvne{} not only accepts more VNRs but also sustain
 of concurrently embedded VNRs in the substrate. On Columbus, \ecfvne{} generates about 2.7 times the
 revenue of the RFD-based algorithms and about 4.6 times that of the ViNE algorithms. On
 BCube$(2,4)$, the corresponding factors are about 3.2--3.3 and 1.8, and on FT6 they are about 2.3 and
-1.06--1.09. The comparatively small revenue margin over R-ViNE on FT6 is again a consequence of
+1.06--1.09. The comparatively small revenue margin over R-ViNE-LB on FT6 is again a consequence of
 the access-link bottleneck discussed above, which limits how much additional demand any algorithm
 can accommodate.
 
 Fig.~\ref{fig:cost} shows the average embedding cost per accepted VNR. Here the RFD-based
 algorithms attain the lowest cost on all networks, \ecfvne{} incurs a moderately higher cost, and
-D-ViNE and R-ViNE incur the highest cost. The cost of \ecfvne{} is 1.25 to 1.76 times that of
-VNE-RFD-B but only 54\% to 68\% of that of D-ViNE. The higher cost relative to the RFD-based
+D-ViNE-LB and R-ViNE-LB incur the highest cost. The cost of \ecfvne{} is 1.25 to 1.76 times that of
+VNE-RFD-B but only 54\% to 68\% of that of D-ViNE-LB. The higher cost relative to the RFD-based
 algorithms should be interpreted together with the acceptance ratio: \ecfvne{} accepts VNRs that
 the RFD-based algorithms reject, and these additional VNRs are embedded in a substrate whose
 residual capacity is more heavily utilized, so their virtual links are routed over somewhat longer
@@ -1148,12 +1147,12 @@ accepted VNR, which manifests as both a higher cost and a lower acceptance ratio
     \label{fig:util}
 \end{figure*}
 % Node utilization (arrival rate 40)
-%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE	R-ViNE
+%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
 % Columbus	0.440480	0.192645	0.194784	0.122629	0.121004
 % FT6	0.105337	0.050802	0.051106	0.098186	0.100411
 % BCube(2,4)	0.227092	0.084828	0.081123	0.133850	0.137675
 % Link utilization (arrival rate 40)
-%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE	R-ViNE
+%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
 % Columbus	0.434512	0.167537	0.171434	0.344444	0.339634
 % FT6	0.172929	0.082441	0.084033	0.316808	0.326932
 % BCube(2,4)	0.494536	0.130920	0.126637	0.510461	0.536424
@@ -1168,8 +1167,8 @@ of \ecfvne{} translates into a correspondingly larger amount of admitted demand 
 the admission of small requests only.
 
 Link utilization reveals a more subtle difference between the two baseline groups. On Columbus,
-\ecfvne{} also attains the highest link utilization. On FT6 and BCube$(2,4)$, however, D-ViNE and
-R-ViNE reach link utilizations comparable to or higher than that of \ecfvne{} even though they
+\ecfvne{} also attains the highest link utilization. On FT6 and BCube$(2,4)$, however, D-ViNE-LB and
+R-ViNE-LB reach link utilizations comparable to or higher than that of \ecfvne{} even though they
 accept fewer VNRs and admit less CPU demand. The ratio of link utilization to node utilization is
 about 3.2 to 3.9 for the ViNE algorithms but only 1.6 to 2.2 for \ecfvne{}, which means that the
 ViNE algorithms consume roughly twice as much bandwidth per unit of admitted CPU demand. This is
@@ -1191,7 +1190,7 @@ in a combinable state.
 %     \label{fig:runtime}
 % \end{figure}
 % Runtime (ms / VNR, arrival rate 40)
-%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE	R-ViNE
+%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
 % Columbus	1.560100	605.417379	771.508487	134.769023	125.768475
 % FT6	1.474476	409.887678	631.778218	96.645303	84.955590
 % BCube(2,4)	1.905753	853.542868	1217.085351	138.652401	117.097019
@@ -1213,21 +1212,21 @@ plain greedy embedding is small.
     \label{fig:acceptance_arrival_rate}
 \end{figure*}
 % Acceptance values — Columbus
-%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE	R-ViNE
+%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
 % 40	0.932193	0.525403	0.519489	0.358104	0.358202
 % 50	0.889590	0.502031	0.501755	0.325589	0.326890
 % 60	0.850651	0.497380	0.490789	0.296886	0.303411
 % 70	0.810582	0.488227	0.482894	0.283064	0.278723
 % 80	0.770541	0.476972	0.475211	0.260807	0.262816
 % Acceptance values — FT6
-%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE	R-ViNE
+%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
 % 40	0.388311	0.221406	0.222786	0.344010	0.351254
 % 50	0.370715	0.217940	0.219242	0.307956	0.311704
 % 60	0.357423	0.213742	0.218718	0.278728	0.279980
 % 70	0.343348	0.210525	0.212511	0.259319	0.257674
 % 80	0.329903	0.207733	0.210511	0.239875	0.243050
 % Acceptance values — BCube(2,4)
-%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE	R-ViNE
+%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
 % 40	0.688464	0.343912	0.334056	0.460898	0.467353
 % 50	0.631612	0.322551	0.315609	0.412410	0.420615
 % 60	0.600428	0.312078	0.302719	0.381117	0.390015
@@ -1256,7 +1255,7 @@ absolute gap over VNE-RFD-B narrows from about 41 to 29 percentage points as the
 while the acceptance ratio of \ecfvne{} remains 1.6 times that of VNE-RFD-B at the highest rate. On
 BCube$(2,4)$, the gap over the ViNE algorithms is essentially constant at about 20 to 22 percentage
 points, and the ratio increases from 1.47 to 1.58. On FT6, the margin widens with load: the gap
-over R-ViNE grows from about 4 to 9 percentage points and the ratio from 1.11 to 1.36, because the
+over R-ViNE-LB grows from about 4 to 9 percentage points and the ratio from 1.11 to 1.36, because the
 ViNE algorithms lose acceptance quickly while \ecfvne{} degrades gracefully. This indicates that
 the advantage of preserving the combinability of residual resources becomes more pronounced as the
 substrate becomes more congested, since under heavier load a fragmented residual state is
