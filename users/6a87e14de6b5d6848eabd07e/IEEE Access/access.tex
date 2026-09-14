@@ -187,15 +187,16 @@ of milliseconds per request.
 The main contributions of this paper are summarized as follows. First, we characterize resource
 fragmentation based on the combinability of residual resources rather than solely on their absolute
 remaining capacity, and formulate a unified external-connectivity-based \ecf{} metric specialized
-for substrate nodes and links. The external connectivity term is justified directly by the boundary
-cut, equivalently the maximum flow between a resource region and its exterior, and is monotone
-under embedding, which distinguishes it from hop-bounded neighborhood aggregates that depend on
-tuning parameters. Second, we separate induced fragmentation from the direct effect of resource
+for substrate nodes and links. The external connectivity term is defined directly by the residual
+capacity of the boundary cut between a resource and its exterior and is monotone under embedding,
+which distinguishes it from hop-bounded neighborhood aggregates that depend on tuning parameters. Second, we separate induced fragmentation from the direct effect of resource
 consumption, define the non-negative induced fragmentation cost, and incorporate it into an online
 node and path selection algorithm, \ecfvne{}, that considers both the current embedding and the
 usability of the substrate resources left for future requests. Third, we evaluate \ecfvne{} against
 fragmentation-aware and load-balancing-based baselines on a real ISP topology and on FatTree and
-BCube data center topologies under a range of arrival rates. The results show that \ecfvne{}
+BCube data center topologies under a range of arrival rates. Since \ecfvne{} shares its
+algorithmic structure with the RFD-based baselines, the comparison primarily reflects the
+difference between the fragmentation metrics. The results show that \ecfvne{}
 consistently achieves the highest acceptance ratio, revenue, and node utilization, that it
 retains this advantage on data center topologies where the existing fragmentation-aware baselines
 fall below the load-balancing baselines, and that its margin persists or widens as the offered
@@ -226,7 +227,10 @@ entropy-based weighting with TOPSIS to rank substrate nodes~\cite{tg2023nord}, w
 ELECTRE evaluates candidate substrate nodes using multiple node metrics and
 constraints~\cite{zhang2018virtual}. These approaches primarily use resource and topology
 information to estimate candidate-node suitability for the current embedding decision rather than to
-characterize fragmentation of the residual substrate state.
+characterize fragmentation of the residual substrate state. The node metric proposed in this paper
+also combines residual CPU with adjacent-link bandwidth, but it uses the residual-to-initial ratio
+of the adjacent links rather than their absolute amount, and it is applied to the change that an
+embedding induces over the whole substrate rather than as a ranking score of the candidate node.
 
 Another line of work coordinates node embedding and link routing because independently selected node
 embeddings can lead to infeasible or costly link routings. Coordinated approaches therefore solve
@@ -247,9 +251,9 @@ These objectives seek a balanced distribution of substrate utilization. Resource
 resource fragmentation, however, are not equivalent. From the fragmentation perspective adopted in
 this paper, the relevant question is whether a residual resource can still be used together with the
 other resources required by a future mapping operation, rather than only whether residual resources
-are evenly distributed across the substrate network. This distinction does not exclude load
-balancing; instead, this paper retains load balancing separately through the resource-usage term
-$C_{\mathrm{use}}$, while modeling fragmentation cost as a distinct objective.
+are evenly distributed across the substrate network. Load balancing is therefore not part of the
+proposed objective; representative load-balancing algorithms are instead used as baselines in
+Section~\ref{sec:performance_evaluation}.
 
 % \subsection{Survivable VNE Under Substrate Failures}
 
@@ -290,9 +294,14 @@ bounded hop count. For a substrate link, RFD incorporates the residual resources
 and the substrate nodes shared by those links. Their formulation is motivated by an extension of
 graph connectivity and aggregates these surrounding resource states to quantify the fragmentation
 degree of each substrate element. This connectivity extension depends on a hop-bounded neighborhood
-and its associated hyperparameter, whereas the external connectivity used in this paper is justified
-directly by the boundary cut, equivalently the max-flow between a resource region and its exterior,
-and requires no hop-count tuning.
+and its associated hyperparameter, whereas the external connectivity used in this paper is defined
+directly by the residual capacity of the boundary cut and requires no hop-count tuning. Their
+embedding algorithm, VNE-RFD, processes the virtual nodes of a request sequentially from a root
+selected by degree and resource demand, evaluates every CPU-feasible substrate node for each virtual
+node, and minimizes the sum of the embedding cost and the residual-weighted fragmentation degree
+of the whole substrate after the embedding. The latter is an absolute quantity that decreases
+whenever an already fragmented resource is consumed; in contrast, the induced cost proposed in
+this paper isolates the connectivity degradation of the resources that remain.
 
 The proposed metric shares with RFD the observation that residual resource amount alone is
 insufficient to characterize future usability. The distinction lies in how the relevant resource
@@ -463,15 +472,14 @@ connectivity as
     \end{cases}
 \label{eq:conn}
 \end{equation}
-If we connect $A$ and $\bar A$ to a super source and a super sink, respectively, the cut that
-separates the two regions coincides with $\delta(A)$; the boundary's residual capacity therefore
-represents the capacity available for region $A$ to connect with its exterior.
+Since any bandwidth exchanged between $A$ and $\bar A$ must traverse $\delta(A)$, the residual
+capacity of this boundary is the total bandwidth available for region $A$ to connect with its
+exterior, and $\mathrm{Conn}(A)$ expresses it as a fraction of the initial boundary capacity.
 
-Two properties motivate this specific choice of connectivity term. First, $\mathrm{Conn}(A)$ is a
-normalized max-flow upper bound between $A$ and $\bar A$: by the max-flow min-cut theorem, any
-single-commodity flow from $A$ to $\bar A$ cannot exceed $\sum_{e\in\delta(A)}r_e$. Thus, if
-$\mathrm{Conn}(A)=0$, region $A$ cannot support any additional external combination regardless of
-how the demand is routed. Second, $\mathrm{Conn}$ is monotone under embedding: because every
+Two properties motivate this choice of connectivity term. First, $\mathrm{Conn}(A)$ bounds the
+external usability of $A$: if $\mathrm{Conn}(A)=0$, no additional bandwidth can cross the boundary,
+and the resources inside $A$ cannot be combined with any external resource regardless of how a
+demand is routed. Second, $\mathrm{Conn}$ is monotone under embedding: because every
 embedding only removes bandwidth from $\delta(A)$, we have
 $\sum_{e\in\delta(A)}r_e(M)\le\sum_{e\in\delta(A)}r_e$ and therefore
 \begin{equation}
@@ -484,6 +492,14 @@ where $\mathrm{Conn}(A;M)$ denotes the external connectivity evaluated in the re
 embedding $M$. These two properties keep the metric
 interpretable as a resource-usability bound whose external connectivity cannot improve merely as a
 byproduct of embedding.
+
+In the remainder of this section, the region $A$ is instantiated as a single substrate node or as
+the endpoints of a single substrate link, which are the smallest resource combinations required by
+node embedding and virtual-link routing, respectively. This choice keeps the evaluation of
+$\mathrm{Conn}$ local to the adjacent links of a resource; the definition itself applies to larger
+regions without modification. Normalizing by the initial boundary capacity makes $\mathrm{Conn}$
+independent of the absolute bandwidth scale, so that node and link fragmentation can be expressed
+in a common form and combined across resource types.
 
 \subsection{Node Fragmentation}
 For a substrate node $v\in N^S$, we set $A=\{v\}$ in \eqref{eq:conn}, so that the external
@@ -627,7 +643,11 @@ $I_N(v;S(M))-I_N(v;S_0)\ge0$ for every $v\in N^S$ and $I_L(e;S(M))-I_L(e;S_0)\ge
 L^S$; the residual-resource factors $r_v(S(M))$ and $r_e(S(M))$ are non-negative for any feasible
 embedding. The residual-resource factors ensure that \eqref{eq:delta_fn} and \eqref{eq:delta_fl}
 penalize degradation in the usability of resources that remain available after the embedding,
-rather than merely charging the resources that have already been consumed.
+rather than merely charging the resources that have already been consumed. In terms of embedding
+decisions, $\Delta F_N$ penalizes bandwidth consumption on links adjacent to nodes with large
+residual CPU, and $\Delta F_L$ penalizes bandwidth consumption adjacent to links with large
+residual bandwidth; an embedding with low induced cost therefore consumes bandwidth near
+resources that are already utilized and leaves well-connected residual resources intact.
 
 \section{Problem Formulation}
 \label{sec:problem_formulation}
@@ -905,13 +925,13 @@ are evaluated, the total objective-evaluation cost is $O\bigl(|N^S||N^V||L^S|\De
 
 The overall worst-case running time is therefore
 \begin{equation}
-\begin{aligned}
 O\Bigl(
-  |N^S||N^V| 
-  + |N^S||L^V| & \bigl(|N^S|+|L^S|\bigr) \\
-  & + |N^S||N^V||L^S|\Delta_S
+|N^S||N^V|
++
+|N^S||L^V|\bigl(|N^S|+|L^S|\bigr)
++
+|N^S||N^V||L^S|\Delta_S
 \Bigr).
-\end{aligned}
 \label{eq:complexity}
 \end{equation}
 This bound depends on both the substrate topology ($|N^S|$, $|L^S|$, $\Delta_S$) and the size of the
@@ -948,16 +968,26 @@ then measured over 50{,}000 time units.
 We compare \ecfvne{} with two groups of baselines. The first group consists of the
 resource-fragmentation-based algorithms VNE-RFD-B and VNE-RFD-D~\cite{lu2022resource}, which embed
 each VNR so as to minimize the resource fragmentation degree (RFD) reviewed in
-Section~\ref{sec:related_work}; the two variants differ in the search strategy used for node mapping. The
-second group consists of the load-balancing-based algorithms D-ViNE-LB and
-R-ViNE-LB~\cite{chowdhury2012vineyard}, which coordinate node and link mapping through a relaxed
+Section~\ref{sec:related_work}; the two variants differ only in whether the virtual nodes following
+the root are ordered by breadth-first or depth-first search. The
+second group consists of the load-balancing-based algorithms D-ViNE and
+R-ViNE~\cite{chowdhury2012vineyard}, which coordinate node and link mapping through a relaxed
 mixed-integer program and select substrate nodes by deterministic and randomized rounding,
 respectively. For VNE-RFD-B and VNE-RFD-D, the backtracking bound, the number of candidate paths,
 and the hop bound of the fragmentation neighborhood are set to $\Delta=100$, $K=10$, and $\tau=3$
 for computational tractability. Placement-location constraints are disabled for all algorithms so
 that every substrate node with sufficient CPU is a valid candidate. Unless otherwise specified, the
 remaining algorithm-specific parameters follow the settings reported in the original papers. For
-\ecfvne{}, both weighting factors of the objective are set to $\beta=\gamma=1$.
+\ecfvne{}, both weighting factors of the objective are set to $\beta=\gamma=1$ without
+topology-specific tuning.
+
+VNE-RFD-B shares its overall structure with \ecfvne{}: the root virtual node is selected by degree
+and resource demand, the remaining virtual nodes are processed in breadth-first order, and every
+CPU-feasible substrate node is evaluated for each virtual node. The two algorithms differ in the
+fragmentation metric that drives node selection, in the path search ($K$ candidate paths versus a
+single minimum-hop path), in the root placement rule, and in the presence of backtracking, which
+\ecfvne{} does not use. The comparison with VNE-RFD-B therefore primarily reflects the difference
+between the two fragmentation metrics.
 
 \subsection{Network Settings}
 
@@ -1000,14 +1030,14 @@ accepted VNRs, where the cost of an embedding is the sum of its CPU allocations 
 allocated on every substrate link traversed by its virtual links, so that longer substrate paths
 incur a higher cost. Finally, the \emph{average node utilization} and \emph{average link
 utilization} are defined as the time averages of the fraction of consumed substrate capacity,
-$
+\begin{equation}
 \frac{1}{T}\int_{t_0}^{t_1}
 \frac{\sum_{v\in N^S}\bigl(c_v-r_v(t)\bigr)}{\sum_{v\in N^S}c_v}\,dt
 \quad\text{and}\quad
 \frac{1}{T}\int_{t_0}^{t_1}
 \frac{\sum_{e\in L^S}\bigl(c_e-r_e(t)\bigr)}{\sum_{e\in L^S}c_e}\,dt,
 \label{eq:utilization}
-$
+\end{equation}
 respectively, where $[t_0,t_1]$ is the measurement period and $T=t_1-t_0$.
 
 \subsection{Results Under a Fixed Arrival Rate}
@@ -1019,7 +1049,7 @@ respectively, where $[t_0,t_1]$ is the measurement period and $T=t_1-t_0$.
     \label{fig:acceptance}
 \end{figure}
 % Acceptance ratio (arrival rate 40)
-%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
+%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE	R-ViNE
 % Columbus	0.932193	0.525403	0.519489	0.358104	0.358202
 % FT6	0.388311	0.221406	0.222786	0.344010	0.351254
 % BCube(2,4)	0.688464	0.343912	0.334056	0.460898	0.467353
@@ -1029,23 +1059,25 @@ respectively, where $[t_0,t_1]$ is the measurement period and $T=t_1-t_0$.
 Fig.~\ref{fig:acceptance} shows the VNR acceptance ratio under an arrival rate of 40 VNRs per
 1{,}000 time units. \ecfvne{} achieves the highest acceptance ratio on all three substrate
 networks. On Columbus, \ecfvne{} accepts 93.2\% of the arriving VNRs, compared with 52.5\% and
-51.9\% for VNE-RFD-B and VNE-RFD-D and 35.8\% for both D-ViNE-LB and R-ViNE-LB; that is, the acceptance
+51.9\% for VNE-RFD-B and VNE-RFD-D and 35.8\% for both D-ViNE and R-ViNE; that is, the acceptance
 ratio is improved by a factor of about 1.8 over the fragmentation-based baselines and about 2.6
 over the load-balancing baselines. On BCube$(2,4)$, \ecfvne{} accepts 68.8\% of the VNRs, whereas
-the best baseline, R-ViNE-LB, accepts 46.7\%, and the RFD-based algorithms accept only about 34\%. On
+the best baseline, R-ViNE, accepts 46.7\%, and the RFD-based algorithms accept only about 34\%. On
 FT6, all algorithms attain comparatively low acceptance ratios, and \ecfvne{} achieves 38.8\%
-against 35.1\% for R-ViNE-LB and about 22\% for the RFD-based algorithms.
+against 35.1\% for R-ViNE and about 22\% for the RFD-based algorithms.
 
 Two observations follow from these results. First, the relative ordering of the two baseline
 groups reverses between the ISP network and the DCNs. On Columbus, the RFD-based algorithms clearly
-outperform D-ViNE-LB and R-ViNE-LB, which is consistent with the premise that fragmentation awareness is
+outperform D-ViNE and R-ViNE, which is consistent with the premise that fragmentation awareness is
 beneficial on heterogeneous topologies. On FT6 and BCube$(2,4)$, however, VNE-RFD-B and VNE-RFD-D
 fall well below the load-balancing baselines, accepting only about 64\% and 75\% as many VNRs as
-D-ViNE-LB, respectively. We attribute this degradation to the way RFD aggregates the residual
-resources of a hop-bounded neighborhood: in a DCN, the neighbors of every host are switches with
-zero CPU capacity, the topology is regular, and the link capacities are uniform, so the aggregated
-neighborhood states of different hosts become nearly indistinguishable and the metric provides
-little guidance for node selection. In contrast, \ecfvne{} preserves its advantage on the DCNs
+D-ViNE, respectively. We attribute this degradation to the way RFD aggregates the residual
+resources of a hop-bounded neighborhood. The link RFD weights each adjacent link by the residual
+CPU ratio of the shared node, so every link incident to a zero-CPU switch is assigned the maximum
+fragmentation degree irrespective of its residual bandwidth, and the node RFD of a host averages
+over a neighborhood that consists mostly of such switches. On a regular topology with uniform
+link capacities, the resulting values are nearly identical across hosts and provide little
+guidance for node selection. In contrast, \ecfvne{} preserves its advantage on the DCNs
 because the external connectivity of a host is evaluated directly through the residual bandwidth
 of its attached links, which is exactly the resource that determines whether the host can still
 support virtual nodes with incident virtual links. The proposed metric therefore remains
@@ -1068,7 +1100,7 @@ a gain of about 22 percentage points over the best baseline.
     \label{fig:revenue}
 \end{figure}
 % Time-average revenue (arrival rate 40)
-%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
+%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE	R-ViNE
 % Columbus	9.709791	3.589142	3.572573	2.105087	2.095923
 % FT6	1.632458	0.695184	0.717869	1.502564	1.546385
 % BCube(2,4)	5.348123	1.685764	1.607970	2.954614	3.038214
@@ -1080,7 +1112,7 @@ a gain of about 22 percentage points over the best baseline.
     \label{fig:cost}
 \end{figure}
 % Average provisioning cost (arrival rate 40)
-%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
+%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE	R-ViNE
 % Columbus	424.002607	302.008206	303.288561	788.874081	785.084744
 % FT6	219.578423	175.675998	182.553828	398.586629	408.092600
 % BCube(2,4)	392.660787	222.799521	219.380631	573.585859	589.713464
@@ -1092,14 +1124,14 @@ acceptance results because \ecfvne{} not only accepts more VNRs but also sustain
 of concurrently embedded VNRs in the substrate. On Columbus, \ecfvne{} generates about 2.7 times the
 revenue of the RFD-based algorithms and about 4.6 times that of the ViNE algorithms. On
 BCube$(2,4)$, the corresponding factors are about 3.2--3.3 and 1.8, and on FT6 they are about 2.3 and
-1.06--1.09. The comparatively small revenue margin over R-ViNE-LB on FT6 is again a consequence of
+1.06--1.09. The comparatively small revenue margin over R-ViNE on FT6 is again a consequence of
 the access-link bottleneck discussed above, which limits how much additional demand any algorithm
 can accommodate.
 
 Fig.~\ref{fig:cost} shows the average embedding cost per accepted VNR. Here the RFD-based
 algorithms attain the lowest cost on all networks, \ecfvne{} incurs a moderately higher cost, and
-D-ViNE-LB and R-ViNE-LB incur the highest cost. The cost of \ecfvne{} is 1.25 to 1.76 times that of
-VNE-RFD-B but only 54\% to 68\% of that of D-ViNE-LB. The higher cost relative to the RFD-based
+D-ViNE and R-ViNE incur the highest cost. The cost of \ecfvne{} is 1.25 to 1.76 times that of
+VNE-RFD-B but only 54\% to 68\% of that of D-ViNE. The higher cost relative to the RFD-based
 algorithms should be interpreted together with the acceptance ratio: \ecfvne{} accepts VNRs that
 the RFD-based algorithms reject, and these additional VNRs are embedded in a substrate whose
 residual capacity is more heavily utilized, so their virtual links are routed over somewhat longer
@@ -1130,12 +1162,12 @@ accepted VNR, which manifests as both a higher cost and a lower acceptance ratio
     \label{fig:util}
 \end{figure*}
 % Node utilization (arrival rate 40)
-%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
+%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE	R-ViNE
 % Columbus	0.440480	0.192645	0.194784	0.122629	0.121004
 % FT6	0.105337	0.050802	0.051106	0.098186	0.100411
 % BCube(2,4)	0.227092	0.084828	0.081123	0.133850	0.137675
 % Link utilization (arrival rate 40)
-%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
+%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE	R-ViNE
 % Columbus	0.434512	0.167537	0.171434	0.344444	0.339634
 % FT6	0.172929	0.082441	0.084033	0.316808	0.326932
 % BCube(2,4)	0.494536	0.130920	0.126637	0.510461	0.536424
@@ -1150,8 +1182,8 @@ of \ecfvne{} translates into a correspondingly larger amount of admitted demand 
 the admission of small requests only.
 
 Link utilization reveals a more subtle difference between the two baseline groups. On Columbus,
-\ecfvne{} also attains the highest link utilization. On FT6 and BCube$(2,4)$, however, D-ViNE-LB and
-R-ViNE-LB reach link utilizations comparable to or higher than that of \ecfvne{} even though they
+\ecfvne{} also attains the highest link utilization. On FT6 and BCube$(2,4)$, however, D-ViNE and
+R-ViNE reach link utilizations comparable to or higher than that of \ecfvne{} even though they
 accept fewer VNRs and admit less CPU demand. The ratio of link utilization to node utilization is
 about 3.2 to 3.9 for the ViNE algorithms but only 1.6 to 2.2 for \ecfvne{}, which means that the
 ViNE algorithms consume roughly twice as much bandwidth per unit of admitted CPU demand. This is
@@ -1173,7 +1205,7 @@ in a combinable state.
 %     \label{fig:runtime}
 % \end{figure}
 % Runtime (ms / VNR, arrival rate 40)
-%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
+%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE	R-ViNE
 % Columbus	1.560100	605.417379	771.508487	134.769023	125.768475
 % FT6	1.474476	409.887678	631.778218	96.645303	84.955590
 % BCube(2,4)	1.905753	853.542868	1217.085351	138.652401	117.097019
@@ -1195,21 +1227,21 @@ plain greedy embedding is small.
     \label{fig:acceptance_arrival_rate}
 \end{figure*}
 % Acceptance values — Columbus
-%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
+%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE	R-ViNE
 % 40	0.932193	0.525403	0.519489	0.358104	0.358202
 % 50	0.889590	0.502031	0.501755	0.325589	0.326890
 % 60	0.850651	0.497380	0.490789	0.296886	0.303411
 % 70	0.810582	0.488227	0.482894	0.283064	0.278723
 % 80	0.770541	0.476972	0.475211	0.260807	0.262816
 % Acceptance values — FT6
-%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
+%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE	R-ViNE
 % 40	0.388311	0.221406	0.222786	0.344010	0.351254
 % 50	0.370715	0.217940	0.219242	0.307956	0.311704
 % 60	0.357423	0.213742	0.218718	0.278728	0.279980
 % 70	0.343348	0.210525	0.212511	0.259319	0.257674
 % 80	0.329903	0.207733	0.210511	0.239875	0.243050
 % Acceptance values — BCube(2,4)
-%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
+%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE	R-ViNE
 % 40	0.688464	0.343912	0.334056	0.460898	0.467353
 % 50	0.631612	0.322551	0.315609	0.412410	0.420615
 % 60	0.600428	0.312078	0.302719	0.381117	0.390015
@@ -1238,7 +1270,7 @@ absolute gap over VNE-RFD-B narrows from about 41 to 29 percentage points as the
 while the acceptance ratio of \ecfvne{} remains 1.6 times that of VNE-RFD-B at the highest rate. On
 BCube$(2,4)$, the gap over the ViNE algorithms is essentially constant at about 20 to 22 percentage
 points, and the ratio increases from 1.47 to 1.58. On FT6, the margin widens with load: the gap
-over R-ViNE-LB grows from about 4 to 9 percentage points and the ratio from 1.11 to 1.36, because the
+over R-ViNE grows from about 4 to 9 percentage points and the ratio from 1.11 to 1.36, because the
 ViNE algorithms lose acceptance quickly while \ecfvne{} degrades gracefully. This indicates that
 the advantage of preserving the combinability of residual resources becomes more pronounced as the
 substrate becomes more congested, since under heavier load a fragmented residual state is
@@ -1255,7 +1287,7 @@ and link resources required by future requests. We proposed the External-Connect
 Fragmentation (\ecf{}) metric, which expresses the usability of a residual resource as the product
 of its residual amount and the deficiency of its normalized external connectivity. External
 connectivity is defined through the residual capacity of the boundary cut between a resource region
-and its exterior, which gives it a max-flow interpretation and guarantees that it is monotone under
+and its exterior, which gives it a direct interpretation and guarantees that it is monotone under
 embedding without any hop-count or neighborhood parameter. The metric is specialized for substrate
 nodes and links according to the distinct resource combinations required by node embedding and
 virtual-link routing. We further decomposed the change in fragmentation caused by an embedding into
@@ -1267,7 +1299,8 @@ fragmentation cost relative to the pre-request substrate state.
 
 Simulation results on an ISP topology and on FatTree and BCube data center topologies showed that
 \ecfvne{} achieves the highest acceptance ratio, revenue, and node utilization among the compared
-algorithms on every topology and at every tested arrival rate. In particular, whereas the existing
+algorithms on every topology and at every tested arrival rate, under an algorithmic structure
+comparable to that of the RFD-based baselines but without backtracking. In particular, whereas the existing
 fragmentation-aware baselines outperform the load-balancing baselines on the heterogeneous ISP
 topology but fall below them on the regular data center topologies, \ecfvne{} retains its advantage
 in both environments, because the external connectivity of a host is evaluated directly from the
