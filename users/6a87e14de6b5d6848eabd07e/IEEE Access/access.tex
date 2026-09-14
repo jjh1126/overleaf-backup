@@ -640,6 +640,7 @@ residual CPU, and $\Delta F_L$ penalizes bandwidth consumption adjacent to links
 residual bandwidth; an embedding with low induced cost therefore consumes bandwidth near
 resources that are already utilized and leaves well-connected residual resources intact.
 
+
 \section{Problem Formulation}
 \label{sec:problem_formulation}
 
@@ -656,24 +657,17 @@ virtual link $l$ routed through substrate arc $(u,v)\in A^S$.
 \textbf{Objective:}
 
 \ecfvne{} ranks feasible tentative embeddings $M$ of the current VNR by the
-induced fragmentation cost they impose on the substrate network:
+induced fragmentation cost they impose on the substrate network. Let
+$J_{\mathrm{ECF}}(M) = \beta\,\Delta F_L(M) + \gamma\,\Delta F_N(M)$,
+where $\Delta F_L(M)$ and $\Delta F_N(M)$ are the induced link and node
+fragmentation defined in \eqref{eq:delta_fl} and \eqref{eq:delta_fn}, both
+evaluated relative to the fixed reference state $S_0$, and $\beta,\gamma\ge0$
+control the contributions of link and node fragmentation, respectively.
+\ecfvne{} then solves
 \begin{equation}
-\begin{aligned}
-\text{minimize}\quad
-J_{\mathrm{ECF}}(M)
-=
-\beta\,\Delta F_L(M)
-+
-\gamma\,\Delta F_N(M),
-\\
-&\beta,\gamma\ge0,
-\end{aligned}
+\underset{M}{\text{minimize}}\quad J_{\mathrm{ECF}}(M).
 \label{eq:objective}
 \end{equation}
-where $\Delta F_L(M)$ and $\Delta F_N(M)$ are the induced link and node fragmentation defined in
-\eqref{eq:delta_fl} and \eqref{eq:delta_fn}, both evaluated relative to the fixed reference state
-$S_0$, and $\beta$ and $\gamma$ control the contributions of link and node fragmentation,
-respectively.
 
 \textbf{Constraints:}
 
@@ -918,13 +912,12 @@ are evaluated, the total objective-evaluation cost is $O\bigl(|N^S||N^V||L^S|\De
 
 The overall worst-case running time is therefore
 \begin{equation}
+\begin{aligned}
 O\Bigl(
-|N^S||N^V|
-+
-|N^S||L^V|\bigl(|N^S|+|L^S|\bigr)
-+
-|N^S||N^V||L^S|\Delta_S
+|N^S||N^V|+|N^S||L^V|\bigl(&|N^S|+|L^S|\bigr) \\
+                            &+|N^S||N^V||L^S|\Delta_S
 \Bigr).
+\end{aligned}
 \label{eq:complexity}
 \end{equation}
 This bound depends on both the substrate topology ($|N^S|$, $|L^S|$, $\Delta_S$) and the size of the
