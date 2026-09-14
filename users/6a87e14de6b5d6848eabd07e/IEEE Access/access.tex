@@ -1132,11 +1132,10 @@ the RFD-based algorithms reject, and these additional VNRs are embedded in a sub
 residual capacity is more heavily utilized, so their virtual links are routed over somewhat longer
 paths. Moreover, the objective of \ecfvne{} deliberately trades a small increase in the present
 embedding cost for lower induced fragmentation whenever a slightly longer path leaves the remaining
-resources better connected. Despite this, the revenue generated per unit of embedding cost is the
-highest for \ecfvne{} on every network, indicating that the additional cost is more than
-compensated by the increase in accepted demand. The ViNE algorithms, by contrast, spread traffic
-over the substrate for load balancing and therefore consume substantially more bandwidth per
-accepted VNR, which manifests as both a higher cost and a lower acceptance ratio.
+resources better connected. Despite this, the increase in average embedding cost is accompanied by a
+substantially larger time-average revenue, because \ecfvne{} accepts and
+sustains more VNRs. Thus, the additional provisioning cost is offset by the
+higher accommodated demand.
 
 \begin{figure*}[!t]
     \centering
