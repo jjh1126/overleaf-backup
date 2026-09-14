@@ -551,11 +551,22 @@ If that total initial capacity is zero, endpoint $z$ has no external link resour
 $e$ can be extended; this endpoint is excluded from the link-connectivity comparison rather than
 assigned an artificial connectivity value.
 
-The external connectivity of $e$ is determined by the minimum endpoint connectivity among the endpoints that possess external link resources, defined as $\mathcal{Z}_e = \left\{ z \in \{u, v\} \;\middle|\; \sum_{e' \in \delta(z) \setminus \{e\}} c_{e'} > 0 \right\}$:
+Whenever an endpoint $z \in \{u, v\}$ has a positive total initial capacity
+among its external links, it is included in the comparison. We collect such
+endpoints as
 \begin{equation}
-\mathrm{Conn}_L(e) = 
+    \mathcal{Z}_e
+    =
+    \left\{\, z \in \{u,v\} \;\middle|\;
+    \sum_{e' \in \delta(\{z\}) \setminus \{e\}} c_{e'} > 0 \,\right\}.
+\label{eq:zset}
+\end{equation}
+The external connectivity of $e$ is then determined by the minimum
+endpoint connectivity among the endpoints in $\mathcal{Z}_e$:
+\begin{equation}
+\mathrm{Conn}_L(e) =
 \begin{cases}
-    \displaystyle \min_{z \in \mathcal{Z}_e} \mathrm{Conn}_z(e), & \text{if } \mathcal{Z}_e \neq \emptyset, \\[1.5ex]
+    \displaystyle \min_{z \in \mathcal{Z}_e} \quad \mathrm{Conn}_z(e), & \text{if } \mathcal{Z}_e \neq \emptyset, \\[1.5ex]
     0, & \text{otherwise.}
 \end{cases}
 \label{eq:conn_l}
