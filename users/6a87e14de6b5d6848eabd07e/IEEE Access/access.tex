@@ -608,27 +608,20 @@ immediately before the VNR is processed, and let $S(M)$ denote the residual
 state after applying a partial or complete embedding $M$. Applying the second term of
 \eqref{eq:decomp} to every substrate node and link, the induced node fragmentation and the induced
 link fragmentation are defined as
+
 \begin{equation}
 \begin{aligned}
-\Delta F_N(M)
-=
-\sum_{v\in N^S}
-r_v(S(M))
-\left(
-I_N(v;S(M))-I_N(v;S_0)
-\right),
-\label{eq:delta_fn}
+\Delta F_N(M) = \sum_{v\in N^S} &r_v(S(M)) \\
+                                &\quad \times \left( I_N(v;S(M)) - I_N(v;S_0) \right),
 \end{aligned}
+\label{eq:delta_fn}
 \end{equation}
 
 \begin{equation}
-\Delta F_L(M)
-=
-\sum_{e\in L^S}
-r_e(S(M))
-\left(
-I_L(e;S(M))-I_L(e;S_0)
-\right),
+\begin{aligned}
+\Delta F_L(M) = \sum_{e\in L^S} &r_e(S(M)) \\
+                                &\quad \times \left( I_L(e;S(M)) - I_L(e;S_0) \right),
+\end{aligned}
 \label{eq:delta_fl}
 \end{equation}
 where $I_N(\cdot;S)$ and $I_L(\cdot;S)$ denote the connectivity-deficiency factors
@@ -665,14 +658,16 @@ virtual link $l$ routed through substrate arc $(u,v)\in A^S$.
 \ecfvne{} ranks feasible tentative embeddings $M$ of the current VNR by the
 induced fragmentation cost they impose on the substrate network:
 \begin{equation}
+\begin{aligned}
 \text{minimize}\quad
 J_{\mathrm{ECF}}(M)
 =
 \beta\,\Delta F_L(M)
 +
 \gamma\,\Delta F_N(M),
-\qquad
-\beta,\gamma\ge0,
+\\
+&\beta,\gamma\ge0,
+\end{aligned}
 \label{eq:objective}
 \end{equation}
 where $\Delta F_L(M)$ and $\Delta F_N(M)$ are the induced link and node fragmentation defined in
