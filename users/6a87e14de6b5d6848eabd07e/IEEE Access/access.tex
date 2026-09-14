@@ -1011,125 +1011,63 @@ networks so that differences across networks are attributable to the substrate r
 workload.
 
 \subsection{Performance Metrics}
-\label{subsec:performance-metrics}
 
-We evaluate each algorithm over the measurement interval
-$\mathcal{T}=[t_0,t_1]$ of duration $T=t_1-t_0$.
-Let $\mathcal{R}$ denote the set of VNRs arriving during
-$\mathcal{T}$, and let $a_r\in\{0,1\}$ indicate whether VNR $r$
-is accepted. For an accepted VNR $r$, let $N_r$ and $L_r$ denote
-its virtual-node and virtual-link sets, respectively. The CPU demand
-of virtual node $n\in N_r$ is denoted by $d_n$, and the bandwidth
-demand of virtual link $l\in L_r$ is denoted by $d_l$.
-Let $P_l$ be the substrate path used to embed virtual link $l$,
-and let $|P_l|$ denote its hop count.
+We evaluate the following performance metrics over the measurement period
+$\mathcal{T}=[t_0,t_1]$ with duration $T=t_1-t_0$. Let $\mathcal{R}$
+be the set of VNRs arriving during $\mathcal{T}$, and let
+$a_r\in\{0,1\}$ indicate whether VNR $r$ is accepted.
 
-\subsubsection{VNR Acceptance Ratio}
-The VNR acceptance ratio is defined as
-\begin{equation}
-\mathrm{AR}
-=
-\frac{\sum_{r\in\mathcal{R}} a_r}
-{|\mathcal{R}|}.
-\label{eq:acceptance-ratio}
-\end{equation}
-This metric measures the fraction of arriving VNRs that can be
-successfully embedded while satisfying all CPU and bandwidth
-constraints.
+\begin{itemize}
+    \item \textit{VNR acceptance ratio:}
+    \begin{equation}
+    \mathrm{AR}=
+    \frac{\sum_{r\in\mathcal{R}} a_r}{|\mathcal{R}|}.
+    \end{equation}
 
-\subsubsection{Revenue}
-The revenue of an accepted VNR is defined as the total amount of
-virtual resources requested:
-\begin{equation}
-\mathrm{Rev}(r)
-=
-\sum_{n\in N_r} d_n
-+
-\sum_{l\in L_r} d_l.
-\label{eq:vnr-revenue}
-\end{equation}
-The time-average revenue rate is then
-\begin{equation}
-\overline{\mathrm{Rev}}
-=
-\frac{1}{T}
-\sum_{r\in\mathcal{R}} a_r\,\mathrm{Rev}(r).
-\label{eq:revenue-rate}
-\end{equation}
-A higher value indicates that the algorithm accommodates a larger
-amount of virtual-resource demand over time.
+    \item \textit{Average revenue rate:}
+    The revenue of VNR $r$ is
+    \begin{equation}
+    \mathrm{Rev}(r)=
+    \sum_{n\in N_r} d_n+
+    \sum_{l\in L_r} d_l,
+    \end{equation}
+    and the average revenue rate is
+    \begin{equation}
+    \overline{\mathrm{Rev}}=
+    \frac{1}{T}\sum_{r\in\mathcal{R}}a_r\,\mathrm{Rev}(r).
+    \end{equation}
 
-\subsubsection{Embedding Cost}
-The embedding cost of an accepted VNR accounts for the CPU allocated
-to its virtual nodes and for the bandwidth consumed on every
-substrate link traversed by its virtual links:
-\begin{equation}
-\mathrm{Cost}(r)
-=
-\sum_{n\in N_r} d_n
-+
-\sum_{l\in L_r} d_l |P_l|.
-\label{eq:embedding-cost}
-\end{equation}
-Equivalently, if $f_e^l$ denotes the bandwidth allocated to virtual
-link $l$ on substrate link $e$, the link-related term can be written
-as $\sum_{e\in L_S}\sum_{l\in L_r} f_e^l$.
-The average embedding cost per accepted VNR is
-\begin{equation}
-\overline{\mathrm{Cost}}
-=
-\frac{\sum_{r\in\mathcal{R}} a_r\,\mathrm{Cost}(r)}
-{\sum_{r\in\mathcal{R}} a_r}.
-\label{eq:average-embedding-cost}
-\end{equation}
-This metric penalizes long substrate paths because the bandwidth
-demand of a virtual link is reserved on each substrate link along
-its path.
+    \item \textit{Average embedding cost:}
+    Let $P_l$ denote the substrate path used for virtual link $l$.
+    The embedding cost of an accepted VNR $r$ is
+    \begin{equation}
+    \mathrm{Cost}(r)=
+    \sum_{n\in N_r} d_n+
+    \sum_{l\in L_r} d_l |P_l|,
+    \end{equation}
+    and the average embedding cost per accepted VNR is
+    \begin{equation}
+    \overline{\mathrm{Cost}}=
+    \frac{\sum_{r\in\mathcal{R}}a_r\,\mathrm{Cost}(r)}
+    {\sum_{r\in\mathcal{R}}a_r}.
+    \end{equation}
 
-\subsubsection{Revenue-to-Cost Ratio}
-To assess resource efficiency in addition to absolute admitted
-demand, we report the revenue-to-cost ratio:
-\begin{equation}
-\mathrm{R/C}
-=
-\frac{\sum_{r\in\mathcal{R}} a_r\,\mathrm{Rev}(r)}
-{\sum_{r\in\mathcal{R}} a_r\,\mathrm{Cost}(r)}.
-\label{eq:revenue-cost-ratio}
-\end{equation}
-A larger value indicates that the accepted virtual resources are
-provisioned with less substrate-resource consumption, especially
-less path-stretch-induced bandwidth consumption.
+    \item \textit{Average node utilization:}
+    \begin{equation}
+    \overline{U}_{\mathrm{node}}=
+    \frac{1}{T}\int_{t_0}^{t_1}
+    \frac{\sum_{v\in N_S}(c_v-r_v(t))}
+    {\sum_{v\in N_S}c_v}\,dt.
+    \end{equation}
 
-\subsubsection{Substrate Resource Utilization}
-Let $c_v$ and $r_v(t)$ denote the initial and residual CPU capacities
-of substrate node $v$, respectively. Likewise, let $c_e$ and
-$r_e(t)$ denote the initial and residual bandwidth capacities of
-substrate link $e$. The time-average node and link utilizations are
-defined as
-\begin{equation}
-\overline{U}_{\mathrm{node}}
-=
-\frac{1}{T}
-\int_{t_0}^{t_1}
-\frac{\sum_{v\in N_S}\left(c_v-r_v(t)\right)}
-{\sum_{v\in N_S}c_v}
-\,dt,
-\label{eq:node-utilization}
-\end{equation}
-and
-\begin{equation}
-\overline{U}_{\mathrm{link}}
-=
-\frac{1}{T}
-\int_{t_0}^{t_1}
-\frac{\sum_{e\in L_S}\left(c_e-r_e(t)\right)}
-{\sum_{e\in L_S}c_e}
-\,dt,
-\label{eq:link-utilization}
-\end{equation}
-respectively.
-These metrics quantify the fraction of substrate CPU and bandwidth
-capacity occupied on average during the measurement interval.
+    \item \textit{Average link utilization:}
+    \begin{equation}
+    \overline{U}_{\mathrm{link}}=
+    \frac{1}{T}\int_{t_0}^{t_1}
+    \frac{\sum_{e\in L_S}(c_e-r_e(t))}
+    {\sum_{e\in L_S}c_e}\,dt.
+    \end{equation}
+\end{itemize}
 
 \subsection{Results Under a Fixed Arrival Rate}
 
