@@ -552,29 +552,13 @@ If that total initial capacity is zero, endpoint $z$ has no external link resour
 $e$ can be extended; this endpoint is excluded from the link-connectivity comparison rather than
 assigned an artificial connectivity value.
 
-The external connectivity of $e$ is determined by the minimum endpoint connectivity among the
-endpoints that possess external link resources:
+The external connectivity of $e$ is determined by the minimum endpoint connectivity among the endpoints that possess external link resources, defined as $\mathcal{Z}_e = \left\{ z \in \{u, v\} \;\middle|\; \sum_{e' \in \delta(z) \setminus \{e\}} c_{e'} > 0 \right\}$:
 \begin{equation}
-\begin{aligned}
-
-    & \mathcal{Z}_e
-    =
-    \left\{
-    z \in \{u,v\}
-    \;\middle|\;
-    \sum_{e' \in \delta(z)\setminus\{e\}} c_{e'} > 0
-    \right\}.
-    \\
-    & \mathrm{Conn}_L(e)
-    =
-    \begin{cases}
-        \displaystyle\min_{\substack{z\in\{u,v\}\\ \sum_{e'\in\delta(\{z\})\setminus\{e\}}c_{e'}>0}}
-        \mathrm{Conn}_z(e),
-         & \text{if such $z$ exists}, \\[3mm]
-        0,
-         & \text{otherwise.}
-    \end{cases}
-\end{aligned}
+\mathrm{Conn}_L(e) = 
+\begin{cases}
+    \displaystyle \min_{z \in \mathcal{Z}_e} \mathrm{Conn}_z(e), & \text{if } \mathcal{Z}_e \neq \emptyset, \\[1.5ex]
+    0, & \text{otherwise.}
+\end{cases}
 \label{eq:conn_l}
 \end{equation}
 Accordingly, three cases arise naturally. If both endpoints have external link resources, the
@@ -625,6 +609,7 @@ state after applying a partial or complete embedding $M$. Applying the second te
 \eqref{eq:decomp} to every substrate node and link, the induced node fragmentation and the induced
 link fragmentation are defined as
 \begin{equation}
+\begin{aligned}
 \Delta F_N(M)
 =
 \sum_{v\in N^S}
@@ -633,7 +618,9 @@ r_v(S(M))
 I_N(v;S(M))-I_N(v;S_0)
 \right),
 \label{eq:delta_fn}
+\end{aligned}
 \end{equation}
+
 \begin{equation}
 \Delta F_L(M)
 =
