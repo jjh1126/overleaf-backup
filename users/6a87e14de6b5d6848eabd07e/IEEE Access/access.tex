@@ -1010,64 +1010,39 @@ with a mean of 1{,}000 time units. The same VNR generation settings are used for
 networks so that differences across networks are attributable to the substrate rather than to the
 workload.
 
+
 \subsection{Performance Metrics}
 
-We evaluate the following performance metrics over the measurement period
-$\mathcal{T}=[t_0,t_1]$ with duration $T=t_1-t_0$. Let $\mathcal{R}$
-be the set of VNRs arriving during $\mathcal{T}$, and let
-$a_r\in\{0,1\}$ indicate whether VNR $r$ is accepted.
+We evaluate the VNR acceptance ratio, average revenue rate, average
+embedding cost, and average node and link utilization. The definitions
+of the VNR acceptance ratio, VNR revenue, and embedding cost follow
+the standard VNE evaluation metrics in~\cite{zhang2025adaptive}.
 
-\begin{itemize}
-    \item \textit{VNR acceptance ratio:}
-    \begin{equation}
-    \mathrm{AR}=
-    \frac{\sum_{r\in\mathcal{R}} a_r}{|\mathcal{R}|}.
-    \end{equation}
+For accepted VNRs, let $\mathcal{R}_{\mathrm{acc}}(T)$ denote the set
+of VNRs accepted during $[0,T]$. The long-term average revenue rate is
+defined as
+\begin{equation}
+\mathrm{AR}
+=
+\lim_{T\to\infty}
+\frac{1}{T}
+\sum_{r\in\mathcal{R}_{\mathrm{acc}}(T)}
+\mathrm{Rev}(r).
+\label{eq:average-revenue-rate}
+\end{equation}
 
-    \item \textit{Average revenue rate:}
-    The revenue of VNR $r$ is
-    \begin{equation}
-    \mathrm{Rev}(r)=
-    \sum_{n\in N_r} d_n+
-    \sum_{l\in L_r} d_l,
-    \end{equation}
-    and the average revenue rate is
-    \begin{equation}
-    \overline{\mathrm{Rev}}=
-    \frac{1}{T}\sum_{r\in\mathcal{R}}a_r\,\mathrm{Rev}(r).
-    \end{equation}
+The average embedding cost per accepted VNR is defined as
+\begin{equation}
+\mathrm{AC}
+=
+\frac{1}{|\mathcal{R}_{\mathrm{acc}}|}
+\sum_{r\in\mathcal{R}_{\mathrm{acc}}}\mathrm{Cost}(r).
+\label{eq:average-embedding-cost}
+\end{equation}
 
-    \item \textit{Average embedding cost:}
-    Let $P_l$ denote the substrate path used for virtual link $l$.
-    The embedding cost of an accepted VNR $r$ is
-    \begin{equation}
-    \mathrm{Cost}(r)=
-    \sum_{n\in N_r} d_n+
-    \sum_{l\in L_r} d_l |P_l|,
-    \end{equation}
-    and the average embedding cost per accepted VNR is
-    \begin{equation}
-    \overline{\mathrm{Cost}}=
-    \frac{\sum_{r\in\mathcal{R}}a_r\,\mathrm{Cost}(r)}
-    {\sum_{r\in\mathcal{R}}a_r}.
-    \end{equation}
-
-    \item \textit{Average node utilization:}
-    \begin{equation}
-    \overline{U}_{\mathrm{node}}=
-    \frac{1}{T}\int_{t_0}^{t_1}
-    \frac{\sum_{v\in N_S}(c_v-r_v(t))}
-    {\sum_{v\in N_S}c_v}\,dt.
-    \end{equation}
-
-    \item \textit{Average link utilization:}
-    \begin{equation}
-    \overline{U}_{\mathrm{link}}=
-    \frac{1}{T}\int_{t_0}^{t_1}
-    \frac{\sum_{e\in L_S}(c_e-r_e(t))}
-    {\sum_{e\in L_S}c_e}\,dt.
-    \end{equation}
-\end{itemize}
+Finally, average node utilization and average link utilization are
+used to measure the time-average fractions of consumed substrate CPU
+and bandwidth capacities, respectively.
 
 \subsection{Results Under a Fixed Arrival Rate}
 
