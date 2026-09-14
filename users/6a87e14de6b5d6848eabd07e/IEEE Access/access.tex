@@ -81,8 +81,7 @@
     VNR acceptance ratio and revenue among the compared fragmentation-aware and load-balancing-based
     algorithms on every topology, retains the highest acceptance ratio at every tested arrival
     rate, and improves the acceptance ratio by up to 2.1 times over the fragmentation-aware
-    baselines and 2.6 times over the load-balancing baselines, while running orders of magnitude
-    faster than both.
+    baselines and 2.6 times over the load-balancing baselines.
 
 \end{abstract}
 
@@ -179,10 +178,10 @@ nodes of an arriving VNR in breadth-first order and, for each virtual node, eval
 CPU-feasible substrate node together with the minimum-hop routing of its pending virtual links.
 Every tentative embedding is scored by the induced fragmentation cost relative to the substrate
 state observed immediately before the request, so that candidates considered at different stages
-of the same VNR are compared on a common basis. Because the external connectivity of a node or a
-link is evaluated from the residual bandwidth of its adjacent links alone, the cost of
-fragmentation awareness over a plain greedy embedding is small, and the algorithm runs in the order
-of milliseconds per request.
+of the same VNR are compared on a common basis. Because the external connectivity of a node or a link is evaluated
+from the residual bandwidth of its adjacent links alone, the
+fragmentation metric can be evaluated using local residual-bandwidth
+information.
 
 The main contributions of this paper are summarized as follows. First, we characterize resource
 fragmentation based on the combinability of residual resources rather than solely on their absolute
@@ -987,7 +986,7 @@ heterogeneous both in topology and in capacity.
 As DCNs, we adopt a FatTree topology (FT6) with 64 hosts and 45 switches and a BCube topology,
 BCube$(2,4)$, with 64 hosts and 48 switches. In both DCNs, each host has a CPU capacity of 100 and
 every link has a bandwidth capacity of 100. Switches have zero CPU capacity; virtual nodes can be
-mapped only onto hosts, and switches are used solely for forwarding virtual links. The two DCNs
+mapped only onto hosts, and switches are used solely for forwarding virtual links~\cite{blenk2018neurovine,haeri2016virtual}. The two DCNs
 therefore share the same number of hosts and the same per-element capacities but differ in how
 hosts attach to the fabric: in FT6 each host is connected to the network through a single link,
 whereas in BCube$(2,4)$ each host is connected to multiple switches at different levels.
@@ -1179,29 +1178,6 @@ resources, which reflects their conservative admission rather than efficient use
 \ecfvne{} thus converts substrate capacity into accepted VNRs most efficiently, keeping the
 consumption of bandwidth in proportion to the admitted demand while leaving the residual resources
 in a combinable state.
-
-\subsubsection{Running Time}
-
-% 런타임 그림은 일단 보류
-% \begin{figure}[!t]
-%     \centering
-%     \includegraphics[width=\columnwidth]{figures/fig6_fix_rate_runtime_ms_per_vnr.pdf}
-%     \caption{Average runtime per VNR.}
-%     \label{fig:runtime}
-% \end{figure}
-% Runtime (ms / VNR, arrival rate 40)
-%  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
-% Columbus	1.560100	605.417379	771.508487	134.769023	125.768475
-% FT6	1.474476	409.887678	631.778218	96.645303	84.955590
-% BCube(2,4)	1.905753	853.542868	1217.085351	138.652401	117.097019
-
-The average running time per VNR of \ecfvne{} is between 1.5 and 1.9\,ms on all three networks. The
-ViNE algorithms require 85 to 139\,ms per VNR because they solve a linear programming relaxation
-for every request, and the RFD-based algorithms require 410 to 1{,}217\,ms per VNR owing to their
-backtracking search over $K$ candidate paths and hop-bounded neighborhood evaluation. The low
-running time of \ecfvne{} is consistent with the complexity bound~\eqref{eq:complexity}: the induced fragmentation cost is evaluated locally from the
-residual bandwidth of adjacent links, so the additional cost of fragmentation awareness over a
-plain greedy embedding is small.
 
 \subsection{Results Under Increasing Arrival Rates}
 
