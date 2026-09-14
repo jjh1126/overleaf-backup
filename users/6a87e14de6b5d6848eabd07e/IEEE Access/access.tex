@@ -46,7 +46,7 @@
 \title{Fragmentation-Aware Online Virtual Network Embedding via External Connectivity}
 
 \author{\uppercase{Jae-Hong Jung}\authorrefmark{1}, \uppercase{Bon-Seung Ku}\authorrefmark{1}, AND
-    \uppercase{Gu-In Kwon}\authorrefmark{1}}
+	\uppercase{Gu-In Kwon}\authorrefmark{1}}
 
 \address[1]{Department of Electrical and Computer Engineering, Inha University, 100 Inha-ro, Michuhol-gu, Incheon 22211, South Korea}
 \tfootnote{This research was funded by INHA University.}
@@ -59,34 +59,34 @@
 
 
 \begin{abstract}
-
-    In online virtual network embedding (VNE), it is important not only to accommodate the currently
-    arriving virtual network request (VNR), but also to preserve the usability of residual substrate
-    resources for future requests. Existing approaches mainly consider the absolute amount of
-    residual resources or load balancing, but do not directly quantify the extent to which the
-    remaining resources can be combined with other resources required to construct future VNR
-    embeddings. This paper proposes an External-Connectivity-based Fragmentation (\ecf{}) metric
-    that quantifies residual-resource usability by combining the residual resource amount with
-    external connectivity, defined through the residual capacity of the boundary cut that separates
-    a resource from its exterior. The metric is separately specialized for substrate nodes and links
-    to reflect the different connectivity structures involved in node embedding and virtual-link
-    routing. We further decompose the change in
-    fragmentation before and after an embedding into the effect of direct resource consumption and
-    the degradation in the connectivity of the resources that remain after the embedding, and define
-    the latter as the induced fragmentation cost. Based on this cost, we formulate the embedding
-    problem and propose \ecfvne{}, a greedy online embedding algorithm that selects, for each
-    virtual node, the substrate node and routing paths that minimize the induced fragmentation cost
-    relative to the pre-request substrate state. Simulation results on an Internet Topology Zoo ISP
-    network and on FatTree and BCube data center networks show that \ecfvne{} achieves the highest
-    VNR acceptance ratio and revenue among the compared fragmentation-aware and load-balancing-based
-    algorithms on every topology, retains the highest acceptance ratio at every tested arrival
-    rate, and improves the acceptance ratio by up to 2.1 times over the fragmentation-aware
-    baselines and 2.6 times over the load-balancing baselines.
-
+	
+	In online virtual network embedding (VNE), it is important not only to accommodate the currently
+	arriving virtual network request (VNR), but also to preserve the usability of residual substrate
+	resources for future requests. Existing approaches mainly consider the absolute amount of
+	residual resources or load balancing, but do not directly quantify the extent to which the
+	remaining resources can be combined with other resources required to construct future VNR
+	embeddings. This paper proposes an External-Connectivity-based Fragmentation (\ecf{}) metric
+	that quantifies residual-resource usability by combining the residual resource amount with
+	external connectivity, defined through the residual capacity of the boundary cut that separates
+	a resource from its exterior. The metric is separately specialized for substrate nodes and links
+	to reflect the different connectivity structures involved in node embedding and virtual-link
+	routing. We further decompose the change in
+	fragmentation before and after an embedding into the effect of direct resource consumption and
+	the degradation in the connectivity of the resources that remain after the embedding, and define
+	the latter as the induced fragmentation cost. Based on this cost, we formulate the embedding
+	problem and propose \ecfvne{}, a greedy online embedding algorithm that selects, for each
+	virtual node, the substrate node and routing paths that minimize the induced fragmentation cost
+	relative to the pre-request substrate state. Simulation results on an Internet Topology Zoo ISP
+	network and on FatTree and BCube data center networks show that \ecfvne{} achieves the highest
+	VNR acceptance ratio and revenue among the compared fragmentation-aware and load-balancing-based
+	algorithms on every topology, retains the highest acceptance ratio at every tested arrival
+	rate, and improves the acceptance ratio by up to 2.1 times over the fragmentation-aware
+	baselines and 2.6 times over the load-balancing baselines.
+	
 \end{abstract}
 
 \begin{keywords}
-    Virtual Network Embedding, online VNE, resource fragmentation, external connectivity
+	Virtual Network Embedding, online VNE, resource fragmentation, external connectivity
 \end{keywords}
 
 \titlepgskip=-21pt
@@ -111,7 +111,7 @@ NP-hard~\cite{rost2020hardness}. Practical algorithms therefore rely on heuristi
 than globally optimal solutions. Second, each locally feasible embedding changes the residual
 substrate state available to future requests. As VNRs are repeatedly embedded and released, residual
 resources may become distributed in ways that make future embeddings difficult even when sufficient
-aggregate capacity remains~\cite{fischer2013virtual}. 
+aggregate capacity remains~\cite{fischer2013virtual}.
 % This degradation of future resource usability is commonly referred to as resource fragmentation. 
 A locally feasible embedding may therefore serve the current request while increasing the likelihood that subsequent requests are rejected.
 
@@ -122,23 +122,23 @@ objectives. Such approaches do not directly quantify fragmentation in terms of t
 residual substrate resources.
 
 \begin{figure}[!t]
-    \centering
-    \begin{subfigure}[b]{0.18\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/fig1_vn.pdf}
-        \caption{Virtual Network}
-        \label{fig:vn}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.25\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/fig1_sn.pdf}
-        \caption{Substrate Network}
-        \label{fig:sn}
-    \end{subfigure}
-
-    \caption{Example of resource fragmentation in VNE.}
-    \label{fig:combined_figures}
+	\centering
+	\begin{subfigure}[b]{0.18\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figures/fig1_vn.pdf}
+		\caption{Virtual Network}
+		\label{fig:vn}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.25\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figures/fig1_sn.pdf}
+		\caption{Substrate Network}
+		\label{fig:sn}
+	\end{subfigure}
+	
+	\caption{Example of resource fragmentation in VNE.}
+	\label{fig:combined_figures}
 \end{figure}
 
 Fig.~\ref{fig:combined_figures} illustrates the resource fragmentation problem. Fig.~\ref{fig:vn}
@@ -322,54 +322,53 @@ degradation it induces, with the latter represented through the external connect
 introduced in the next section.
 
 \begin{table}[!t]
-\caption{\textbf{Notation specification}}
-\label{tab:notation}
-\centering
-\setlength{\tabcolsep}{3pt}
-\renewcommand{\arraystretch}{1.12}
-
-\begin{tabular}{|p{0.30\columnwidth}|p{0.60\columnwidth}|}
-\hline
-\textbf{Symbol} & \textbf{Description} \\
-\hline
-
-$G^S=(N^S,L^S)$
-& Substrate network \\
-\hline
-
-$G^V=(N^V,L^V)$
-& Virtual network request \\
-\hline
-
-$c_v,\;r_v$
-& Initial and residual CPU capacities of substrate node $v$ \\
-\hline
-
-$c_e,\;r_e$
-& Initial and residual bandwidth capacities of substrate link $e$ \\
-\hline
-
-$\mathrm{Conn}_N,\;\mathrm{Conn}_L$
-& External-connectivity measures for substrate nodes and links \\
-\hline
-
-$I_N,\;I_L$
-& Connectivity-deficiency factors for substrate nodes and links \\
-\hline
-
-$\Delta F_N,\;\Delta F_L$
-& Induced node and link fragmentation \\
-\hline
-
-$J_{\mathrm{ECF}}$
-& Induced fragmentation cost (embedding objective) \\
-\hline
-
-$\beta,\;\gamma$
-& Weights of link and node fragmentation terms \\
-\hline
-
-\end{tabular}
+	\caption{\textbf{Notation specification}}
+	\label{tab:notation}
+	\centering
+	\setlength{\tabcolsep}{3pt}
+	\renewcommand{\arraystretch}{1.12}
+	
+	\begin{tabular}{|p{0.30\columnwidth}|p{0.60\columnwidth}|}
+		\hline
+		\textbf{Symbol} & \textbf{Description}                                            \\
+		\hline
+		
+		$G^S=(N^S,L^S)$
+		                & Substrate network                                               \\
+		\hline
+		
+		$G^V=(N^V,L^V)$
+		                & Virtual network request                                         \\
+		\hline
+		
+		$c_v,\;r_v$
+		                & Initial and residual CPU capacities of substrate node $v$       \\
+		\hline
+		
+		$c_e,\;r_e$
+		                & Initial and residual bandwidth capacities of substrate link $e$ \\
+		\hline
+		
+		$\mathrm{Conn}_N,\;\mathrm{Conn}_L$
+		                & External-connectivity measures for substrate nodes and links    \\
+		\hline
+		
+		$I_N,\;I_L$
+		                & Connectivity-deficiency factors for substrate nodes and links   \\
+		\hline
+		
+		$\Delta F_N,\;\Delta F_L$
+		                & Induced node and link fragmentation                             \\
+		\hline
+		
+		$J_{\mathrm{ECF}}$
+		                & Induced fragmentation cost (embedding objective)                \\
+		\hline
+		
+		$\beta,\;\gamma$
+		                & Weights of link and node fragmentation terms                    \\
+		\hline
+	\end{tabular}
 \end{table}
 
 \section{System Model}
@@ -399,24 +398,24 @@ $l$ that traverses arc $(u,v)\in A^S$.
 We define the complete VNR embedding as $M=(M_N,M_L)$. After applying an embedding $M$, we update
 the residual resources of substrate nodes and substrate links, respectively, as
 \begin{equation}
-    r_v(M)
-    =
-    r_v-\sum_{n\in N^V}d_nx_{nv},
-    \qquad \forall v\in N^S,
-\label{eq:res_node}
+	r_v(M)
+	=
+	r_v-\sum_{n\in N^V}d_nx_{nv},
+	\qquad \forall v\in N^S,
+	\label{eq:res_node}
 \end{equation}
 \begin{equation}
-    r_{\{u,v\}}(M)
-    =
-    r_{\{u,v\}}
-    -
-    \sum_{l\in L^V}
-    \left(
-    f_{uv}^l+f_{vu}^l
-    \right),
-    \qquad
-    \forall\{u,v\}\in L^S.
-\label{eq:res_link}
+	r_{\{u,v\}}(M)
+	=
+	r_{\{u,v\}}
+	-
+	\sum_{l\in L^V}
+	\left(
+	f_{uv}^l+f_{vu}^l
+	\right),
+	\qquad
+	\forall\{u,v\}\in L^S.
+	\label{eq:res_link}
 \end{equation}
 The pre- and post-embedding residual substrate states given by \eqref{eq:res_node} and
 \eqref{eq:res_link} serve as the basis for computing
@@ -437,8 +436,8 @@ normalized external connectivity; we view $R\cdot\mathrm{Conn}$ as the effective
 the residual resource that can combine with external resources. We accordingly define the
 fragmentation score as
 \begin{equation}
-    F=R(1-\mathrm{Conn}).
-\label{eq:base_frag}
+	F=R(1-\mathrm{Conn}).
+	\label{eq:base_frag}
 \end{equation}
 When $\mathrm{Conn}$ approaches one, the residual resource can be combined with external resources
 sufficiently and fragmentation is small; in contrast, as external connectivity decreases, the
@@ -448,26 +447,26 @@ To make external connectivity concrete, we consider any $\emptyset\neq A\subsetn
 $\bar A=N^S\setminus A$. We define the boundary link set that connects the region $A$ with its
 exterior $\bar A$ as
 \begin{equation}
-    \delta(A)
-    =
-    \{\,e=\{u,v\}\in L^S
-    \mid
-    u\in A,\ v\in\bar A\,\}.
-\label{eq:boundary}
+	\delta(A)
+	=
+	\{\,e=\{u,v\}\in L^S
+	\mid
+	u\in A,\ v\in\bar A\,\}.
+	\label{eq:boundary}
 \end{equation}
 The initial and residual bandwidth capacities of this boundary are given, respectively, by
 $\sum_{e\in\delta(A)}c_e$ and $\sum_{e\in\delta(A)}r_e$, and we define the normalized external
 connectivity as
 \begin{equation}
-    \mathrm{Conn}(A)
-    =
-    \begin{cases}
-        \dfrac{\sum_{e\in\delta(A)}r_e}{\sum_{e\in\delta(A)}c_e},
-         & \sum_{e\in\delta(A)}c_e>0, \\[1mm]
-        0,
-         & \sum_{e\in\delta(A)}c_e=0.
-    \end{cases}
-\label{eq:conn}
+	\mathrm{Conn}(A)
+	=
+	\begin{cases}
+		\dfrac{\sum_{e\in\delta(A)}r_e}{\sum_{e\in\delta(A)}c_e},
+		  & \sum_{e\in\delta(A)}c_e>0, \\[1mm]
+		0,
+		  & \sum_{e\in\delta(A)}c_e=0. 
+	\end{cases}
+	\label{eq:conn}
 \end{equation}
 Since any bandwidth exchanged between $A$ and $\bar A$ must traverse $\delta(A)$, the residual
 capacity of this boundary is the total bandwidth available for region $A$ to connect with its
@@ -480,10 +479,10 @@ demand is routed. Second, $\mathrm{Conn}$ is monotone under embedding: because e
 embedding only removes bandwidth from $\delta(A)$, we have
 $\sum_{e\in\delta(A)}r_e(M)\le\sum_{e\in\delta(A)}r_e$ and therefore
 \begin{equation}
-    \mathrm{Conn}(A;M)\le\mathrm{Conn}(A),
-    \qquad
-    \forall\,\emptyset\neq A\subsetneq N^S,
-\label{eq:monotone}
+	\mathrm{Conn}(A;M)\le\mathrm{Conn}(A),
+	\qquad
+	\forall\,\emptyset\neq A\subsetneq N^S,
+	\label{eq:monotone}
 \end{equation}
 where $\mathrm{Conn}(A;M)$ denotes the external connectivity evaluated in the residual state after
 embedding $M$. These two properties keep the metric
@@ -502,26 +501,26 @@ in a common form and combined across resource types.
 For a substrate node $v\in N^S$, we set $A=\{v\}$ in \eqref{eq:conn}, so that the external
 connectivity of the node is given by
 \begin{equation}
-    \mathrm{Conn}_N(v)
-    =
-    \begin{cases}
-        \dfrac{\sum_{e\in\delta(\{v\})}r_e}
-        {\sum_{e\in\delta(\{v\})}c_e},
-         & \sum_{e\in\delta(\{v\})}c_e>0, \\[1mm]
-        0,
-         & \text{otherwise.}
-    \end{cases}
-\label{eq:conn_n}
+	\mathrm{Conn}_N(v)
+	=
+	\begin{cases}
+		\dfrac{\sum_{e\in\delta(\{v\})}r_e}
+		{\sum_{e\in\delta(\{v\})}c_e},
+		  & \sum_{e\in\delta(\{v\})}c_e>0, \\[1mm]
+		0,
+		  & \text{otherwise.}              
+	\end{cases}
+	\label{eq:conn_n}
 \end{equation}
 In VNE, the residual CPU of a substrate node must combine with the bandwidth of its adjacent links
 to reach other substrate resources; therefore, a reduction in adjacent bandwidth lowers the future
 usability of that CPU. Accordingly, we define the node connectivity-deficiency factor and the node
 fragmentation score as
 \begin{equation}
-    I_N(v)=1-\mathrm{Conn}_N(v),
-    \qquad
-    F_N(v)=r_v I_N(v).
-\label{eq:node_frag}
+	I_N(v)=1-\mathrm{Conn}_N(v),
+	\qquad
+	F_N(v)=r_v I_N(v).
+	\label{eq:node_frag}
 \end{equation}
 
 \subsection{Link Fragmentation}
@@ -537,13 +536,13 @@ itself, is $\delta(\{z\})\setminus\{e\}$. Whenever the total initial capacity of
 positive, the endpoint connectivity of $z$ with respect to $e$ is defined as their
 residual-to-initial capacity ratio,
 \begin{equation}
-    \mathrm{Conn}_z(e)
-    =
-    \frac{\sum_{e'\in\delta(\{z\})\setminus\{e\}}r_{e'}}
-         {\sum_{e'\in\delta(\{z\})\setminus\{e\}}c_{e'}},
-    \qquad
-    \sum_{e'\in\delta(\{z\})\setminus\{e\}}c_{e'}>0.
-\label{eq:conn_endpoint}
+	\mathrm{Conn}_z(e)
+	=
+	\frac{\sum_{e'\in\delta(\{z\})\setminus\{e\}}r_{e'}}
+	{\sum_{e'\in\delta(\{z\})\setminus\{e\}}c_{e'}},
+	\qquad
+	\sum_{e'\in\delta(\{z\})\setminus\{e\}}c_{e'}>0.
+	\label{eq:conn_endpoint}
 \end{equation}
 If that total initial capacity is zero, endpoint $z$ has no external link resource through which
 $e$ can be extended; this endpoint is excluded from the link-connectivity comparison rather than
@@ -553,21 +552,21 @@ Whenever an endpoint $z \in \{u, v\}$ has a positive total initial capacity
 among its external links, it is included in the comparison. We collect such
 endpoints as
 \begin{equation}
-    \mathcal{Z}_e
-    =
-    \left\{\, z \in \{u,v\} \;\middle|\;
-    \sum_{e' \in \delta(\{z\}) \setminus \{e\}} c_{e'} > 0 \,\right\}.
-\label{eq:zset}
+	\mathcal{Z}_e
+	=
+	\left\{\, z \in \{u,v\} \;\middle|\;
+	\sum_{e' \in \delta(\{z\}) \setminus \{e\}} c_{e'} > 0 \,\right\}.
+	\label{eq:zset}
 \end{equation}
 The external connectivity of $e$ is then determined by the minimum
 endpoint connectivity among the endpoints in $\mathcal{Z}_e$:
 \begin{equation}
-\mathrm{Conn}_L(e) =
-\begin{cases}
-    \displaystyle \min_{z \in \mathcal{Z}_e} \quad \mathrm{Conn}_z(e), & \text{if } \mathcal{Z}_e \neq \emptyset, \\[1.5ex]
-    0, & \text{otherwise.}
-\end{cases}
-\label{eq:conn_l}
+	\mathrm{Conn}_L(e) =
+	\begin{cases}
+		\displaystyle \min_{z \in \mathcal{Z}_e} \quad \mathrm{Conn}_z(e), & \text{if } \mathcal{Z}_e \neq \emptyset, \\[1.5ex]
+		0,                                                                 & \text{otherwise.}                        
+	\end{cases}
+	\label{eq:conn_l}
 \end{equation}
 Accordingly, three cases arise naturally. If both endpoints have external link resources, the
 smaller of their two connectivity values is used. If only one endpoint has external link
@@ -576,10 +575,10 @@ resource, the link has no external extension opportunity, and its external conne
 
 The link connectivity-deficiency factor and link fragmentation score are then given by
 \begin{equation}
-    I_L(e)=1-\mathrm{Conn}_L(e),
-    \qquad
-    F_L(e)=r_e I_L(e).
-\label{eq:link_frag}
+	I_L(e)=1-\mathrm{Conn}_L(e),
+	\qquad
+	F_L(e)=r_e I_L(e).
+	\label{eq:link_frag}
 \end{equation}
 
 This definition applies a bottleneck principle only when a comparison is
@@ -597,12 +596,12 @@ connectivity degradation on the resources that remain. For a general
 fragmentation score $F=RI$, the change caused by an embedding $M$ can be
 decomposed as
 \begin{equation}
-F(M)-F
-=
-\bigl(R(M)-R\bigr)I
-+
-R(M)\bigl(I(M)-I\bigr).
-\label{eq:decomp}
+	F(M)-F
+	=
+	\bigl(R(M)-R\bigr)I
+	+
+	R(M)\bigl(I(M)-I\bigr).
+	\label{eq:decomp}
 \end{equation}
 The first term represents the direct consumption of the resource itself.
 The second term represents the additional loss of usability caused by the
@@ -618,19 +617,19 @@ state after applying a partial or complete embedding $M$. Applying the second te
 link fragmentation are defined as
 
 \begin{equation}
-\begin{aligned}
-\Delta F_N(M) = \sum_{v\in N^S} &r_v(S(M)) \\
-                                &\quad \times \left( I_N(v;S(M)) - I_N(v;S_0) \right),
-\end{aligned}
-\label{eq:delta_fn}
+	\begin{aligned}
+		\Delta F_N(M) = \sum_{v\in N^S} & r_v(S(M))                                             \\
+		                                & \quad \times \left( I_N(v;S(M)) - I_N(v;S_0) \right), 
+	\end{aligned}
+	\label{eq:delta_fn}
 \end{equation}
 
 \begin{equation}
-\begin{aligned}
-\Delta F_L(M) = \sum_{e\in L^S} &r_e(S(M)) \\
-                                &\quad \times \left( I_L(e;S(M)) - I_L(e;S_0) \right),
-\end{aligned}
-\label{eq:delta_fl}
+	\begin{aligned}
+		\Delta F_L(M) = \sum_{e\in L^S} & r_e(S(M))                                             \\
+		                                & \quad \times \left( I_L(e;S(M)) - I_L(e;S_0) \right), 
+	\end{aligned}
+	\label{eq:delta_fl}
 \end{equation}
 where $I_N(\cdot;S)$ and $I_L(\cdot;S)$ denote the connectivity-deficiency factors
 \eqref{eq:node_frag} and \eqref{eq:link_frag} evaluated in state $S$.
@@ -673,176 +672,176 @@ evaluated relative to the fixed reference state $S_0$, and $\beta,\gamma\ge0$
 control the contributions of link and node fragmentation, respectively.
 \ecfvne{} then solves
 \begin{equation}
-\underset{M}{\text{minimize}}\quad J_{\mathrm{ECF}}(M).
-\label{eq:objective}
+	\underset{M}{\text{minimize}}\quad J_{\mathrm{ECF}}(M).
+	\label{eq:objective}
 \end{equation}
 
 \textbf{Constraints:}
 
 \textbf{--- Node Assignment Constraints:}
 \begin{equation}
-\sum_{v\in N^S}x_{nv}=1,
-\qquad
-\forall n\in N^V,
-\label{eq:node_assign}
+	\sum_{v\in N^S}x_{nv}=1,
+	\qquad
+	\forall n\in N^V,
+	\label{eq:node_assign}
 \end{equation}
 \begin{equation}
-\sum_{n\in N^V}x_{nv}\le1,
-\qquad
-\forall v\in N^S.
-\label{eq:node_unique}
+	\sum_{n\in N^V}x_{nv}\le1,
+	\qquad
+	\forall v\in N^S.
+	\label{eq:node_unique}
 \end{equation}
 
 \textbf{--- Capacity Constraints:}
 \begin{equation}
-\sum_{n\in N^V}d_nx_{nv}
-\le r_v,
-\qquad
-\forall v\in N^S,
-\label{eq:cpu_cap}
+	\sum_{n\in N^V}d_nx_{nv}
+	\le r_v,
+	\qquad
+	\forall v\in N^S,
+	\label{eq:cpu_cap}
 \end{equation}
 \begin{equation}
-\sum_{l\in L^V}
-\left(
- f_{uv}^l+f_{vu}^l
-\right)
-\le r_{\{u,v\}},
-\qquad
-\forall\{u,v\}\in L^S.
-\label{eq:bw_cap}
+	\sum_{l\in L^V}
+	\left(
+	f_{uv}^l+f_{vu}^l
+	\right)
+	\le r_{\{u,v\}},
+	\qquad
+	\forall\{u,v\}\in L^S.
+	\label{eq:bw_cap}
 \end{equation}
 
 \textbf{--- Flow Conservation Constraints:}
 \begin{equation}
-\begin{aligned}
-\sum_{(v,w)\in A^S}f_{vw}^l
--
-\sum_{(w,v)\in A^S}f_{wv}^l
-&=
- d_l\left(x_{nv}-x_{mv}\right),
-\\
-&\forall v\in N^S,\quad
-\forall l=\{n,m\}\in L^V.
-\end{aligned}
-\label{eq:flow_cons}
+	\begin{aligned}
+		\sum_{(v,w)\in A^S}f_{vw}^l
+		-
+		\sum_{(w,v)\in A^S}f_{wv}^l
+		  & =                      
+		d_l\left(x_{nv}-x_{mv}\right),
+		\\
+		  & \forall v\in N^S,\quad 
+		\forall l=\{n,m\}\in L^V.
+	\end{aligned}
+	\label{eq:flow_cons}
 \end{equation}
 
 \textbf{Remarks:}
 \begin{itemize}
-    \item The objective~\eqref{eq:objective} is non-negative, since both \eqref{eq:delta_fl} and
-    \eqref{eq:delta_fn} are non-negative by the monotonicity property~\eqref{eq:monotone}. The two
-    terms are not normalized by substrate-wide resource capacities; therefore, the weights $\beta$
-    and $\gamma$ also account for possible differences in the numerical scales of CPU and bandwidth
-    resources.
-    \item Constraint sets~\eqref{eq:node_assign} and~\eqref{eq:node_unique} enforce that each virtual
-    node is mapped to exactly one substrate node and that distinct virtual nodes of the same VNR are
-    not mapped to the same substrate node.
-    \item Constraint~\eqref{eq:cpu_cap} ensures that the CPU demand allocated to a substrate node
-    does not exceed its current residual CPU capacity.
-    \item Constraint~\eqref{eq:bw_cap} ensures that the total bandwidth allocated on an undirected
-    substrate link, summed over both directions, does not exceed its residual bandwidth.
-    \item Constraint~\eqref{eq:flow_cons} enforces flow conservation for each virtual link
-    $l=\{n,m\}\in L^V$: the net flow at every substrate node is zero, except at the substrate nodes
-    hosting $n$ and $m$, which act as the source and destination of $l$'s routed flow.
+	\item The objective~\eqref{eq:objective} is non-negative, since both \eqref{eq:delta_fl} and
+	      \eqref{eq:delta_fn} are non-negative by the monotonicity property~\eqref{eq:monotone}. The two
+	      terms are not normalized by substrate-wide resource capacities; therefore, the weights $\beta$
+	      and $\gamma$ also account for possible differences in the numerical scales of CPU and bandwidth
+	      resources.
+	\item Constraint sets~\eqref{eq:node_assign} and~\eqref{eq:node_unique} enforce that each virtual
+	      node is mapped to exactly one substrate node and that distinct virtual nodes of the same VNR are
+	      not mapped to the same substrate node.
+	\item Constraint~\eqref{eq:cpu_cap} ensures that the CPU demand allocated to a substrate node
+	      does not exceed its current residual CPU capacity.
+	\item Constraint~\eqref{eq:bw_cap} ensures that the total bandwidth allocated on an undirected
+	      substrate link, summed over both directions, does not exceed its residual bandwidth.
+	\item Constraint~\eqref{eq:flow_cons} enforces flow conservation for each virtual link
+	      $l=\{n,m\}\in L^V$: the net flow at every substrate node is zero, except at the substrate nodes
+	      hosting $n$ and $m$, which act as the source and destination of $l$'s routed flow.
 \end{itemize}
 
 \section{\ecfvne{} Embedding Algorithm}
 \label{sec:embedding_algorithm}
 
 \begin{algorithm}[!t]
-\caption{\ecfvne{} Main Greedy Embedding Algorithm}
-\label{alg:ecf_main}
-\footnotesize
-\begin{algorithmic}[1]
-\STATE \textbf{Input:} substrate network $G^S$, VNR $G^V$, weights
-$\beta$ and $\gamma$
-\STATE \textbf{Output:} embedding $M$ or rejection
-\STATE $S_0\leftarrow$ current residual state of $G^S$
-\STATE Select root $r\in N^V$ by lexicographically maximizing
-$\left(\deg(n),d_n,\sum_{l\in L^V:n\in l}d_l\right)$
-\STATE Obtain BFS processing order $\pi$ from $r$
-\STATE $M\leftarrow\emptyset$
-\STATE $v_r\leftarrow$\textsc{RootPlacement}$(G^S,r)$
-\IF{$v_r=\emptyset$}
-    \STATE \textbf{return} CPU rejection
-\ENDIF
-\STATE $M\leftarrow M\cup\{r\mapsto v_r\}$
-
-\FOR{each virtual node $n\in\pi\setminus\{r\}$}
-    \STATE $\mathcal{C}\leftarrow\emptyset$
-    \STATE $\mathit{hasCpuCandidate}\leftarrow\textbf{false}$
-
-    \FOR{each substrate node $v\in N^S$}
-        \IF{$v$ is used by $M_N$ \OR $r_v<d_n$}
-            \STATE \textbf{continue}
-        \ENDIF
-
-        \STATE $\mathit{hasCpuCandidate}\leftarrow\textbf{true}$
-        \STATE $\widehat{M}\leftarrow M\cup\{n\mapsto v\}$
-        \STATE $\mathit{feasible}\leftarrow\textbf{true}$
-        \STATE $\mathcal{L}_n\leftarrow
-        \{l=\{n,m\}\in L^V:m\text{ is mapped in }M\}$
-
-        \FOR{each $l=\{n,m\}\in\mathcal{L}_n$ in increasing link-index order}
-            \STATE $p\leftarrow$\textsc{MinimumHopPath}
-            $(G^S,v,M_N(m),d_l)$
-            \IF{$p=\emptyset$}
-                \STATE $\mathit{feasible}\leftarrow\textbf{false}$
-                \STATE \textbf{break}
-            \ENDIF
-            \STATE $\widehat{M}\leftarrow\widehat{M}\cup\{l\mapsto p\}$
-        \ENDFOR
-
-        \IF{$\mathit{feasible}$}
-            \STATE $\mathcal{C}\leftarrow\mathcal{C}\cup
-            \{(\widehat{M},J_{\mathrm{ECF}}(\widehat{M}))\}$
-        \ENDIF
-    \ENDFOR
-
-    \IF{$\mathcal{C}=\emptyset$}
-        \IF{\textbf{not} $\mathit{hasCpuCandidate}$}
-            \STATE \textbf{return} CPU rejection
-        \ELSE
-            \STATE \textbf{return} routing rejection
-        \ENDIF
-    \ENDIF
-
-    \STATE $(M,\cdot)\leftarrow
-    \arg\min_{(\widehat{M},J)\in\mathcal{C}} J$
-\ENDFOR
-\STATE \textbf{return} $M$
-\end{algorithmic}
+	\caption{\ecfvne{} Main Greedy Embedding Algorithm}
+	\label{alg:ecf_main}
+	\footnotesize
+	\begin{algorithmic}[1]
+		\STATE \textbf{Input:} substrate network $G^S$, VNR $G^V$, weights
+		$\beta$ and $\gamma$
+		\STATE \textbf{Output:} embedding $M$ or rejection
+		\STATE $S_0\leftarrow$ current residual state of $G^S$
+		\STATE Select root $r\in N^V$ by lexicographically maximizing
+		$\left(\deg(n),d_n,\sum_{l\in L^V:n\in l}d_l\right)$
+		\STATE Obtain BFS processing order $\pi$ from $r$
+		\STATE $M\leftarrow\emptyset$
+		\STATE $v_r\leftarrow$\textsc{RootPlacement}$(G^S,r)$
+		\IF{$v_r=\emptyset$}
+		\STATE \textbf{return} CPU rejection
+		\ENDIF
+		\STATE $M\leftarrow M\cup\{r\mapsto v_r\}$
+		
+		\FOR{each virtual node $n\in\pi\setminus\{r\}$}
+		\STATE $\mathcal{C}\leftarrow\emptyset$
+		\STATE $\mathit{hasCpuCandidate}\leftarrow\textbf{false}$
+		
+		\FOR{each substrate node $v\in N^S$}
+		\IF{$v$ is used by $M_N$ \OR $r_v<d_n$}
+		\STATE \textbf{continue}
+		\ENDIF
+		
+		\STATE $\mathit{hasCpuCandidate}\leftarrow\textbf{true}$
+		\STATE $\widehat{M}\leftarrow M\cup\{n\mapsto v\}$
+		\STATE $\mathit{feasible}\leftarrow\textbf{true}$
+		\STATE $\mathcal{L}_n\leftarrow
+		\{l=\{n,m\}\in L^V:m\text{ is mapped in }M\}$
+		
+		\FOR{each $l=\{n,m\}\in\mathcal{L}_n$ in increasing link-index order}
+		\STATE $p\leftarrow$\textsc{MinimumHopPath}
+		$(G^S,v,M_N(m),d_l)$
+		\IF{$p=\emptyset$}
+		\STATE $\mathit{feasible}\leftarrow\textbf{false}$
+		\STATE \textbf{break}
+		\ENDIF
+		\STATE $\widehat{M}\leftarrow\widehat{M}\cup\{l\mapsto p\}$
+		\ENDFOR
+		
+		\IF{$\mathit{feasible}$}
+		\STATE $\mathcal{C}\leftarrow\mathcal{C}\cup
+		\{(\widehat{M},J_{\mathrm{ECF}}(\widehat{M}))\}$
+		\ENDIF
+		\ENDFOR
+		
+		\IF{$\mathcal{C}=\emptyset$}
+		\IF{\textbf{not} $\mathit{hasCpuCandidate}$}
+		\STATE \textbf{return} CPU rejection
+		\ELSE
+		\STATE \textbf{return} routing rejection
+		\ENDIF
+		\ENDIF
+		
+		\STATE $(M,\cdot)\leftarrow
+		\arg\min_{(\widehat{M},J)\in\mathcal{C}} J$
+		\ENDFOR
+		\STATE \textbf{return} $M$
+	\end{algorithmic}
 \end{algorithm}
 
 
 \begin{algorithm}[!t]
-\caption{RootPlacement}
-\label{alg:root_placement}
-\footnotesize
-\begin{algorithmic}[1]
-\STATE \textbf{Input:} substrate network $G^S$, root virtual node $r$
-\STATE \textbf{Output:} substrate node $v_r$ or $\emptyset$
-\STATE $v_r\leftarrow\emptyset$
-\STATE $I^*\leftarrow+\infty$
-\STATE $R^*\leftarrow-1$
-
-\FOR{each substrate node $v\in N^S$}
-    \IF{$r_v<d_r$}
-        \STATE \textbf{continue}
-    \ENDIF
-
-    \STATE $I\leftarrow I_N(v)$
-    \IF{$v_r=\emptyset$ \OR $I<I^*$
-    \OR $(I=I^* \AND r_v>R^*)$
-    \OR $(I=I^* \AND r_v=R^* \AND v<v_r)$}
-        \STATE $v_r\leftarrow v$
-        \STATE $I^*\leftarrow I$
-        \STATE $R^*\leftarrow r_v$
-    \ENDIF
-\ENDFOR
-
-\STATE \textbf{return} $v_r$
-\end{algorithmic}
+	\caption{RootPlacement}
+	\label{alg:root_placement}
+	\footnotesize
+	\begin{algorithmic}[1]
+		\STATE \textbf{Input:} substrate network $G^S$, root virtual node $r$
+		\STATE \textbf{Output:} substrate node $v_r$ or $\emptyset$
+		\STATE $v_r\leftarrow\emptyset$
+		\STATE $I^*\leftarrow+\infty$
+		\STATE $R^*\leftarrow-1$
+		
+		\FOR{each substrate node $v\in N^S$}
+		\IF{$r_v<d_r$}
+		\STATE \textbf{continue}
+		\ENDIF
+		
+		\STATE $I\leftarrow I_N(v)$
+		\IF{$v_r=\emptyset$ \OR $I<I^*$
+			\OR $(I=I^* \AND r_v>R^*)$
+			\OR $(I=I^* \AND r_v=R^* \AND v<v_r)$}
+		\STATE $v_r\leftarrow v$
+		\STATE $I^*\leftarrow I$
+		\STATE $R^*\leftarrow r_v$
+		\ENDIF
+		\ENDFOR
+		
+		\STATE \textbf{return} $v_r$
+	\end{algorithmic}
 \end{algorithm}
 
 This section presents the \ecfvne{} algorithm, summarized in Algorithm~\ref{alg:ecf_main}, for
@@ -920,13 +919,13 @@ are evaluated, the total objective-evaluation cost is $O\bigl(|N^S||N^V||L^S|\De
 
 The overall worst-case running time is therefore
 \begin{equation}
-\begin{aligned}
-O\Bigl(
-|N^S||N^V|+|N^S||L^V|\bigl(&|N^S|+|L^S|\bigr) \\
-                            &+|N^S||N^V||L^S|\Delta_S
-\Bigr).
-\end{aligned}
-\label{eq:complexity}
+	\begin{aligned}
+		O\Bigl(
+		|N^S||N^V|+|N^S||L^V|\bigl( & |N^S|+|L^S|\bigr)        \\
+		                            & +|N^S||N^V||L^S|\Delta_S 
+		\Bigr).
+	\end{aligned}
+	\label{eq:complexity}
 \end{equation}
 This bound depends on both the substrate topology ($|N^S|$, $|L^S|$, $\Delta_S$) and the size of the
 arriving VNR ($|N^V|$, $|L^V|$); we keep these request-side quantities explicit rather than
@@ -971,8 +970,7 @@ respectively. For VNE-RFD-B and VNE-RFD-D, the backtracking bound, the number of
 and the hop bound of the fragmentation neighborhood are set to $K=10$, and $\tau=3$
 for computational tractability. Placement-location constraints are disabled for all algorithms so
 that every substrate node with sufficient CPU is a valid candidate. Unless otherwise specified, the
-remaining algorithm-specific parameters follow the settings reported in the original papers. For
-\ecfvne{}, both weighting factors of the objective are set to $\beta=\gamma=1$.
+remaining algorithm-specific parameters follow the settings reported in the original papers. We set $\beta=\gamma=1$ throughout the experiments to use equal weighting without topology-specific parameter tuning; the same values are used for all substrate topologies and offered loads.
 
 VNE-RFD-B shares its overall structure with \ecfvne{}: the root virtual node is selected by degree
 and resource demand, the remaining virtual nodes are processed in breadth-first order, and every
@@ -1023,21 +1021,21 @@ $\mathrm{Rev}(r)$ and $\mathrm{Cost}(r)$ denote its revenue and
 embedding cost, respectively. The long-term average revenue rate is
 defined as
 \begin{equation}
-\lim_{T\to\infty}
-\frac{
-\sum_{r\in\mathcal{R}_{\mathrm{acc}}(T)}
-\mathrm{Rev}(r)
-}{T}.
-\label{eq:average-revenue-rate}
+	\lim_{T\to\infty}
+	\frac{
+		\sum_{r\in\mathcal{R}_{\mathrm{acc}}(T)}
+		\mathrm{Rev}(r)
+		}{T}.
+	\label{eq:average-revenue-rate}
 \end{equation}
 
 The average embedding cost per accepted VNR is defined as
 \begin{equation}
-\lim_{T\to\infty}
-\frac{1}{|\mathcal{R}_{\mathrm{acc}}(T)|}
-\sum_{r\in\mathcal{R}_{\mathrm{acc}}(T)}
-\mathrm{Cost}(r).
-\label{eq:average-embedding-cost}
+	\lim_{T\to\infty}
+	\frac{1}{|\mathcal{R}_{\mathrm{acc}}(T)|}
+	\sum_{r\in\mathcal{R}_{\mathrm{acc}}(T)}
+	\mathrm{Cost}(r).
+	\label{eq:average-embedding-cost}
 \end{equation}
 
 Finally, average node utilization and average link utilization are
@@ -1047,10 +1045,10 @@ and bandwidth capacities, respectively.
 \subsection{Results Under a Fixed Arrival Rate}
 
 \begin{figure}[!t]
-    \centering
-    \includegraphics[width=\columnwidth]{figures/fig2_fix_rate_acceptance_ratio.pdf}
-    \caption{VNR acceptance ratio.}
-    \label{fig:acceptance}
+	\centering
+	\includegraphics[width=\columnwidth]{figures/fig2_fix_rate_acceptance_ratio.pdf}
+	\caption{VNR acceptance ratio.}
+	\label{fig:acceptance}
 \end{figure}
 % Acceptance ratio (arrival rate 40)
 %  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
@@ -1098,10 +1096,10 @@ benefit of avoiding fragmentation of the host-side bandwidth becomes more pronou
 a gain of about 22 percentage points over the best baseline.
 
 \begin{figure}[!t]
-    \centering
-    \includegraphics[width=\columnwidth]{figures/fig3_fix_rate_average_revenue.pdf}
-    \caption{Time average of generated revenue.}
-    \label{fig:revenue}
+	\centering
+	\includegraphics[width=\columnwidth]{figures/fig3_fix_rate_average_revenue.pdf}
+	\caption{Time average of generated revenue.}
+	\label{fig:revenue}
 \end{figure}
 % Time-average revenue (arrival rate 40)
 %  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
@@ -1110,10 +1108,10 @@ a gain of about 22 percentage points over the best baseline.
 % BCube(2,4)	5.348123	1.685764	1.607970	2.954614	3.038214
 
 \begin{figure}[!t]
-    \centering
-    \includegraphics[width=\columnwidth]{figures/fig4_fix_rate_average_cost.pdf}
-    \caption{Average embedding cost per accepted VNR.}
-    \label{fig:cost}
+	\centering
+	\includegraphics[width=\columnwidth]{figures/fig4_fix_rate_average_cost.pdf}
+	\caption{Average embedding cost per accepted VNR.}
+	\label{fig:cost}
 \end{figure}
 % Average provisioning cost (arrival rate 40)
 %  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
@@ -1147,22 +1145,22 @@ sustains more VNRs. Thus, the additional provisioning cost is offset by the
 higher accommodated demand.
 
 \begin{figure*}[!t]
-    \centering
-    \begin{subfigure}[b]{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/fig5_a_fix_rate_avg_node_utilization.pdf}
-        \caption{Average node utilization.}
-        \label{fig:node_util}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/fig5_b_fix_rate_avg_link_utilization.pdf}
-        \caption{Average link utilization.}
-        \label{fig:link_util}
-    \end{subfigure}
-    \caption{Average substrate resource utilization.}
-    \label{fig:util}
+	\centering
+	\begin{subfigure}[b]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figures/fig5_a_fix_rate_avg_node_utilization.pdf}
+		\caption{Average node utilization.}
+		\label{fig:node_util}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figures/fig5_b_fix_rate_avg_link_utilization.pdf}
+		\caption{Average link utilization.}
+		\label{fig:link_util}
+	\end{subfigure}
+	\caption{Average substrate resource utilization.}
+	\label{fig:util}
 \end{figure*}
 % Node utilization (arrival rate 40)
 %  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
@@ -1201,10 +1199,10 @@ in a combinable state.
 \subsection{Results Under Increasing Arrival Rates}
 
 \begin{figure*}[!t]
-    \centering
-    \includegraphics[width=\textwidth]{figures/fig7_acceptance_arrival_rate.pdf}
-    \caption{VNR acceptance ratio under increasing arrival rates for the Columbus, FT6, and BCube(2,4) substrate networks.}
-    \label{fig:acceptance_arrival_rate}
+	\centering
+	\includegraphics[width=\textwidth]{figures/fig7_acceptance_arrival_rate.pdf}
+	\caption{VNR acceptance ratio under increasing arrival rates for the Columbus, FT6, and BCube(2,4) substrate networks.}
+	\label{fig:acceptance_arrival_rate}
 \end{figure*}
 % Acceptance values — Columbus
 %  	VNE-ECF	VNE-RFD-B	VNE-RFD-D	D-ViNE-LB	R-ViNE-LB
