@@ -1018,23 +1018,25 @@ embedding cost, and average node and link utilization. The definitions
 of the VNR acceptance ratio, VNR revenue, and embedding cost follow
 the standard VNE evaluation metrics in~\cite{zhang2025adaptive}.
 
-For accepted VNRs, let $r \in \mathcal{R}_{\mathrm{acc}}(T)$ denote the set
-of VNRs accepted during $[0,T]$. The long-term average revenue rate is
+For an accepted VNR $r\in\mathcal{R}_{\mathrm{acc}}(T)$, let
+$\mathrm{Rev}(r)$ and $\mathrm{Cost}(r)$ denote its revenue and
+embedding cost, respectively. The long-term average revenue rate is
 defined as
 \begin{equation}
-\mathrm{AR}
-=
 \lim_{T\to\infty}
-\frac{\sum_{t=0}^\mathrm{Rev}(r)}{T}.
+\frac{
+\sum_{r\in\mathcal{R}_{\mathrm{acc}}(T)}
+\mathrm{Rev}(r)
+}{T}.
 \label{eq:average-revenue-rate}
 \end{equation}
 
 The average embedding cost per accepted VNR is defined as
 \begin{equation}
-\mathrm{AC}
-=
-\frac{1}{|\mathcal{R}_{\mathrm{acc}}|}
-\sum_{r\in\mathcal{R}_{\mathrm{acc}}}\mathrm{Cost}(r).
+\lim_{T\to\infty}
+\frac{1}{|\mathcal{R}_{\mathrm{acc}}(T)|}
+\sum_{r\in\mathcal{R}_{\mathrm{acc}}(T)}
+\mathrm{Cost}(r).
 \label{eq:average-embedding-cost}
 \end{equation}
 
