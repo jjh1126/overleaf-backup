@@ -968,7 +968,7 @@ second group consists of the load-balancing-based algorithms D-ViNE-LB and
 R-ViNE-LB~\cite{chowdhury2012vineyard}, which coordinate node and link mapping through a relaxed
 mixed-integer program and select substrate nodes by deterministic and randomized rounding,
 respectively. For VNE-RFD-B and VNE-RFD-D, the backtracking bound, the number of candidate paths,
-and the hop bound of the fragmentation neighborhood are set to $\Delta=100$, $K=10$, and $\tau=3$
+and the hop bound of the fragmentation neighborhood are set to $K=10$, and $\tau=3$
 for computational tractability. Placement-location constraints are disabled for all algorithms so
 that every substrate node with sufficient CPU is a valid candidate. Unless otherwise specified, the
 remaining algorithm-specific parameters follow the settings reported in the original papers. For
@@ -977,8 +977,7 @@ remaining algorithm-specific parameters follow the settings reported in the orig
 VNE-RFD-B shares its overall structure with \ecfvne{}: the root virtual node is selected by degree
 and resource demand, the remaining virtual nodes are processed in breadth-first order, and every
 CPU-feasible substrate node is evaluated for each virtual node. The two algorithms differ in the
-fragmentation metric that drives node selection, in the path search ($K$ candidate minimum-hop paths vs. a
-single one), in the root placement rule, and in the presence of backtracking, which
+fragmentation metric that drives node selection, in the path search ($K$ candidate minimum-hop paths VS. a single one), in the root placement rule, and in the presence of backtracking, which
 \ecfvne{} does not use. The comparison with VNE-RFD-B therefore primarily reflects the difference
 between the two fragmentation metrics.
 
