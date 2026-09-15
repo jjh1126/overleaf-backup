@@ -856,14 +856,30 @@ the simulation setup, the compared algorithms, the network settings, and the per
 and then present the results under a fixed VNR arrival rate followed by the results under
 increasing arrival rates.
 
+% \subsection{Evaluation Setup}
+
+% All algorithms are implemented and evaluated within the VIRNE simulation
+% environment~\cite{wang_virne}. We consider a dynamic online VNE scenario in which VNRs arrive
+% according to a Poisson process and stay in the substrate network for an exponentially distributed
+% lifetime, after which their resources are released. Each substrate network--algorithm pair is
+% evaluated over at least 10 independent simulation runs with different random seeds, and the
+% reported values are averaged over these runs. To capture steady-state behavior, an initial warm-up
+% period equal to ten times the mean VNR lifetime is excluded from the measurement, and each run is
+% then measured over 50{,}000 time units.
+
 \subsection{Evaluation Setup}
 
 All algorithms are implemented and evaluated within the VIRNE simulation
 environment~\cite{wang_virne}. We consider a dynamic online VNE scenario in which VNRs arrive
 according to a Poisson process and stay in the substrate network for an exponentially distributed
 lifetime, after which their resources are released. Each substrate network--algorithm pair is
-evaluated over at least 10 independent simulation runs with different random seeds, and the
-reported values are averaged over these runs. To capture steady-state behavior, an initial warm-up
+evaluated over 10 independent simulation runs with different random seeds. For each substrate
+network and arrival rate, corresponding runs of all algorithms use the same substrate instance and
+VNR arrival trace. The reported values are arithmetic means over the runs. Run-to-run variability
+is assessed using paired 95\% confidence intervals based on Student's $t$ distribution. At the fixed
+arrival rate, the paired intervals between \ecfvne{} and every baseline exclude zero for all reported
+metrics. The same holds for the acceptance ratio at every tested arrival rate. To capture
+steady-state behavior, an initial warm-up
 period equal to ten times the mean VNR lifetime is excluded from the measurement, and each run is
 then measured over 50{,}000 time units.
 
