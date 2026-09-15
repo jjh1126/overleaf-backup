@@ -75,7 +75,10 @@
 	placement together with minimum-hop routes for its pending virtual links. All tentative
 	embeddings of a VNR are evaluated relative to the same pre-request substrate state. We conduct
 	experiments on an Internet Topology Zoo ISP network and on FatTree and BCube data center networks.
-	\ecfvne{} achieves the highest acceptance ratio and time-average revenue among the compared RFD-based and ViNEYard-LB baselines. Even in the least favorable setting, its acceptance ratio is 10.5\% higher than that of the strongest baseline, and it maintains the highest acceptance ratio at every tested arrival rate across all three substrate topologies.
+	\ecfvne{} achieves the highest acceptance ratio and time-average revenue among the compared
+	RFD-based and ViNEYard-LB baselines. Across the evaluated settings, it achieves up to
+	$2.1\times$ and $2.6\times$ the acceptance ratio of the RFD-based and ViNEYard-LB baselines,
+	respectively.
 	
 \end{abstract}
 
@@ -113,13 +116,13 @@ a substrate node retains substantial CPU but becomes difficult to use because it
 have little residual bandwidth~\cite{gong2014toward}. Thus, aggregate residual capacity can remain
 high even when the substrate cannot accommodate a new VNR.
 
-Fragmentation-aware allocation has been studied through imbalance among jointly required resource
-types and through the distribution of resources across the substrate
-network~\cite{mishra2016fragmenting,guan2023multidimensional,lu2022resource}. These approaches
-capture important causes of unusable capacity, but resource balance and surrounding resource amount
-do not directly quantify how an individual residual node or link remains connected to the rest of
-the substrate. Moreover, an absolute post-embedding fragmentation value combines direct resource
-consumption with the degradation imposed on the resources that remain.
+Resource-distribution- and fragmentation-aware VNE methods estimate future embedding capacity from
+the amount and distribution of residual resources across the substrate or within a topological neighborhood
+~\cite{gong2014toward,lu2022resource}. These methods characterize a candidate resource or a
+post-embedding substrate state. We instead characterize fragmentation as the loss of
+residual-resource combinability caused by an embedding. This requires measuring how each residual
+node or link remains connected to complementary resources and how that connectivity changes after
+the embedding.
 
 \begin{figure}[!t]
 	\centering
@@ -134,18 +137,19 @@ consumption with the degradation imposed on the resources that remain.
 % TODO: Replace the placeholder and add a figure-based explanation of stranded node and link
 % resources caused by insufficient external connectivity.
 
-We define external connectivity as the residual capacity of a local resource boundary normalized by
-its initial capacity. For a substrate node, the boundary consists of its incident links and
-represents the bandwidth through which its residual CPU connects to other substrate resources. For
-a substrate link, the boundary consists of the external links at its endpoints and represents the
-capacity through which the link can participate in a larger path. Combining residual resource
-amount with external connectivity yields the External-Connectivity-based Fragmentation (\ecf{})
-metric. Node and link fragmentation share the form $F=R(1-\mathrm{Conn})$.
+We represent resource combinability through external connectivity, defined as the residual capacity
+of a local resource boundary normalized by its initial capacity. For a substrate node, the boundary
+consists of its incident links and represents the bandwidth through which its residual CPU connects
+to other substrate resources. For a substrate link, the boundary consists of the external links at
+its endpoints and represents the capacity through which the link can participate in a larger path.
+Combining residual resource amount with external connectivity yields the
+External-Connectivity-based Fragmentation (\ecf{}) metric, with the common node and link form
+$F=R(1-\mathrm{Conn})$.
 
-We then decompose the change in fragmentation caused by an embedding into direct resource
-consumption and degradation of residual-resource connectivity. The latter defines the
-\emph{induced fragmentation cost}. It measures the loss of usability imposed on the resources that
-remain and does not decrease solely because an already fragmented resource is consumed.
+We define the cost of an embedding from the change that it causes in residual-resource
+connectivity. The change in fragmentation is decomposed into direct resource consumption and
+connectivity degradation. The latter is the \emph{induced fragmentation cost}: the loss of
+combinability imposed on the resources that remain.
 
 Based on this cost, we formulate the online VNE problem and propose \ecfvne{}, a greedy embedding
 algorithm. The algorithm processes virtual nodes in breadth-first order. For each virtual node, it
@@ -251,97 +255,16 @@ cost with the residual-resource-weighted RFD of the post-embedding substrate sta
 closest formulation to the present work. Both approaches treat resource usability as dependent on
 surrounding resources.
 
-The proposed \ecf{} metric differs from these formulations along two dimensions. First, it
-directly represents CPU--bandwidth connectivity through normalized local boundary capacity. For a
-substrate node, the boundary consists of its incident links. For a substrate link, the boundary
-consists of the external links at its endpoints. This construction gives node and link fragmentation
-the common form $F=R(1-\mathrm{Conn})$. RRF and the multidimensional metric measure cross-resource
-imbalance or request-specific unusable capacity. GRC ranks substrate nodes using global embedding
-potential. RFD incorporates topological context through neighborhood aggregation. None directly
-measures the normalized boundary connectivity of both residual nodes and links.
+These approaches characterize an individual resource, an embedding candidate, or a residual
+substrate state. The proposed approach treats an embedding as a transition between substrate states
+and defines fragmentation cost as the loss of residual-resource combinability caused by that
+transition. External connectivity represents the boundary through which each residual node or link
+can participate in future embeddings. The induced fragmentation cost measures the degradation of
+this boundary connectivity.
 
-Second, the proposed objective does not minimize an absolute post-embedding fragmentation value.
-Such a value includes the direct reduction caused by consuming a resource. It can therefore decrease
-when an already fragmented resource is consumed, even if no remaining resource becomes more usable.
-We instead isolate the degradation in the connectivity of the resources that remain. This induced
-fragmentation cost evaluates the loss of future resource combinability caused by an embedding.
-
-\section{Related Work}
-\label{sec:related_work}
-
-\subsection{Resource- and Topology-Aware VNE}
-
-Many VNE heuristics rank candidate substrate nodes using resource availability and topological
-importance. PageRank-inspired methods combine resource and topology information to estimate
-node-embedding potential. They subsequently route virtual links over shortest paths
-~\cite{cao2017novel,hashmi2020vne}. Other methods use betweenness or closeness centrality, node
-degree, link strength, or combinations of multiple topological attributes
-~\cite{ding2015virtual,guler2016closeness,feng2014topology}. Multi-criteria approaches combine
-heterogeneous node attributes into a unified ordering. NORD uses entropy-derived weights and
-TOPSIS to rank virtual machines and substrate servers~\cite{tg2023nord}. ELECTRE-VNE instead uses a
-simplified ELECTRE procedure to combine multiple node-ranking metrics~\cite{zhang2018virtual}.
-
-Another line of work focuses on the interaction between node placement and virtual-link routing.
-Independently selected node mappings can result in infeasible or unnecessarily costly link mappings.
-Coordinated approaches therefore couple the two operations through joint optimization or
-coordinated stages~\cite{chowdhury2012vineyard,lu2023performance,nguyen2022toward}. Other VNE
-formulations consider congestion and energy consumption~\cite{pham2019congestion}. Link-resource
-and path characteristics are emphasized in~\cite{zheng2017link}. Latency and heterogeneous
-resource loads are considered in~\cite{yan2019latency}.
-
-Resource-distribution-aware methods address excessive concentration or imbalance of substrate
-utilization. GRC-VNE evaluates node-embedding potential using resource information from the entire
-substrate network~\cite{gong2014toward}. VHub and MLBVNE explicitly incorporate node or link load
-balancing into their objectives~\cite{shanbhag2015vhub,li2022load}. These approaches determine where
-and how to construct a feasible and efficient embedding. Their criteria mainly describe candidate
-suitability, current embedding cost, or utilization balance. They do not explicitly measure the
-connectivity loss induced in the residual substrate state. In particular, balanced utilization does
-not guarantee that the remaining CPU and bandwidth can be combined for a future VNR.
-
-% \subsection{Survivable VNE Under Substrate Failures}
-
-% Survivable VNE addresses service availability under substrate failures. Prior studies reserve backup
-% paths or redundant node and link resources, construct backup topologies, or remap affected virtual
-% components after
-% failures~\cite{liao2014survivable,chowdhury2016dedicated,liu2017scheme,zheng2019heuristic,sun2011framework,zhu2014heuristic}.
-% Shahriar et al.~\cite{shahriar2019virtual} formulate Connectivity-aware Virtual Network Embedding
-% (CoViNE), which guarantees VN connectivity under multiple substrate link failures without requiring
-% full bandwidth protection. CoViNE uses VN augmentation and disjointness requirements to preserve
-% connectivity after failures. Survivable VNE concerns whether an embedded VN can continue to satisfy
-% a survivability requirement after substrate failures, whereas this paper considers the usability of
-% residual resources resulting from online embedding decisions under normal operation.
-
-\subsection{Fragmentation-Aware VNE}
-
-Fragmentation-aware VNE addresses resources that remain available but become difficult to use. Guan
-et al.~\cite{guan2023multidimensional} consider multidimensional resource fragmentation in MEC
-systems interconnected by optical networks. They characterize physical-node fragmentation through
-imbalance between computing and wireless resources. Physical-link fragmentation is represented by
-unusable optical-spectrum fragments. Their bilevel formulation captures the dependency between node
-embedding and path-and-spectrum allocation. This model is tailored to heterogeneous MEC resources
-and optical-spectrum continuity. It therefore differs from the CPU--bandwidth connectivity studied
-in this work.
-
-Lu and Zhang~\cite{lu2022resource} introduce the resource fragmentation degree (RFD). RFD evaluates
-the availability of a substrate resource using the states of surrounding resources. Node RFD
-aggregates residual resources of nodes and paths within a hop-bounded neighborhood. Link RFD uses
-adjacent links and their shared substrate nodes. Their VNE-RFD algorithm combines embedding-resource
-cost with the residual-resource-weighted RFD of the post-embedding substrate state. RFD is the
-closest formulation to the present work. Both approaches treat resource usability as dependent on
-surrounding resources.
-
-The proposed \ecf{} metric differs from these formulations along two dimensions. First, it
-represents resource relationships through normalized local boundary capacity. For a substrate node,
-the boundary consists of its incident links. For a substrate link, connectivity is evaluated through
-the external links at its endpoints. This construction gives node and link fragmentation the common
-form $F=R(1-\mathrm{Conn})$. It also keeps the evaluation local for online embedding.
-
-Second, the proposed objective does not minimize an absolute post-embedding fragmentation value.
-Such a value includes the direct reduction caused by consuming a resource. It can therefore decrease
-when an already fragmented resource is consumed, even if no remaining resource becomes more usable.
-We instead isolate the degradation in the connectivity of the resources that remain. This induced
-fragmentation cost evaluates the loss of future resource combinability caused by an embedding. It
-does not evaluate only the amount, balance, or absolute fragmentation of the remaining resources.
+This transition-based definition separates resource consumption from fragmentation. Resource
+consumption reduces the residual amount, whereas fragmentation reduces the usability of the
+resources that remain. The proposed fragmentation objective includes only the latter effect.
 
 \section{System Model}
 \label{sec:system_model}
