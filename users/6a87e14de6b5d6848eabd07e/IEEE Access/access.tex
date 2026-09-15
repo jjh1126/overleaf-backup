@@ -75,10 +75,7 @@
 	placement together with minimum-hop routes for its pending virtual links. All tentative
 	embeddings of a VNR are evaluated relative to the same pre-request substrate state. We conduct
 	experiments on an Internet Topology Zoo ISP network and on FatTree and BCube data center networks.
-	\ecfvne{} achieves the highest acceptance ratio and time-average revenue among the compared
-	RFD-based and ViNEYard-LB baselines. Across the evaluated settings, it achieves up to
-	$2.1\times$ and $2.6\times$ the acceptance ratio of the RFD-based and ViNEYard-LB baselines,
-	respectively.
+	\ecfvne{} achieves the highest acceptance ratio and time-average revenue among the compared RFD-based and ViNEYard-LB baselines. Even in the least favorable setting, its acceptance ratio is 10.5\% higher than that of the strongest baseline, and it maintains the highest acceptance ratio at every tested arrival rate across all three substrate topologies.
 	
 \end{abstract}
 
@@ -107,6 +104,13 @@ substrate state available to later requests. Repeated allocation and release can
 a fragmented state even when sufficient aggregate capacity remains~\cite{fischer2013virtual}. A
 locally feasible decision may therefore increase the rejection probability of future requests.
 
+Existing VNE criteria mainly evaluate candidate-node suitability, current embedding cost, or load
+balance. Fragmentation-aware methods also consider resource imbalance or surrounding residual
+resources. However, two issues remain. First, these quantities do not directly represent the
+connectivity through which a residual resource can participate in a future VNR embedding. Second,
+an absolute post-embedding fragmentation value can mix direct resource consumption with degradation
+of the resources that remain.
+
 \begin{figure}[!t]
 	\centering
 	\begin{subfigure}[b]{0.18\textwidth}
@@ -133,13 +137,6 @@ substrate network. The substrate may have enough aggregate capacity for the requ
 the request can be rejected if the remaining CPU and bandwidth cannot be combined to satisfy its
 node and link demands. The usefulness of a residual resource thus depends on both its amount and
 its ability to connect with other resources.
-
-Existing VNE criteria mainly evaluate candidate-node suitability, current embedding cost, or load
-balance. Fragmentation-aware methods also consider resource imbalance or surrounding residual
-resources. However, two issues remain. First, these quantities do not directly represent the
-connectivity through which a residual resource can participate in a future VNR embedding. Second,
-an absolute post-embedding fragmentation value can mix direct resource consumption with degradation
-of the resources that remain.
 
 We address the first issue through external connectivity. It is defined as the residual capacity of
 a local resource boundary normalized by its initial capacity. For a substrate node, this boundary
