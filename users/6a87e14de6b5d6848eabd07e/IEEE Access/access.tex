@@ -75,10 +75,8 @@
 	placement together with minimum-hop routes for its pending virtual links. All tentative
 	embeddings of a VNR are evaluated relative to the same pre-request substrate state. We conduct
 	experiments on an Internet Topology Zoo ISP network and on FatTree and BCube data center networks.
-	\ecfvne{} achieves the highest acceptance ratio and time-average revenue among the compared
-	RFD-based and ViNEYard-LB baselines. Across the evaluated settings, it achieves up to
-	$2.1\times$ and $2.6\times$ the acceptance ratio of the RFD-based and ViNEYard-LB baselines,
-	respectively.
+	\ecfvne{} achieves the highest acceptance ratio and time-average revenue among the compared RFD-based and ViNEYard-LB baselines, improving the long-term acceptance ratio by at least 10.5\%. This advantage is consistently observed across all tested arrival rates and substrate topologies.
+
 	
 \end{abstract}
 
@@ -234,7 +232,7 @@ in both residual nodes and links.
 \subsection{Fragmentation-Aware VNE}
 
 Fragmentation-aware allocation addresses resources that remain available but cannot satisfy later
-requests. Mishra and Bellur~\cite{mishra2016defragmenting} define relative resource fragmentation
+requests. Mishra and Bellur~\cite{mishra2016fragmenting} define relative resource fragmentation
 (RRF) for cloud data centers. RRF measures the fraction of an available resource that cannot be
 consumed by a specified multidimensional request because another required resource is unavailable.
 Its network calculation estimates placeable endpoint pairs using topology-dependent regions called
