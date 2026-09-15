@@ -856,16 +856,6 @@ the simulation setup, the compared algorithms, the network settings, and the per
 and then present the results under a fixed VNR arrival rate followed by the results under
 increasing arrival rates.
 
-% \subsection{Evaluation Setup}
-
-% All algorithms are implemented and evaluated within the VIRNE simulation
-% environment~\cite{wang_virne}. We consider a dynamic online VNE scenario in which VNRs arrive
-% according to a Poisson process and stay in the substrate network for an exponentially distributed
-% lifetime, after which their resources are released. Each substrate network--algorithm pair is
-% evaluated over at least 10 independent simulation runs with different random seeds, and the
-% reported values are averaged over these runs. To capture steady-state behavior, an initial warm-up
-% period equal to ten times the mean VNR lifetime is excluded from the measurement, and each run is
-% then measured over 50{,}000 time units.
 
 \subsection{Evaluation Setup}
 
@@ -1172,7 +1162,7 @@ in a combinable state.
 
 \begin{figure*}[!t]
 	\centering
-	\includegraphics[width=\textwidth]{figures/fig7_acceptance_arrival_rate.pdf}
+	\includegraphics[width=\textwidth]{figures/fig6_acceptance_arrival_rate.pdf}
 	\caption{VNR acceptance ratio under increasing arrival rates for the Columbus, FT6, and BCube(2,4) substrate networks.}
 	\label{fig:acceptance_arrival_rate}
 \end{figure*}
