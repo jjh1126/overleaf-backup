@@ -75,9 +75,9 @@
 	embeddings of a VNR are evaluated relative to the same pre-request substrate state. We conduct
 	experiments on an Internet Topology Zoo ISP network and on FatTree and BCube data center networks.
 	\ecfvne{} achieves the highest acceptance ratio and time-average revenue among the compared
-	fragmentation-aware and load-balancing baselines. Across the evaluated settings, it achieves up
-	to $2.1\times$ and $2.6\times$ the acceptance ratio of the fragmentation-aware and load-balancing
-	baselines, respectively.
+	RFD-based and ViNEYard-LB baselines. Across the evaluated settings, it achieves up to
+	$2.1\times$ and $2.6\times$ the acceptance ratio of the RFD-based and ViNEYard-LB baselines,
+	respectively.
 	
 \end{abstract}
 
@@ -177,8 +177,8 @@ The main contributions of this paper are as follows.
 
 	\item We formulate online VNE using the induced fragmentation cost and develop the greedy
 	\ecfvne{} algorithm. Evaluation on an ISP topology and two data center topologies shows that
-	\ecfvne{} improves the acceptance ratio and time-average revenue over the compared
-	fragmentation-aware and load-balancing baselines across the tested arrival rates.
+	\ecfvne{} improves the acceptance ratio and time-average revenue over the compared RFD-based
+	and ViNEYard-LB baselines across the tested arrival rates.
 \end{itemize}
 
 The remainder of this paper is organized as follows. Section~\ref{sec:related_work} reviews related
@@ -850,8 +850,8 @@ $T_{\mathrm{dense}}=O\bigl(|N^S|^4|N^V|+|N^S|^3|L^V|\bigr)$.
 \section{Performance Evaluation}
 \label{sec:performance_evaluation}
 
-This section evaluates \ecfvne{} against representative fragmentation-aware and load-balancing-based
-VNE algorithms on an ISP topology and two data center network (DCN) topologies. We first describe
+This section evaluates \ecfvne{} against RFD-based algorithms and the load-balancing variants of
+ViNEYard on an ISP topology and two data center network (DCN) topologies. We first describe
 the simulation setup, the compared algorithms, the network settings, and the performance metrics,
 and then present the results under a fixed VNR arrival rate followed by the results under
 increasing arrival rates.
@@ -859,10 +859,12 @@ increasing arrival rates.
 
 \subsection{Evaluation Setup}
 
-All algorithms are implemented and evaluated within the VIRNE simulation
-environment~\cite{wang_virne}. We consider a dynamic online VNE scenario in which VNRs arrive
-according to a Poisson process and stay in the substrate network for an exponentially distributed
-lifetime, after which their resources are released. Each substrate network--algorithm pair is
+% Replace the placeholder below with the public repository URL before submission.
+The source code used in this evaluation is available at
+\url{https://github.com/OWNER/REPOSITORY}.
+We consider a dynamic online VNE scenario in which VNRs arrive according to a Poisson process and
+stay in the substrate network for an exponentially distributed lifetime, after which their
+resources are released. Each substrate network--algorithm pair is
 evaluated over 10 independent simulation runs with different random seeds. For each substrate
 network and arrival rate, corresponding runs of all algorithms use the same substrate instance and
 VNR arrival trace. The reported values are arithmetic means over the runs. Run-to-run variability
@@ -880,10 +882,13 @@ resource-fragmentation-based algorithms VNE-RFD-B and VNE-RFD-D~\cite{lu2022reso
 each VNR so as to minimize the resource fragmentation degree (RFD) reviewed in
 Section~\ref{sec:related_work}; the two variants differ only in whether the virtual nodes following
 the root are ordered by breadth-first or depth-first search. The
-second group consists of the load-balancing-based algorithms D-ViNE-LB and
-R-ViNE-LB~\cite{chowdhury2012vineyard}, which coordinate node and link mapping through a relaxed
-mixed-integer program and select substrate nodes by deterministic and randomized rounding,
-respectively. For VNE-RFD-B and VNE-RFD-D, the backtracking bound, the number of candidate paths,
+second group consists of D-ViNE-LB and R-ViNE-LB, the load-balancing variants of
+ViNEYard~\cite{chowdhury2012vineyard}. They coordinate node and link mapping through a
+linear-programming relaxation and select substrate nodes by deterministic and randomized rounding,
+respectively. Their relaxed objectives weight allocated resources by inverse residual capacity,
+and their final link mappings are obtained using multicommodity flow. The residual-capacity
+coefficients are set to one, following the load-balancing configuration in the original paper. For
+VNE-RFD-B and VNE-RFD-D, the backtracking bound, the number of candidate paths,
 and the hop bound of the fragmentation neighborhood are set to $K=10$, and $\tau=3$
 for computational tractability. Placement-location constraints are disabled for all algorithms so
 that every substrate node with sufficient CPU is a valid candidate. Unless otherwise specified, the
@@ -1024,8 +1029,8 @@ Fig.~\ref{fig:acceptance} shows the VNR acceptance ratio under an arrival rate o
 1{,}000 time units. \ecfvne{} achieves the highest acceptance ratio on all three substrate
 networks. On Columbus, \ecfvne{} accepts 93.2\% of the arriving VNRs, compared with 52.5\% and
 51.9\% for VNE-RFD-B and VNE-RFD-D and 35.8\% for both D-ViNE-LB and R-ViNE-LB; that is, the acceptance
-ratio is improved by a factor of about 1.8 over the fragmentation-based baselines and about 2.6
-over the load-balancing baselines. On BCube$(2,4)$, \ecfvne{} accepts 68.8\% of the VNRs, whereas
+ratio is improved by a factor of about 1.8 over the RFD-based baselines and about 2.6 over the
+ViNEYard-LB baselines. On BCube$(2,4)$, \ecfvne{} accepts 68.8\% of the VNRs, whereas
 the best baseline, R-ViNE-LB, accepts 46.7\%, and the RFD-based algorithms accept only about 34\%. On
 FT6, all algorithms attain comparatively low acceptance ratios, and \ecfvne{} achieves 38.8\%
 against 35.1\% for R-ViNE-LB and about 22\% for the RFD-based algorithms.
@@ -1034,7 +1039,7 @@ Two observations follow from these results. First, the relative ordering of the 
 groups reverses between the ISP network and the DCNs. On Columbus, the RFD-based algorithms clearly
 outperform D-ViNE-LB and R-ViNE-LB, which is consistent with the premise that fragmentation awareness is
 beneficial on heterogeneous topologies. On FT6 and BCube$(2,4)$, however, VNE-RFD-B and VNE-RFD-D
-fall well below the load-balancing baselines, accepting only about 64\% and 75\% as many VNRs as
+fall well below the ViNEYard-LB variants, accepting only about 64\% and 75\% as many VNRs as
 D-ViNE-LB, respectively. We attribute this degradation to the way RFD aggregates the residual
 resources of a hop-bounded neighborhood. The link RFD weights each adjacent link by the residual
 CPU ratio of the shared node, so every link incident to a zero-CPU switch is assigned the maximum
@@ -1086,7 +1091,7 @@ a gain of about 22 percentage points over the best baseline.
 Fig.~\ref{fig:revenue} presents the time-average revenue. The revenue results amplify the
 acceptance results because \ecfvne{} not only accepts more VNRs but also sustains a larger number
 of concurrently embedded VNRs in the substrate. On Columbus, \ecfvne{} generates about 2.7 times the
-revenue of the RFD-based algorithms and about 4.6 times that of the ViNE algorithms. On
+revenue of the RFD-based algorithms and about 4.6 times that of the ViNEYard-LB variants. On
 BCube$(2,4)$, the corresponding factors are about 3.2--3.3 and 1.8, and on FT6 they are about 2.3 and
 1.06--1.09. The comparatively small revenue margin over R-ViNE-LB on FT6 is again a consequence of
 the access-link bottleneck discussed above, which limits how much additional demand any algorithm
@@ -1139,7 +1144,7 @@ higher accommodated demand.
 
 Fig.~\ref{fig:util} shows the average node and link utilization. \ecfvne{} achieves the highest
 node utilization on all networks, about 2.1 to 2.7 times that of the RFD-based algorithms and 1.1
-to 3.6 times that of the ViNE algorithms. Since node utilization is proportional to the CPU demand
+to 3.6 times that of the ViNEYard-LB variants. Since node utilization is proportional to the CPU demand
 of the VNRs that are simultaneously embedded, this result confirms that the higher acceptance ratio
 of \ecfvne{} translates into a correspondingly larger amount of admitted demand rather than into
 the admission of small requests only.
@@ -1148,8 +1153,8 @@ Link utilization reveals a more subtle difference between the two baseline group
 \ecfvne{} also attains the highest link utilization. On FT6 and BCube$(2,4)$, however, D-ViNE-LB and
 R-ViNE-LB reach link utilizations comparable to or higher than that of \ecfvne{} even though they
 accept fewer VNRs and admit less CPU demand. The ratio of link utilization to node utilization is
-about 3.2 to 3.9 for the ViNE algorithms but only 1.6 to 2.2 for \ecfvne{}, which means that the
-ViNE algorithms consume roughly twice as much bandwidth per unit of admitted CPU demand. This is
+about 3.2 to 3.9 for the ViNEYard-LB variants but only 1.6 to 2.2 for \ecfvne{}, which means that
+the ViNEYard-LB variants consume roughly twice as much bandwidth per unit of admitted CPU demand. This is
 the utilization-side counterpart of their high embedding cost: load balancing distributes the
 flows of a VNR over longer paths, occupying bandwidth on many links without a corresponding
 increase in accepted requests. The RFD-based algorithms exhibit the lowest utilization of both
@@ -1195,7 +1200,7 @@ highest acceptance ratio at every arrival rate on every substrate network; no cr
 baseline is observed within the tested range.
 
 The acceptance ratio of every algorithm decreases as the arrival rate increases, but the rate of
-decrease differs markedly across algorithm groups. The load-balancing baselines degrade most
+decrease differs markedly across algorithm groups. The ViNEYard-LB variants degrade most
 rapidly, losing 26\% to 31\% of their acceptance ratio between the lowest and highest arrival
 rates on all three networks. The RFD-based algorithms degrade the least, by 6\% to 15\%, but from
 an already low level; their acceptance is limited primarily by their conservative embedding
@@ -1208,10 +1213,10 @@ ratio of every baseline at the lowest arrival rate on Columbus and BCube$(2,4)$.
 The evolution of the margin over the strongest baseline is also informative. On Columbus, the
 absolute gap over VNE-RFD-B narrows from about 41 to 29 percentage points as the load increases,
 while the acceptance ratio of \ecfvne{} remains 1.6 times that of VNE-RFD-B at the highest rate. On
-BCube$(2,4)$, the gap over the ViNE algorithms is essentially constant at about 20 to 22 percentage
+BCube$(2,4)$, the gap over the ViNEYard-LB variants is essentially constant at about 20 to 22 percentage
 points, and the ratio increases from 1.47 to 1.58. On FT6, the margin widens with load: the gap
 over R-ViNE-LB grows from about 4 to 9 percentage points and the ratio from 1.11 to 1.36, because the
-ViNE algorithms lose acceptance quickly while \ecfvne{} degrades gracefully. This indicates that
+ViNEYard-LB variants lose acceptance quickly while \ecfvne{} degrades gracefully. This indicates that
 the advantage of preserving the combinability of residual resources becomes more pronounced as the
 substrate becomes more congested, since under heavier load a fragmented residual state is
 increasingly likely to cause the rejection of otherwise feasible requests. Overall, the results
@@ -1235,7 +1240,7 @@ rates. In particular, its advantage was preserved in the DCNs, where virtual nod
 only on hosts and insufficient attachment-link bandwidth can make residual host CPU unusable. These
 results were obtained with a more restricted search procedure than the RFD-based algorithms.
 \ecfvne{} incurred a higher average embedding cost than the RFD-based algorithms but a lower cost
-than the ViNE-based algorithms.
+than the ViNEYard-LB variants.
 
 The current \ecf{} metric evaluates the local external connectivity of an individual node or link
 and therefore does not capture bottlenecks shared by multiple resources. Future work will
@@ -1265,5 +1270,3 @@ or reward function.
 
 \EOD
 \end{document}
-
-GUN-TAK KIM
